@@ -1,36 +1,74 @@
 import os
-import sqlite3
-from typing import Any, Dict, List, Tuple
+import urllib.parse
+from typing import Any, Dict, List, Tuple, Optional
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+import pymysql
+from pymysql.cursors import DictCursor
 
 
-def get_db_path() -> str:
+def get_db_config() -> Dict[str, Any]:
 	"""
-	Resolve the database path from environment or defaults.
-	Hi my name is shruti. i Have changed my git username and email.
-	Defaults to ./instance/rasayanabio_data.db (created if missing).
+	Parse DATABASE_URL and return MySQL connection config.
+	Format: mysql+pymysql://user:password@host:port/database
 	"""
 	db_url = os.environ.get("DATABASE_URL", "").strip()
-	if db_url and db_url.startswith(("sqlite:///", "file:")):
-		# Support DATABASE_URL=sqlite:///absolute/or/relative/path.db
-		db_path = db_url.replace("sqlite:///", "")
-	else:
-		# Default local sqlite db under ./instance
-		instance_dir = os.path.join(os.getcwd(), "instance")
-		os.makedirs(instance_dir, exist_ok=True)
-		db_path = os.path.join(instance_dir, "rasayanabio_data.db")
-	return db_path
+	if not db_url:
+		raise ValueError("DATABASE_URL environment variable is required")
+	
+	# Parse the URL
+	# mysql+pymysql://root:password%4012345@localhost:3306/ecommerce_admin
+	if db_url.startswith("mysql+pymysql://"):
+		db_url = db_url.replace("mysql+pymysql://", "mysql://")
+	
+	parsed = urllib.parse.urlparse(db_url)
+	
+	password = urllib.parse.unquote(parsed.password or "")
+	
+	config = {
+		"host": parsed.hostname or "localhost",
+		"port": parsed.port or 3306,
+		"user": parsed.username or "root",
+		"password": password,
+		"database": parsed.path.lstrip("/") if parsed.path else "ecommerce_admin",
+		"charset": "utf8mb4",
+		"cursorclass": DictCursor,
+		"autocommit": False,
+		"connect_timeout": 10,
+	}
+	return config
 
 
-def open_db() -> sqlite3.Connection:
+def open_db():
 	"""
-	Open a SQLite connection with row access by column name.
+	Open a MySQL connection.
 	"""
-	conn = sqlite3.connect(get_db_path())
-	conn.row_factory = sqlite3.Row
-	return conn
+	config = get_db_config()
+	try:
+		conn = pymysql.connect(**config)
+		return conn
+	except pymysql.err.OperationalError as e:
+		error_code, error_msg = e.args
+		print(f"\n{'='*60}")
+		print(f"Database Connection Error (Code {error_code}): {error_msg}")
+		print(f"{'='*60}")
+		print(f"Connection Details:")
+		print(f"  Host: {config['host']}")
+		print(f"  Port: {config['port']}")
+		print(f"  User: {config['user']}")
+		print(f"  Database: {config['database']}")
+		print(f"  Password: {'*' * len(config['password']) if config['password'] else '(empty)'}")
+		print(f"{'='*60}")
+		if error_code == 1045:
+			print("\nPossible solutions:")
+			print("1. Verify MySQL is running: Check MySQL service status")
+			print("2. Check password: The password might be incorrect")
+			print("3. Try connecting without database first to test credentials")
+			print("4. Verify user exists: Run 'SELECT user FROM mysql.user;' in MySQL")
+			print("5. Check if database exists: Run 'SHOW DATABASES;' in MySQL")
+		print(f"{'='*60}\n")
+		raise
 
 
 def ensure_schema() -> None:
@@ -39,63 +77,116 @@ def ensure_schema() -> None:
 	This is intentionally generic - extend/alter as needed later.
 	"""
 	conn = open_db()
-	with conn:
+	cursor = conn.cursor()
+	
+	try:
 		# Lookup tables
-		conn.execute(
+		cursor.execute(
 			"""
 			CREATE TABLE IF NOT EXISTS categories (
-				id INTEGER PRIMARY KEY AUTOINCREMENT,
-				name TEXT NOT NULL
+				id INT AUTO_INCREMENT PRIMARY KEY,
+				name VARCHAR(255) NOT NULL
 			)
 			"""
 		)
-		conn.execute(
+		cursor.execute(
 			"""
 			CREATE TABLE IF NOT EXISTS health_benefits (
-				id INTEGER PRIMARY KEY AUTOINCREMENT,
-				name TEXT NOT NULL
+				id INT AUTO_INCREMENT PRIMARY KEY,
+				name VARCHAR(255) NOT NULL
 			)
 			"""
 		)
-		conn.execute(
+		# Note: Products table already exists in the database with different schema
+		# We'll work with the existing schema instead of creating a new one
+		pass
+		
+		# Create orders table
+		cursor.execute(
 			"""
-			CREATE TABLE IF NOT EXISTS products (
-				id INTEGER PRIMARY KEY AUTOINCREMENT,
-				name TEXT NOT NULL,
-				slug TEXT,
-				price REAL NOT NULL DEFAULT 0,
-				sale_price REAL,
-				currency_symbol TEXT DEFAULT '$',
-				category_id INTEGER,
-				health_benefit_id INTEGER,
+			CREATE TABLE IF NOT EXISTS orders (
+				id INT AUTO_INCREMENT PRIMARY KEY,
+				customer_name VARCHAR(255) NOT NULL,
+				customer_email VARCHAR(255) NOT NULL,
+				customer_phone VARCHAR(20),
+				shipping_address TEXT NOT NULL,
+				total_amount DECIMAL(10, 2) NOT NULL,
+				currency_symbol VARCHAR(10) DEFAULT '₹',
+				status VARCHAR(50) DEFAULT 'pending',
 				created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 			)
 			"""
 		)
-		# Seed minimal data if empty
-		if conn.execute("SELECT COUNT(*) c FROM categories").fetchone()["c"] == 0:
-			conn.executemany("INSERT INTO categories(name) VALUES (?)", [(n,) for n in ["Health Supplements", "Cosmetics", "Honey"]])
-		if conn.execute("SELECT COUNT(*) c FROM health_benefits").fetchone()["c"] == 0:
-			conn.executemany(
-				"INSERT INTO health_benefits(name) VALUES (?)",
-				[(n,) for n in ["Immunity Booster", "Sleep Support", "Stress and Anxiety", "Women's Health"]],
+		
+		# Create order_items table
+		cursor.execute(
+			"""
+			CREATE TABLE IF NOT EXISTS order_items (
+				id INT AUTO_INCREMENT PRIMARY KEY,
+				order_id INT NOT NULL,
+				product_id INT NOT NULL,
+				product_name VARCHAR(255) NOT NULL,
+				quantity INT NOT NULL,
+				price DECIMAL(10, 2) NOT NULL,
+				subtotal DECIMAL(10, 2) NOT NULL,
+				FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+				FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 			)
-	conn.close()
+			"""
+		)
+		
+		conn.commit()
+	except Exception as e:
+		conn.rollback()
+		print(f"Error creating schema: {e}")
+	finally:
+		cursor.close()
+		conn.close()
 
 
-def serialize_product(row: sqlite3.Row) -> Dict[str, Any]:
+def serialize_product(row: Dict[str, Any]) -> Dict[str, Any]:
 	"""
 	Serialize DB row to the structure the current frontend expects.
-	- Matches keys used in ProductCard and Products.tsx
+	- Matches keys used in ProductCard and Products.js
+	- Maps actual database columns to frontend expected format
 	"""
-	return {
+	# Map base_price to price for frontend compatibility
+	base_price = float(row.get("base_price") or 0) if row.get("base_price") is not None else None
+	sale_price = float(row.get("sale_price")) if row.get("sale_price") is not None else None
+	
+	product = {
 		"id": row["id"],
-		"name": row["name"],
-		"slug": row["slug"],
-		"converted_price": float(row["price"]) if row["price"] is not None else None,
-		"converted_sale_price": float(row["sale_price"]) if row["sale_price"] is not None else None,
-		"currency_symbol": row["currency_symbol"] or "$",
+		"name": row.get("name", ""),
+		"slug": row.get("slug"),
+		"converted_price": base_price,
+		"converted_sale_price": sale_price,
+		"base_price": base_price,
+		"currency_symbol": row.get("base_currency") or "₹",
+		"description": row.get("description") or row.get("short_description"),
+		"stock_quantity": row.get("stock_quantity", 0),
+		"featured": bool(row.get("featured", False)),
+		"category_id": row.get("category_id"),
+		"created_at": row.get("created_at"),
+		"thumbnail_url": row.get("thumbnail_url"),
+		"image_url": row.get("image_url"),
+		"sku": row.get("sku"),
 	}
+	
+	# Add category information if available
+	if row.get("category_name"):
+		product["category"] = {
+			"id": row.get("category_id"),
+			"name": row.get("category_name")
+		}
+	
+	# Add health benefit information if available (if health_benefits table exists)
+	if row.get("health_benefit_name"):
+		product["health_benefits"] = [{
+			"id": row.get("health_benefit_id"),
+			"name": row.get("health_benefit_name")
+		}]
+	
+	return product
 
 
 def create_app() -> Flask:
@@ -136,32 +227,68 @@ def create_app() -> Flask:
 		conn = open_db()
 		params: List[Any] = []
 		where = []
+		
+		# Only show active products
+		where.append("p.is_active = 1")
+		
 		if search:
-			where.append("name LIKE ?")
+			where.append("p.name LIKE %s")
 			params.append(f"%{search}%")
+		
 		# Optional filters accepted by the frontend
 		category_id = request.args.get("category_id")
 		health_benefit_id = request.args.get("health_benefit_id")
 		if category_id:
-			where.append("(category_id = ?)")
+			where.append("(p.category_id = %s)")
 			params.append(int(category_id))
-		if health_benefit_id:
-			where.append("(health_benefit_id = ?)")
-			params.append(int(health_benefit_id))
+		
+		# Price filters
+		min_price = request.args.get("min_price")
+		max_price = request.args.get("max_price")
+		if min_price:
+			where.append("(p.base_price >= %s)")
+			params.append(float(min_price))
+		if max_price:
+			where.append("(p.base_price <= %s)")
+			params.append(float(max_price))
+		
+		# Note: health_benefit_id filter removed as it doesn't exist in current schema
+		# if health_benefit_id:
+		#     where.append("(p.health_benefit_id = %s)")
+		#     params.append(int(health_benefit_id))
 
 		where_clause = f"WHERE {' AND '.join(where)}" if where else ""
 
-		total = conn.execute(f"SELECT COUNT(*) AS c FROM products {where_clause}", params).fetchone()["c"]
-		rows = conn.execute(
+		cursor = conn.cursor()
+		# Use proper table alias in COUNT query
+		count_query = f"SELECT COUNT(*) AS c FROM products p {where_clause}"
+		cursor.execute(count_query, params)
+		total = cursor.fetchone()["c"]
+		
+		# Map sort_by to use table alias and actual column names
+		sort_column_map = {
+			"created_at": "p.created_at",
+			"name": "p.name",
+			"price": "p.base_price"  # Use base_price instead of price
+		}
+		sort_column = sort_column_map.get(sort_by, "p.created_at")
+		
+		cursor.execute(
 			f"""
-			SELECT id, name, slug, price, sale_price, currency_symbol, created_at
-			FROM products
+			SELECT p.id, p.name, p.slug, p.base_price, p.sale_price, p.base_currency, 
+			       p.description, p.short_description, p.stock_quantity, p.featured, 
+			       p.category_id, p.created_at, p.thumbnail_url, p.image_url, p.sku,
+			       c.name AS category_name
+			FROM products p
+			LEFT JOIN categories c ON p.category_id = c.id
 			{where_clause}
-			ORDER BY {sort_by} {sort_order}
-			LIMIT ? OFFSET ?
+			ORDER BY {sort_column} {sort_order}
+			LIMIT %s OFFSET %s
 			""",
 			[*params, per_page, offset],
-		).fetchall()
+		)
+		rows = cursor.fetchall()
+		cursor.close()
 		conn.close()
 
 		products = [serialize_product(r) for r in rows]
@@ -173,32 +300,135 @@ def create_app() -> Flask:
 	@app.get("/api/public/categories")
 	def public_categories():
 		conn = open_db()
-		rows = conn.execute("SELECT id, name FROM categories ORDER BY name ASC").fetchall()
+		cursor = conn.cursor()
+		cursor.execute("SELECT id, name FROM categories ORDER BY name ASC")
+		rows = cursor.fetchall()
+		cursor.close()
 		conn.close()
 		return jsonify({"categories": [{"id": r["id"], "name": r["name"]} for r in rows]})
 
 	@app.get("/api/public/health-benefits")
 	def public_health_benefits():
 		conn = open_db()
-		rows = conn.execute("SELECT id, name FROM health_benefits ORDER BY name ASC").fetchall()
+		cursor = conn.cursor()
+		cursor.execute("SELECT id, name FROM health_benefits ORDER BY name ASC")
+		rows = cursor.fetchall()
+		cursor.close()
 		conn.close()
 		return jsonify({"health_benefits": [{"id": r["id"], "name": r["name"]} for r in rows]})
 
 	@app.get("/api/public/product/<int:product_id>")
 	def public_product_detail(product_id: int):
 		conn = open_db()
-		row = conn.execute(
+		cursor = conn.cursor()
+		cursor.execute(
 			"""
-			SELECT id, name, slug, price, sale_price, currency_symbol, created_at
-			FROM products
-			WHERE id = ?
+			SELECT p.id, p.name, p.slug, p.base_price, p.sale_price, p.base_currency, 
+			       p.description, p.short_description, p.stock_quantity, p.featured, 
+			       p.category_id, p.created_at, p.thumbnail_url, p.image_url, p.sku,
+			       c.name AS category_name
+			FROM products p
+			LEFT JOIN categories c ON p.category_id = c.id
+			WHERE p.id = %s
 			""",
 			(product_id,),
-		).fetchone()
+		)
+		row = cursor.fetchone()
+		cursor.close()
 		conn.close()
 		if not row:
 			return jsonify({"error": "Not found"}), 404
-		return jsonify(serialize_product(row))
+		return jsonify({"product": serialize_product(row)})
+	
+	@app.post("/api/public/orders")
+	def create_order():
+		"""
+		Create a new order from cart items.
+		Expected JSON body:
+		{
+			"customer_name": "John Doe",
+			"customer_email": "john@example.com",
+			"customer_phone": "+1234567890",
+			"shipping_address": "123 Main St, City, State, ZIP",
+			"items": [
+				{
+					"product_id": 1,
+					"product_name": "Product Name",
+					"quantity": 2,
+					"price": 99.99
+				}
+			]
+		}
+		"""
+		data = request.get_json()
+		
+		if not data:
+			return jsonify({"error": "No data provided"}), 400
+		
+		required_fields = ["customer_name", "customer_email", "shipping_address", "items"]
+		for field in required_fields:
+			if field not in data:
+				return jsonify({"error": f"Missing required field: {field}"}), 400
+		
+		if not data["items"] or len(data["items"]) == 0:
+			return jsonify({"error": "Order must have at least one item"}), 400
+		
+		# Calculate total
+		total_amount = sum(item["price"] * item["quantity"] for item in data["items"])
+		
+		conn = open_db()
+		cursor = conn.cursor()
+		
+		try:
+			# Insert order
+			cursor.execute(
+				"""
+				INSERT INTO orders (customer_name, customer_email, customer_phone, 
+				                    shipping_address, total_amount, currency_symbol, status)
+				VALUES (%s, %s, %s, %s, %s, %s, %s)
+				""",
+				(
+					data["customer_name"],
+					data["customer_email"],
+					data.get("customer_phone", ""),
+					data["shipping_address"],
+					total_amount,
+					data.get("currency_symbol", "₹"),
+					"pending"
+				)
+			)
+			order_id = cursor.lastrowid
+			
+			# Insert order items
+			for item in data["items"]:
+				subtotal = item["price"] * item["quantity"]
+				cursor.execute(
+					"""
+					INSERT INTO order_items (order_id, product_id, product_name, quantity, price, subtotal)
+					VALUES (%s, %s, %s, %s, %s, %s)
+					""",
+					(
+						order_id,
+						item["product_id"],
+						item["product_name"],
+						item["quantity"],
+						item["price"],
+						subtotal
+					)
+				)
+			
+			conn.commit()
+			return jsonify({
+				"success": True,
+				"order_id": order_id,
+				"message": "Order created successfully"
+			}), 201
+		except Exception as e:
+			conn.rollback()
+			return jsonify({"error": str(e)}), 500
+		finally:
+			cursor.close()
+			conn.close()
 
 	return app
 

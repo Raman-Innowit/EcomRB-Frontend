@@ -1,0 +1,185 @@
+import React, { useState } from 'react';
+
+const CloneFooter = () => {
+  const [email, setEmail] = useState('');
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSubscribe = (e) => {
+    e.preventDefault();
+    // Handle newsletter subscription
+    console.log('Subscribing:', email);
+    alert('Thank you for subscribing!');
+    setEmail('');
+  };
+
+  return (
+    <footer className="bg-white">
+      {/* Top Section - Service Highlights Banner */}
+      <div className="bg-green-800 text-white py-8">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Shop Online */}
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center">
+                <svg className="w-6 h-6" fill="none" stroke="#fbbf24" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-semibold mb-1">Shop Online</h3>
+                <p className="text-sm text-green-100">
+                  Enjoy a seamless shopping experience from the comfort of your home. Browse, select, and order with just a few clicks.
+                </p>
+              </div>
+            </div>
+
+            {/* Free Shipping */}
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center">
+                <svg className="w-6 h-6" fill="none" stroke="#fbbf24" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-semibold mb-1">Free Shipping</h3>
+                <p className="text-sm text-green-100">
+                  Get your favorite products delivered to your doorstep without any extra cost. Fast, reliable, and hassle-free shipping.
+                </p>
+              </div>
+            </div>
+
+            {/* Return Policy */}
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center">
+                <div className="w-8 h-8 border-2 border-yellow-400 rounded-full flex items-center justify-center">
+                  <span className="text-xs font-bold text-yellow-400">24</span>
+                </div>
+              </div>
+              <div>
+                <h3 className="font-semibold mb-1">Return Policy</h3>
+                <p className="text-sm text-green-100">
+                  Shop with confidence! Easy returns and exchanges within 7 days if the product doesn't meet your expectations.
+                </p>
+              </div>
+            </div>
+
+            {/* Payment Methods */}
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center">
+                <svg className="w-6 h-6" fill="none" stroke="#fbbf24" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-semibold mb-1">Payment Methods</h3>
+                <p className="text-sm text-green-100">
+                  We accept all major payment methods—Credit/Debit Cards, Net Banking, UPI, and Cash on Delivery.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Middle Section - Newsletter Signup */}
+      <div className="relative py-16 overflow-hidden">
+        {/* Background Image - positioned lower, not fully visible */}
+        <div className="absolute inset-0" style={{ top: '30%', bottom: '-30%' }}>
+          <img
+            src="/assets/footer-background.png"
+            alt=""
+            className="w-full h-full object-cover"
+            style={{ objectPosition: 'center bottom' }}
+          />
+        </div>
+
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="max-w-2xl mx-auto text-center">
+            {/* Brand Logo - Image - Bigger */}
+            <div className="mb-6 flex justify-center">
+              <img
+                src="/assets/rb.png"
+                alt="RasayanaBio"
+                className="h-28 md:h-36 w-auto object-contain"
+              />
+            </div>
+
+            {/* Newsletter Call to Action */}
+            <p className="text-green-800 text-lg font-semibold mb-2">
+              Get Exclusive Access & 10% Off
+            </p>
+            <p className="text-gray-600 mb-8">
+              When you sign up for our newsletter!
+            </p>
+
+            {/* Email Input and Subscribe Button */}
+            <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Email Address"
+                required
+                className="flex-1 px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-600 text-gray-900"
+              />
+              <button
+                type="submit"
+                className="px-8 py-3 bg-green-700 text-white rounded-lg hover:bg-green-800 transition font-semibold uppercase"
+              >
+                SUBSCRIBE
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom Section - Footer Links */}
+      <div className="bg-white py-8">
+        <div className="container mx-auto px-4">
+          {/* Navigation Links */}
+          <div className="flex flex-wrap justify-center gap-4 md:gap-6 text-sm text-green-800 mb-4">
+            <a href="/shipping-policy" className="hover:text-green-600 transition">
+              Shipping Policy
+            </a>
+            <a href="/terms-of-service" className="hover:text-green-600 transition">
+              Terms Of Service
+            </a>
+            <a href="/privacy-policy" className="hover:text-green-600 transition">
+              Privacy Policy
+            </a>
+            <a href="/refund-policy" className="hover:text-green-600 transition">
+              Refund Policy
+            </a>
+            <a href="/disclaimer" className="hover:text-green-600 transition">
+              Disclaimer
+            </a>
+            <a href="/press-release" className="hover:text-green-600 transition">
+              Press Release
+            </a>
+          </div>
+
+          {/* Copyright */}
+          <div className="text-center text-gray-700 text-sm">
+            <p>Copyright© 2025. RasayanaBio. All rights reserved.</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Scroll to Top Button - positioned above WhatsApp button */}
+      <button
+        onClick={scrollToTop}
+        className="fixed bottom-24 right-6 w-10 h-10 bg-gray-300 hover:bg-gray-400 text-gray-700 rounded-full flex items-center justify-center shadow-md transition z-40"
+        aria-label="Scroll to top"
+      >
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+        </svg>
+      </button>
+    </footer>
+  );
+};
+
+export default CloneFooter;
