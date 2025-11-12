@@ -9,6 +9,7 @@ from flask_cors import CORS
 def get_db_path() -> str:
 	"""
 	Resolve the database path from environment or defaults.
+	Hi my name is shruti.
 	Defaults to ./instance/rasayanabio_data.db (created if missing).
 	"""
 	db_url = os.environ.get("DATABASE_URL", "").strip()
