@@ -1,5 +1,5 @@
 import React from 'react';
-import CloneNavbar from '../components/CloneNavbar';
+import Header from '../components/Header';
 import HeroSlider from '../components/HeroSlider';
 import CloneFooter from '../components/CloneFooter';
 import CloneCategories from '../components/CloneCategories';
@@ -14,7 +14,7 @@ const CloneHome = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-50">
-      <CloneNavbar />
+      <Header />
       <HeroSlider />
 
       <CloneCategories />

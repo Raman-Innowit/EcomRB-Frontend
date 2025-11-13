@@ -84,86 +84,89 @@ const CloneFooter = () => {
         </div>
       </div>
 
-      {/* Middle Section - Newsletter Signup */}
-      <div className="relative py-16 overflow-hidden">
-        {/* Background Image - positioned lower, not fully visible */}
-        <div className="absolute inset-0" style={{ top: '30%', bottom: '-30%' }}>
+      {/* Middle Section - Newsletter Signup and Footer Links */}
+      <div className="relative overflow-hidden">
+        {/* Background Image - fully visible and covering full space including bottom section */}
+        <div className="absolute inset-0">
           <img
             src="/assets/footer-background.png"
             alt=""
             className="w-full h-full object-cover"
-            style={{ objectPosition: 'center bottom' }}
+            style={{ objectPosition: 'center center' }}
           />
         </div>
 
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-2xl mx-auto text-center">
-            {/* Brand Logo - Image - Bigger */}
-            <div className="mb-6 flex justify-center">
-              <img
-                src="/assets/rb.png"
-                alt="RasayanaBio"
-                className="h-28 md:h-36 w-auto object-contain"
-              />
+        {/* Newsletter Section */}
+        <div className="relative z-10 py-16">
+          <div className="container mx-auto px-4">
+            <div className="max-w-2xl mx-auto text-center">
+              {/* Brand Logo - Image - Bigger */}
+              <div className="mb-6 flex justify-center">
+                <img
+                  src="/assets/rb.png"
+                  alt="RasayanaBio"
+                  className="h-28 md:h-36 w-auto object-contain"
+                />
+              </div>
+
+              {/* Newsletter Call to Action */}
+              <p className="text-green-800 text-lg font-semibold mb-2">
+                Get Exclusive Access & 10% Off
+              </p>
+              <p className="text-gray-600 mb-8">
+                When you sign up for our newsletter!
+              </p>
+
+              {/* Email Input and Subscribe Button */}
+              <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Email Address"
+                  required
+                  className="flex-1 px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-600 text-gray-900"
+                />
+                <button
+                  type="submit"
+                  className="px-8 py-3 bg-green-700 text-white rounded-lg hover:bg-green-800 transition font-semibold uppercase"
+                >
+                  SUBSCRIBE
+                </button>
+              </form>
             </div>
-
-            {/* Newsletter Call to Action */}
-            <p className="text-green-800 text-lg font-semibold mb-2">
-              Get Exclusive Access & 10% Off
-            </p>
-            <p className="text-gray-600 mb-8">
-              When you sign up for our newsletter!
-            </p>
-
-            {/* Email Input and Subscribe Button */}
-            <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Email Address"
-                required
-                className="flex-1 px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-600 text-gray-900"
-              />
-              <button
-                type="submit"
-                className="px-8 py-3 bg-green-700 text-white rounded-lg hover:bg-green-800 transition font-semibold uppercase"
-              >
-                SUBSCRIBE
-              </button>
-            </form>
           </div>
         </div>
-      </div>
 
-      {/* Bottom Section - Footer Links */}
-      <div className="bg-white py-8">
-        <div className="container mx-auto px-4">
-          {/* Navigation Links */}
-          <div className="flex flex-wrap justify-center gap-4 md:gap-6 text-sm text-green-800 mb-4">
-            <a href="/shipping-policy" className="hover:text-green-600 transition">
-              Shipping Policy
-            </a>
-            <a href="/terms-of-service" className="hover:text-green-600 transition">
-              Terms Of Service
-            </a>
-            <a href="/privacy-policy" className="hover:text-green-600 transition">
-              Privacy Policy
-            </a>
-            <a href="/refund-policy" className="hover:text-green-600 transition">
-              Refund Policy
-            </a>
-            <a href="/disclaimer" className="hover:text-green-600 transition">
-              Disclaimer
-            </a>
-            <a href="/press-release" className="hover:text-green-600 transition">
-              Press Release
-            </a>
-          </div>
+        {/* Bottom Section - Footer Links */}
+        <div className="relative z-10 py-8">
+          <div className="container mx-auto px-4">
+            {/* Navigation Links */}
+            <div className="flex flex-wrap justify-center gap-4 md:gap-6 text-sm mb-4">
+              <a href="/shipping-policy" className="text-black font-bold hover:text-gray-700 transition">
+                Shipping Policy
+              </a>
+              <a href="/terms-of-service" className="text-black font-bold hover:text-gray-700 transition">
+                Terms Of Service
+              </a>
+              <a href="/privacy-policy" className="text-black font-bold hover:text-gray-700 transition">
+                Privacy Policy
+              </a>
+              <a href="/refund-policy" className="text-black font-bold hover:text-gray-700 transition">
+                Refund Policy
+              </a>
+              <a href="/disclaimer" className="text-black font-bold hover:text-gray-700 transition">
+                Disclaimer
+              </a>
+              <a href="/press-release" className="text-black font-bold hover:text-gray-700 transition">
+                Press Release
+              </a>
+            </div>
 
-          {/* Copyright */}
-          <div className="text-center text-gray-700 text-sm">
-            <p>Copyright© 2025. RasayanaBio. All rights reserved.</p>
+            {/* Copyright */}
+            <div className="text-center text-sm">
+              <p className="text-black font-bold">Copyright© 2025. RasayanaBio. All rights reserved.</p>
+            </div>
           </div>
         </div>
       </div>

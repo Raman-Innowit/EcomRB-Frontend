@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import { AnimatePresence, motion, useScroll } from 'framer-motion';
 import { CartProvider } from './context/CartContext';
 import Header from './components/Header';
-import Footer from './components/Footer';
 import Home from './pages/Home';
 import Products from './pages/Products';
 import ProductDetail from './pages/ProductDetail';
@@ -15,6 +14,7 @@ import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import OrderSuccess from './pages/OrderSuccess';
 import CloneHome from './pages/CloneHome';
+import Account from './pages/Account';
 import WhatsAppButton from './components/WhatsAppButton';
 import './index.css';
 
@@ -45,6 +45,8 @@ function AnimatedRoutes() {
         <Route path="/cart" element={<PageTransition><Cart /></PageTransition>} />
         <Route path="/checkout" element={<PageTransition><Checkout /></PageTransition>} />
         <Route path="/order-success" element={<PageTransition><OrderSuccess /></PageTransition>} />
+        <Route path="/login" element={<PageTransition><Account /></PageTransition>} />
+        <Route path="/account" element={<PageTransition><Account /></PageTransition>} />
       </Routes>
     </AnimatePresence>
   );
@@ -67,7 +69,6 @@ function AppContent() {
       <main className="flex-grow">
         <AnimatedRoutes />
       </main>
-      {!isCloneHome && <Footer />}
       <WhatsAppButton />
     </div>
   );

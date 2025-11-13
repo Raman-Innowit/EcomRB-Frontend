@@ -6,35 +6,35 @@ const TESTIMONIALS = [
     role: 'Customer',
     rating: 4,
     text: "I never tried supplements as I never found any quality product that is vegetarian. RasayanaBio Ashwagandha are veg capsules and have better results so far.",
-    image: '/assets/testimonial-1.jpg'
+    image: '/assets/charu.jpg'
   },
   {
     name: 'Saloni Sharma',
     role: 'Customer',
     rating: 4,
     text: "It is a good product for keeping UTI health in control. Additionally, my menstrual cycle became regular after consuming it regularly for a few months.",
-    image: '/assets/testimonial-2.jpg'
+    image: '/assets/saloni.jpeg'
   },
   {
     name: 'Juhi Sharma',
     role: 'Customer',
     rating: 4,
     text: "RasayanaBio Hair Serum's natural blend of herbal extracts effectively reduced my hair fall and promoted new growth. The formula nourishes both hair and scalp, leaving my hair noticeably stronger and healthier.",
-    image: '/assets/testimonial-3.jpg'
+    image: '/assets/juhi.jpeg'
   },
   {
     name: 'Akansha Gupta',
     role: 'Customer',
     rating: 5,
     text: "This product is the best I have used so far. It has really helped me in boosting my metabolism as I see a noticeable difference in my energy. Will buy again!",
-    image: '/assets/testimonial-4.jpg'
+    image: '/assets/akansha.jpeg'
   },
   {
     name: 'Aniket Sharma',
     role: 'Customer',
     rating: 5,
     text: "I have been using this product for almost 2 weeks and it is clearly visible that my energy levels have changed significantly.",
-    image: '/assets/testimonial-5.jpg'
+    image: '/assets/aniket.jpeg'
   },
 ];
 

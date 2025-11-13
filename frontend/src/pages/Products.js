@@ -3,6 +3,7 @@ import { useSearchParams, Link } from 'react-router-dom';
 import { getPublicProducts, getPublicCategories } from '../services/api';
 import ProductCard from '../components/ProductCard';
 import { ProductCardSkeleton } from '../components/Skeleton';
+import CloneFooter from '../components/CloneFooter';
 
 const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -125,28 +126,55 @@ const Products = () => {
 
   return (
     <div>
-      {/* Hero Section */}
-      <div className="bg-gradient-to-r from-green-700 to-green-800 text-white py-16">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-5xl font-bold mb-4">
-            RasayanaBio
-          </h1>
-        </div>
-      </div>
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold">
-            RasayanaBio
-          </h2>
-          <span className="text-sm">TM</span>
-          <div className="mt-4">
-            <p className="text-lg mb-2">Shop</p>
-            <nav className="text-sm">
-              <Link to="/" className="text-gray-600 hover:text-green-700">HOME</Link>
-              <span className="mx-2">›</span>
-              <span className="text-gray-800">PRODUCT</span>
-            </nav>
+      {/* Hero Section / Banner */}
+      <div 
+        className="relative py-12 px-4"
+        style={{
+          backgroundColor: '#FAFAF5',
+          backgroundImage: 'url(/assets/products-banner-bg.jpg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
+        {/* Watermark */}
+        <div 
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 400 200\'%3E%3Ctext x=\'10\' y=\'150\' font-family=\'Brush Script MT, Lucida Handwriting, cursive\' font-size=\'120\' fill=\'%23E8E8E0\' opacity=\'0.3\'%3ERasayana%3C/text%3E%3C/svg%3E")',
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'left bottom',
+            backgroundSize: 'auto 60%'
+          }}
+        />
+        
+        <div className="container mx-auto relative z-10">
+          {/* Logo */}
+          <div className="mb-6">
+            <img 
+              src="/assets/products-logo.png" 
+              alt="RasayanaBio" 
+              className="h-16 w-auto"
+            />
           </div>
+          
+          {/* Shop Heading */}
+          <h1 
+            className="text-5xl md:text-6xl font-bold mb-4"
+            style={{
+              color: '#1F2937',
+              fontFamily: 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+            }}
+          >
+            Shop
+          </h1>
+          
+          {/* Breadcrumbs */}
+          <nav className="text-sm" style={{ color: '#9CA3AF' }}>
+            <Link to="/" className="hover:text-green-700 transition-colors">HOME</Link>
+            <span className="mx-2">›</span>
+            <span style={{ color: '#9CA3AF' }}>PRODUCT</span>
+          </nav>
         </div>
       </div>
 
@@ -190,177 +218,66 @@ const Products = () => {
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar */}
-          <aside className="lg:w-1/4">
-            {/* Search Box */}
-            <div className="mb-6">
-              <form onSubmit={handleSearchSubmit} className="relative">
-                <input
-                  type="text"
-                  value={searchValue}
-                  onChange={(e) => setSearchValue(e.target.value)}
-                  placeholder="Search products..."
-                  className="w-full pl-4 pr-12 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-600 transition-colors"
-                  style={{ fontSize: '14px' }}
-                />
-                <button
-                  type="submit"
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-green-600"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </button>
-              </form>
-            </div>
-
-            {/* Categories */}
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold mb-3">Categories</h3>
-              <div className="space-y-1">
-                <button
-                  onClick={() => handleCategoryClick(null)}
-                  className={`hover:text-green-700 transition-colors flex items-center justify-between w-full py-2.5 text-left ${
-                    !categoryId ? 'text-green-700 font-semibold' : ''
-                  }`}
-                  style={{ color: !categoryId ? '#16a34a' : '#333', fontSize: '15px' }}
-                >
-                  <span>All Products</span>
-                </button>
-                {categories.map((cat) => (
-                  <button
-                    key={cat.id}
-                    onClick={() => handleCategoryClick(cat.id)}
-                    className={`hover:text-green-700 transition-colors flex items-center justify-between w-full py-2.5 text-left ${
-                      categoryId === cat.id.toString() ? 'text-green-700 font-semibold' : ''
-                    }`}
-                    style={{ color: categoryId === cat.id.toString() ? '#16a34a' : '#333', fontSize: '15px' }}
-                  >
-                    <span>{cat.name}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Price Filter */}
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold mb-3">Price</h3>
-              
-              {/* Min Price Slider */}
-              <div className="mb-4">
-                <label className="block text-sm font-semibold mb-2">
-                  Min: ₹{priceRange.min}
-                </label>
-                <input
-                  type="range"
-                  min="0"
-                  max="2000"
-                  value={priceRange.min}
-                  onChange={(e) => {
-                    const newMin = parseInt(e.target.value);
-                    setPriceRange(prev => ({
-                      ...prev,
-                      min: Math.min(newMin, prev.max - 50)
-                    }));
-                  }}
-                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-                />
-              </div>
-
-              {/* Max Price Slider */}
-              <div className="mb-4">
-                <label className="block text-sm font-semibold mb-2">
-                  Max: ₹{priceRange.max}
-                </label>
-                <input
-                  type="range"
-                  min="0"
-                  max="2000"
-                  value={priceRange.max}
-                  onChange={(e) => {
-                    const newMax = parseInt(e.target.value);
-                    setPriceRange(prev => ({
-                      ...prev,
-                      max: Math.max(newMax, prev.min + 50)
-                    }));
-                  }}
-                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-                />
-              </div>
-
-              <div className="mb-4">
-                <div className="text-sm text-gray-600 mb-2">
-                  ₹{priceRange.min} — ₹{priceRange.max}
-                </div>
-                <button
-                  onClick={handlePriceFilter}
-                  className="w-full bg-green-700 text-white py-2 rounded hover:bg-green-800 transition"
-                >
-                  FILTER
-                </button>
-              </div>
-            </div>
-          </aside>
-
-          {/* Products Area */}
-          <main className="lg:w-3/4">
+          {/* Products Area - Left Side */}
+          <main className="lg:w-3/4 order-2 lg:order-1">
             {/* Controls */}
-            <div className="mb-4 flex justify-between items-center">
+            <div className="mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
               {loading ? (
-                <div>Loading products…</div>
+                <div className="text-gray-600">Loading products…</div>
               ) : (
-                <div>Showing {startResult}–{endResult} of {totalResults} results</div>
+                <div className="text-gray-700" style={{ fontSize: '14px' }}>
+                  Showing {startResult}–{endResult} of {totalResults} results
+                </div>
               )}
-
-              <select
-                value={`${sortBy}-${sortOrder}`}
-                onChange={(e) => {
-                  const [sb, so] = e.target.value.split('-');
-                  const currentParams = Object.fromEntries(searchParams);
-                  setSearchParams({ ...currentParams, sort_by: sb, sort_order: so });
-                }}
-                className="border border-gray-300 rounded px-4 py-2 bg-white hover:bg-gray-400 focus:bg-gray-400 focus:outline-none transition-colors"
-                style={{ fontSize: '14px', color: '#333', minWidth: '200px' }}
-              >
-                <option value="created_at-desc">Default sorting</option>
-                <option value="created_at-asc">Sort by oldest</option>
-                <option value="name-desc">Name → Z</option>
-                <option value="name-asc">Name → A</option>
-                <option value="price-desc">Price → High</option>
-                <option value="price-asc">Price → Low</option>
-              </select>
-            </div>
-
-            {/* View Mode Toggle */}
-            <div className="flex border border-gray-300 rounded overflow-hidden">
-              <button
-                onClick={() => setViewMode('grid')}
-                className={`p-2 transition-colors ${
-                  viewMode === 'grid' 
-                    ? 'text-white' 
-                    : 'bg-white text-gray-600 hover:bg-gray-50'
-                }`}
-                style={{ backgroundColor: viewMode === 'grid' ? '#000' : '#fff' }}
-                title="Grid View"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                </svg>
-              </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={`p-2 border-l border-gray-300 transition-colors ${
-                  viewMode === 'list' 
-                    ? 'text-white' 
-                    : 'bg-white text-gray-600 hover:bg-gray-50'
-                }`}
-                style={{ backgroundColor: viewMode === 'list' ? '#000' : '#fff' }}
-                title="List View"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              </button>
+              <div className="flex items-center gap-4">
+                <select
+                  value={`${sortBy}-${sortOrder}`}
+                  onChange={(e) => {
+                    const [newSortBy, newSortOrder] = e.target.value.split('-');
+                    const currentParams = Object.fromEntries(searchParams);
+                    setSearchParams({ ...currentParams, sort_by: newSortBy, sort_order: newSortOrder });
+                    setCurrentPage(1);
+                  }}
+                  className="px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-600"
+                  style={{ fontSize: '14px' }}
+                >
+                  <option value="created_at-desc">Default sorting</option>
+                  <option value="name-asc">Sort by name: A to Z</option>
+                  <option value="name-desc">Sort by name: Z to A</option>
+                  <option value="base_price-asc">Sort by price: low to high</option>
+                  <option value="base_price-desc">Sort by price: high to low</option>
+                </select>
+                <div className="flex gap-1 border border-gray-300 rounded overflow-hidden">
+                  <button
+                    onClick={() => setViewMode('grid')}
+                    className={`p-2 transition-colors ${
+                      viewMode === 'grid' 
+                        ? 'text-white' 
+                        : 'bg-white text-gray-600 hover:bg-gray-50'
+                    }`}
+                    style={{ backgroundColor: viewMode === 'grid' ? '#1e6e3c' : '#fff' }}
+                    title="Grid View"
+                  >
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={() => setViewMode('list')}
+                    className={`p-2 border-l border-gray-300 transition-colors ${
+                      viewMode === 'list' 
+                        ? 'text-white' 
+                        : 'bg-white text-gray-600 hover:bg-gray-50'
+                    }`}
+                    style={{ backgroundColor: viewMode === 'list' ? '#1e6e3c' : '#fff' }}
+                    title="List View"
+                  >
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
             </div>
                       
                       
@@ -394,25 +311,180 @@ const Products = () => {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="flex justify-center items-center gap-4 mt-8">
-                <button
-                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                  disabled={currentPage === 1}
-                  className="px-4 py-2 border rounded disabled:opacity-50"
-                >
-                  Previous
-                </button>
-                <span>Page {currentPage} of {totalPages}</span>
-                <button
-                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                  disabled={currentPage === totalPages}
-                  className="px-4 py-2 border rounded disabled:opacity-50"
-                >
-                  Next
-                </button>
+              <div className="flex justify-center items-center gap-2 mt-8">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`w-10 h-10 rounded font-semibold transition ${
+                      currentPage === page
+                        ? 'text-white'
+                        : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
+                    }`}
+                    style={{ 
+                      backgroundColor: currentPage === page ? '#1e6e3c' : '#fff',
+                      fontSize: '14px'
+                    }}
+                  >
+                    {page}
+                  </button>
+                ))}
+                {currentPage < totalPages && (
+                  <button
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                    className="w-10 h-10 rounded bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 transition flex items-center justify-center"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                )}
               </div>
             )}
           </main>
+
+          {/* Sidebar - Right Side */}
+          <aside className="lg:w-1/4 order-1 lg:order-2">
+            {/* Search Box */}
+            <div className="mb-6">
+              <form onSubmit={handleSearchSubmit} className="relative">
+                <input
+                  type="text"
+                  value={searchValue}
+                  onChange={(e) => setSearchValue(e.target.value)}
+                  placeholder="Search products..."
+                  className="w-full pl-4 pr-12 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-600 transition-colors"
+                  style={{ fontSize: '14px' }}
+                />
+                <button
+                  type="submit"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                  style={{ color: '#1e6e3c' }}
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </button>
+              </form>
+            </div>
+
+            {/* Categories */}
+            <div className="mb-6">
+              <h3 className="text-xl font-bold mb-4 flex items-center" style={{ color: '#000' }}>
+                <span className="w-1 h-8 mr-3" style={{ backgroundColor: '#1e6e3c' }}></span>
+                Categories
+              </h3>
+              <div className="space-y-0">
+                <button
+                  onClick={() => handleCategoryClick(null)}
+                  className={`transition-colors flex items-center w-full py-2.5 text-left ${
+                    !categoryId ? 'text-green-700 font-semibold' : 'text-gray-700'
+                  }`}
+                  style={{ fontSize: '15px' }}
+                >
+                  <span className="mr-2" style={{ color: '#666', fontSize: '8px' }}>•</span>
+                  <span>All Products ({products.length})</span>
+                </button>
+                {categories.map((cat) => (
+                  <button
+                    key={cat.id}
+                    onClick={() => handleCategoryClick(cat.id)}
+                    className={`transition-colors flex items-center w-full py-2.5 text-left ${
+                      categoryId === cat.id.toString() ? 'text-green-700 font-semibold' : 'text-gray-700'
+                    }`}
+                    style={{ fontSize: '15px' }}
+                  >
+                    <span className="mr-2" style={{ color: '#666', fontSize: '8px' }}>•</span>
+                    <span>{cat.name} ({cat.product_count || 0})</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Price Filter */}
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold mb-3 flex items-center">
+                <span className="w-1 h-6 mr-3" style={{ backgroundColor: '#1e6e3c' }}></span>
+                Price
+              </h3>
+              
+              {/* Dual Range Slider */}
+              <div className="mb-4">
+                <div className="relative h-2 bg-gray-200 rounded-lg">
+                  <input
+                    type="range"
+                    min="0"
+                    max="2000"
+                    value={priceRange.min}
+                    onChange={(e) => {
+                      const newMin = parseInt(e.target.value);
+                      setPriceRange(prev => ({
+                        ...prev,
+                        min: Math.min(newMin, prev.max - 50)
+                      }));
+                    }}
+                    className="absolute w-full h-2 bg-transparent appearance-none cursor-pointer"
+                    style={{ zIndex: 1 }}
+                  />
+                  <input
+                    type="range"
+                    min="0"
+                    max="2000"
+                    value={priceRange.max}
+                    onChange={(e) => {
+                      const newMax = parseInt(e.target.value);
+                      setPriceRange(prev => ({
+                        ...prev,
+                        max: Math.max(newMax, prev.min + 50)
+                      }));
+                    }}
+                    className="absolute w-full h-2 bg-transparent appearance-none cursor-pointer"
+                    style={{ zIndex: 2 }}
+                  />
+                </div>
+                <div className="text-sm text-gray-600 mt-2 mb-3" style={{ fontSize: '13px' }}>
+                  PRICE: ₹{priceRange.min} — ₹{priceRange.max}
+                </div>
+                <button
+                  onClick={handlePriceFilter}
+                  className="w-full text-white py-2.5 rounded font-semibold transition"
+                  style={{ backgroundColor: '#1e6e3c', fontSize: '14px' }}
+                >
+                  FILTER
+                </button>
+              </div>
+            </div>
+
+            {/* Availability Filter */}
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold mb-3 flex items-center">
+                <span className="w-1 h-6 mr-3" style={{ backgroundColor: '#1e6e3c' }}></span>
+                Availability
+              </h3>
+              <div>
+                <h4 className="text-sm font-semibold mb-2 text-gray-700">Stock status</h4>
+                <div className="space-y-2">
+                  <label className="flex items-center cursor-pointer">
+                    <input type="checkbox" className="mr-2 w-4 h-4" style={{ accentColor: '#1e6e3c' }} />
+                    <span className="text-sm text-gray-700">In Stock</span>
+                  </label>
+                  <label className="flex items-center cursor-pointer">
+                    <input type="checkbox" className="mr-2 w-4 h-4" style={{ accentColor: '#1e6e3c' }} />
+                    <span className="text-sm text-gray-700">Out of Stock</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {/* Products Section */}
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold mb-3 flex items-center">
+                <span className="w-1 h-6 mr-3" style={{ backgroundColor: '#1e6e3c' }}></span>
+                Products
+              </h3>
+              {/* Featured products can be added here */}
+            </div>
+          </aside>
         </div>
       </div>
 
@@ -450,6 +522,9 @@ const Products = () => {
           border-radius: 4px;
         }
       `}</style>
+
+      {/* Footer */}
+      <CloneFooter />
     </div>
   );
 };

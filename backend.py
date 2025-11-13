@@ -301,11 +301,17 @@ def create_app() -> Flask:
 	def public_categories():
 		conn = open_db()
 		cursor = conn.cursor()
-		cursor.execute("SELECT id, name FROM categories ORDER BY name ASC")
+		cursor.execute("""
+			SELECT c.id, c.name, COUNT(p.id) AS product_count
+			FROM categories c
+			LEFT JOIN products p ON c.id = p.category_id AND p.is_active = 1
+			GROUP BY c.id, c.name
+			ORDER BY c.name ASC
+		""")
 		rows = cursor.fetchall()
 		cursor.close()
 		conn.close()
-		return jsonify({"categories": [{"id": r["id"], "name": r["name"]} for r in rows]})
+		return jsonify({"categories": [{"id": r["id"], "name": r["name"], "product_count": r["product_count"] or 0} for r in rows]})
 
 	@app.get("/api/public/health-benefits")
 	def public_health_benefits():
