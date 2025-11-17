@@ -1,9 +1,28 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const getDefaultApiBaseUrl = () => {
+  if (process.env.REACT_APP_API_URL) {
+    return process.env.REACT_APP_API_URL;
+  }
+
+  if (typeof window !== 'undefined') {
+    const { protocol, hostname, port } = window.location;
+
+    // When running the CRA dev server on port 3000 we usually run the API on 5000.
+    if (port === '3000') {
+      return `${protocol}//${hostname}:5000/api`;
+    }
+
+    const normalizedPort = port ? `:${port}` : '';
+    return `${protocol}//${hostname}${normalizedPort}/api`;
+  }
+
+  // Fallback for non-browser environments (tests, SSR, etc.)
+  return 'http://localhost:5000/api';
+};
 
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: getDefaultApiBaseUrl(),
   headers: {
     'Content-Type': 'application/json',
   },

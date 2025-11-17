@@ -2,6 +2,8 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion, useScroll } from 'framer-motion';
 import { CartProvider } from './context/CartContext';
+import { WishlistProvider } from './context/WishlistContext';
+import { AuthProvider } from './context/AuthContext';
 import Header from './components/Header';
 import Home from './pages/Home';
 import Products from './pages/Products';
@@ -15,6 +17,9 @@ import Checkout from './pages/Checkout';
 import OrderSuccess from './pages/OrderSuccess';
 import CloneHome from './pages/CloneHome';
 import Account from './pages/Account';
+import Wishlist from './pages/Wishlist';
+import Login from './pages/Login';
+import Register from './pages/Register';
 import WhatsAppButton from './components/WhatsAppButton';
 import './index.css';
 
@@ -43,9 +48,11 @@ function AnimatedRoutes() {
         <Route path="/about" element={<PageTransition><About /></PageTransition>} />
         <Route path="/contact" element={<PageTransition><Contact /></PageTransition>} />
         <Route path="/cart" element={<PageTransition><Cart /></PageTransition>} />
+        <Route path="/wishlist" element={<PageTransition><Wishlist /></PageTransition>} />
         <Route path="/checkout" element={<PageTransition><Checkout /></PageTransition>} />
         <Route path="/order-success" element={<PageTransition><OrderSuccess /></PageTransition>} />
-        <Route path="/login" element={<PageTransition><Account /></PageTransition>} />
+        <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
+        <Route path="/register" element={<PageTransition><Register /></PageTransition>} />
         <Route path="/account" element={<PageTransition><Account /></PageTransition>} />
       </Routes>
     </AnimatePresence>
@@ -77,9 +84,13 @@ function AppContent() {
 function App() {
   return (
     <CartProvider>
-      <Router>
-        <AppContent />
-      </Router>
+      <WishlistProvider>
+        <AuthProvider>
+          <Router>
+            <AppContent />
+          </Router>
+        </AuthProvider>
+      </WishlistProvider>
     </CartProvider>
   );
 }

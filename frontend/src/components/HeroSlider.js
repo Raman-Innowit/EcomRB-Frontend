@@ -7,54 +7,54 @@ const defaultSlides = [
     id: 1,
     title: (
       <>
-        <div className="mb-4">
-          <img src="/assets/lotus-logo.png" alt="Lotus" className="w-16 h-16 object-contain" />
+        <div className="mb-3">
+          <img src="/assets/lotus-logo.png" alt="Lotus" className="w-20 h-20 md:w-24 md:h-24 object-contain" />
         </div>
-        <div className="text-green-800 font-serif leading-tight">
-          <div className="text-2xl md:text-3xl mb-2">सर्वे भवन्तु सुखिनः,</div>
-          <div className="text-3xl md:text-4xl lg:text-5xl font-extrabold">सर्वे सन्तु निरामयाः</div>
+        <div className="text-green-800 leading-tight space-y-3">
+          <div className="text-2xl md:text-3xl lg:text-4xl font-bold">सर्वे भवन्तु सुखिनः,</div>
+          <div className="text-5xl md:text-6xl lg:text-7xl font-extrabold">सर्वे सन्तु निरामयाः</div>
         </div>
       </>
     ),
-    subtitle: <span className="text-gray-700">May all be happy, may all be free from disease</span>,
+    subtitle: <span className="text-gray-800 text-xl md:text-2xl mt-2 block">May all be happy, may all be free from disease</span>,
     ctaText: 'VIEW MORE',
     ctaLink: '/products',
     bgFrom: 'from-gray-50',
     bgTo: 'to-white',
     rightImage: '/assets/hero-capsule.png',
-    rightImageClass: 'max-h-[520px] md:max-h-[560px] lg:max-h-[600px] drop-shadow',
+    rightImageClass: 'max-h-[850px] md:max-h-[900px] lg:max-h-[970px] -translate-y-12 md:-translate-y-14 lg:-translate-y-16 drop-shadow',
   },
   {
     id: 2,
     title: (
       <>
-        <div className="mb-3">
-          <img src="/assets/lotus-logo.png" alt="Lotus" className="w-14 h-14 object-contain" />
+        <div className="mb-2">
+          <img src="/assets/lotus-logo.png" alt="Lotus" className="w-20 h-20 md:w-24 md:h-24 object-contain" />
         </div>
-        <div>
-          <div className="font-serif text-3xl md:text-4xl lg:text-5xl italic mb-2 text-gray-800" style={{ fontFamily: 'Georgia, serif' }}>The greatest</div>
-          <div className="font-extrabold text-4xl md:text-5xl lg:text-6xl mb-2" style={{ color: '#166534' }}>Wealth Is</div>
-          <div className="text-2xl md:text-3xl lg:text-4xl font-bold text-black">Health</div>
+        <div className="space-y-1">
+          <div className="text-4xl md:text-5xl lg:text-6xl italic text-black" style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic' }}>The greatest</div>
+          <div className="font-extrabold text-6xl md:text-7xl lg:text-8xl" style={{ color: '#15803d' }}>Wealth Is</div>
+          <div className="text-5xl md:text-6xl lg:text-7xl font-bold text-black">Health</div>
         </div>
       </>
     ),
     bgFrom: 'from-gray-100',
     bgTo: 'to-gray-50',
     rightImage: '/assets/hero-leaf-head.png',
-    rightImageClass: 'max-h-[520px] md:max-h-[560px] lg:max-h-[620px] translate-y-4',
+    rightImageClass: 'max-h-[850px] md:max-h-[900px] lg:max-h-[970px] translate-y-4',
   },
   {
     id: 3,
     title: (
       <>
-        <div className="mb-3">
-          <img src="/assets/lotus-logo.png" alt="Lotus" className="w-14 h-14 object-contain" />
+        <div className="mb-2">
+          <img src="/assets/lotus-logo.png" alt="Lotus" className="w-20 h-20 md:w-24 md:h-24 object-contain" />
         </div>
-        <span className="font-serif italic text-lg md:text-xl text-green-700 block mb-1" style={{ fontFamily: 'Georgia, serif' }}>From</span>
-        <span className="font-extrabold text-2xl md:text-3xl lg:text-4xl text-green-800 block leading-tight">Youthful Promise to Ageless Beauty</span>
-        <div className="text-sm md:text-base text-gray-700 mt-3 leading-relaxed">
+        <span className="text-2xl md:text-3xl text-black block mb-1" style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic' }}>From</span>
+        <span className="font-extrabold text-4xl md:text-5xl lg:text-6xl block leading-tight mb-3" style={{ color: '#15803d' }}>Youthful Promise to Ageless Beauty</span>
+        <div className="text-lg md:text-xl text-black mt-2 leading-relaxed">
           High Potency Collagen No side effects<br />
-          <span className="font-semibold">Radiant Results</span>
+          <span className="font-bold">Radiant Results</span>
         </div>
       </>
     ),
@@ -63,7 +63,7 @@ const defaultSlides = [
     bgFrom: 'from-gray-50',
     bgTo: 'to-gray-100',
     rightImage: '/assets/hero-beauty.png',
-    rightImageClass: 'max-h-[520px] md:max-h-[560px] lg:max-h-[600px] translate-y-2',
+    rightImageClass: 'max-h-[850px] md:max-h-[900px] lg:max-h-[970px] -translate-y-20 md:-translate-y-24 lg:-translate-y-28 translate-x-[50px] lg:translate-x-[500px] xl:translate-x-[600px] 2xl:translate-x-[700px]',
   },
 ];
 
@@ -89,15 +89,15 @@ const HeroSlider = ({ slides = defaultSlides, auto = true, intervalMs = 5000 }) 
   const active = useMemo(() => slides[index], [slides, index]);
 
   return (
-    <section className="relative overflow-hidden">
-      <div className={`relative min-h-[520px] md:min-h-[600px] bg-gradient-to-br ${active.bgFrom} ${active.bgTo} transition-all duration-700`}>
+    <section className="relative overflow-hidden" style={{ height: 'calc(100vh - 80px)' }}>
+      <div className={`relative h-full bg-gradient-to-br ${active.bgFrom} ${active.bgTo} transition-all duration-700`}>
         {/* Subtle botanical background image */}
         <img src="/assets/hero-bg.png" alt="pattern" className="absolute inset-0 w-full h-full object-cover opacity-20 pointer-events-none" />
 
-        <div className="container mx-auto px-4 h-full">
-          <div className="relative flex items-center min-h-[520px] md:min-h-[600px] py-12">
+        <div className="w-full px-2 sm:px-4 lg:px-0 h-full">
+          <div className="max-w-[1600px] w-full mx-auto relative flex flex-col lg:flex-row items-center justify-between h-full py-0 gap-4 lg:gap-6 lg:translate-x-16 xl:translate-x-24 2xl:translate-x-32">
             {/* Left Side - Content */}
-            <div className="relative z-20 w-full md:w-1/2 pr-4 md:pr-8">
+            <div className="relative z-20 w-full lg:w-[40%] text-left space-y-2 lg:translate-x-8 xl:translate-x-12">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={active.id}
@@ -107,9 +107,9 @@ const HeroSlider = ({ slides = defaultSlides, auto = true, intervalMs = 5000 }) 
                   transition={transition}
                   className="text-left"
                 >
-                  <div className="mb-4 md:mb-6">{active.title}</div>
+                  <div className="mb-1 md:mb-2">{active.title}</div>
                   {active.subtitle && (
-                    <div className="mb-6 md:mb-8 text-gray-700">{active.subtitle}</div>
+                    <div className="mb-2 md:mb-3">{active.subtitle}</div>
                   )}
                   {active.ctaText && active.ctaLink && (
                     <Link
@@ -124,13 +124,13 @@ const HeroSlider = ({ slides = defaultSlides, auto = true, intervalMs = 5000 }) 
             </div>
 
             {/* Right Side - Image */}
-            <div className="absolute right-0 top-0 w-full md:w-1/2 h-full flex items-center justify-center pointer-events-none z-10">
+            <div className="relative w-full lg:w-[60%] h-full flex items-center justify-end pointer-events-none z-10 overflow-visible pr-0">
               <AnimatePresence mode="wait">
                 <motion.img
                   key={`img-${active.id}`}
                   src={active.rightImage}
                   alt="slide visual"
-                  className={`object-contain ${active.rightImageClass || ''}`}
+                  className={`object-contain w-[100vw] sm:w-[90vw] lg:w-[1050px] xl:w-[1250px] 2xl:w-[1500px] max-w-none translate-x-28 lg:translate-x-64 xl:translate-x-80 2xl:translate-x-[400px] ${active.rightImageClass || ''}`}
                   initial={{ opacity: 0, scale: 0.9, x: 50 }}
                   animate={{ opacity: 1, scale: 1, x: 0 }}
                   exit={{ opacity: 0, scale: 0.9, x: -50 }}
@@ -140,7 +140,7 @@ const HeroSlider = ({ slides = defaultSlides, auto = true, intervalMs = 5000 }) 
             </div>
 
             {/* Navigation Arrows */}
-            <div className="absolute inset-y-0 left-0 right-0 flex items-center justify-between pointer-events-none z-10" style={{ left: '-60px', right: '-60px' }}>
+            <div className="absolute inset-y-0 left-0 right-0 flex items-center justify-between pointer-events-none z-10 px-2 sm:px-6 lg:px-10">
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}

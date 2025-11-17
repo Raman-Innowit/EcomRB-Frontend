@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const Account = () => {
+  const navigate = useNavigate();
+  const { user, logout, isAuthenticated } = useAuth();
   const [activeSection, setActiveSection] = useState('dashboard');
-  const [firstName, setFirstName] = useState('Dr Monisha');
-  const [lastName, setLastName] = useState('Singhal');
+  const [firstName, setFirstName] = useState(user?.name?.split(' ')[0] || 'Guest');
+  const [lastName, setLastName] = useState(user?.name?.split(' ')[1] || '');
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -15,6 +18,17 @@ const Account = () => {
     // Handle account update
     console.log('Updating account:', { firstName, lastName });
   };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login');
+    }
+  }, [isAuthenticated, navigate]);
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -69,7 +83,7 @@ const Account = () => {
             {/* Navigation Links */}
             <div className="bg-white rounded-lg p-4">
               <nav className="space-y-2">
-                {[
+                {[ 
                   { label: 'ORDERS', section: 'orders' },
                   { label: 'DOWNLOADS', section: 'downloads' },
                   { label: 'ADDRESSES', section: 'addresses' },
@@ -80,7 +94,13 @@ const Account = () => {
                 ].map((item) => (
                   <button
                     key={item.section}
-                    onClick={() => setActiveSection(item.section)}
+                    onClick={() => {
+                      if (item.section === 'logout') {
+                        handleLogout();
+                      } else {
+                        setActiveSection(item.section);
+                      }
+                    }}
                     className={`w-full text-left py-2 px-2 uppercase text-sm font-medium transition ${
                       activeSection === item.section
                         ? 'text-green-800 bg-green-50'
@@ -142,12 +162,12 @@ const Account = () => {
               {/* Welcome Message */}
               <div className="mb-6">
                 <p className="text-gray-700">
-                  Hello <strong>Dr Monisha Singhal</strong>{' '}
+                  Hello <strong>{user?.name || 'Valued Customer'}</strong>{' '}
                   <span className="text-gray-500">
                     (not Dr Monisha Singhal?{' '}
-                    <Link to="/" className="text-green-800 hover:underline">
+                    <button type="button" onClick={handleLogout} className="text-green-800 hover:underline">
                       Log out
-                    </Link>
+                    </button>
                     )
                   </span>
                 </p>

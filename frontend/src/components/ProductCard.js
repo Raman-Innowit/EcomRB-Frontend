@@ -1,11 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { useWishlist } from '../context/WishlistContext';
 
 const ProductCard = ({ product }) => {
   const { addToCart } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
   const displayPrice = product.converted_sale_price || product.converted_price;
   const originalPrice = product.converted_sale_price ? product.converted_price : null;
+  const inWishlist = isInWishlist(product.id);
 
   const handleAddToCart = (e) => {
     e.preventDefault();
@@ -33,14 +36,21 @@ const ProductCard = ({ product }) => {
 
       {/* Wishlist Heart Icon - Top Right */}
       <button 
-        className="absolute top-2 right-2 z-10 w-9 h-9 bg-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:bg-gray-50"
+        className="absolute top-2 right-2 z-10 w-9 h-9 bg-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-md hover:bg-gray-50"
+        aria-label={inWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          // Add wishlist functionality here
+          toggleWishlist(product);
         }}
       >
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: '#333' }}>
+        <svg
+          className="w-5 h-5 transition-colors"
+          fill={inWishlist ? '#dc2626' : 'none'}
+          stroke={inWishlist ? '#dc2626' : 'currentColor'}
+          viewBox="0 0 24 24"
+          style={{ color: inWishlist ? '#dc2626' : '#333' }}
+        >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
         </svg>
       </button>
