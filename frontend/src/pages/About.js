@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import CloneFooter from '../components/CloneFooter';
 
 const About = () => {
@@ -61,9 +62,11 @@ const About = () => {
               </h1>
 
               {/* Breadcrumbs */}
-              <p className="text-gray-600 text-sm relative z-10">
-                HOME &gt; ABOUT US
-              </p>
+              <div className="text-gray-600 text-sm relative z-10">
+                <Link to="/" className="hover:text-green-700 hover:underline transition-colors">HOME</Link>
+                <span className="mx-2">&gt;</span>
+                <span className="text-gray-800">ABOUT US</span>
+              </div>
 
               {/* Pill illustrations */}
               <div className="absolute top-40 right-10 opacity-10">

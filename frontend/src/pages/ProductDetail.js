@@ -13,6 +13,9 @@ const ProductDetail = () => {
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
   const [activeInfoTab, setActiveInfoTab] = useState('keyIngredients');
+  const [isZoomed, setIsZoomed] = useState(false);
+  const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
+  const [showZoomModal, setShowZoomModal] = useState(false);
   const { addToCart } = useCart();
 
   const packOptions = [
@@ -180,6 +183,41 @@ const ProductDetail = () => {
     fetchProduct();
   }, [id]);
 
+  const galleryImages = useMemo(() => {
+    // Default product images
+    const defaultImages = [
+      '/assets/female-vitality.jpg',
+      '/assets/product-thumb-1.png',
+      '/assets/product-thumb-2.png',
+      '/assets/product-thumb-3.png',
+      '/assets/product-thumb-4.png',
+    ];
+    // If product has its own image, use it as the first image, otherwise use the default
+    const mainImage = product?.image_url || product?.thumbnail_url;
+    if (mainImage) {
+      return [mainImage, ...defaultImages.slice(1)];
+    }
+    return defaultImages;
+  }, [product?.image_url, product?.thumbnail_url]);
+
+  // Keyboard navigation for zoom modal
+  useEffect(() => {
+    if (!showZoomModal) return;
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setShowZoomModal(false);
+      } else if (e.key === 'ArrowLeft') {
+        setSelectedImage((prev) => Math.max(0, prev - 1));
+      } else if (e.key === 'ArrowRight') {
+        setSelectedImage((prev) => Math.min(galleryImages.length - 1, prev + 1));
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showZoomModal, galleryImages.length]);
+
   const handleAddToCart = () => {
     if (!product) return;
     const pack = packOptions[selectedPack];
@@ -197,21 +235,6 @@ const ProductDetail = () => {
     handleAddToCart();
     navigate('/cart');
   };
-
-  const galleryImages = useMemo(() => {
-    const placeholders = [
-      'https://images.unsplash.com/photo-1582719478185-2c9924dc3a29?auto=format&fit=crop&w=900&q=60',
-      'https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&w=900&q=60',
-      'https://images.unsplash.com/photo-1517677208171-0bc6725a3e60?auto=format&fit=crop&w=900&q=60',
-      'https://images.unsplash.com/photo-1497534446932-c925b458314e?auto=format&fit=crop&w=900&q=60',
-      'https://images.unsplash.com/photo-1427806208781-b36531cb09ef?auto=format&fit=crop&w=900&q=60',
-    ];
-    const mainImage = product?.image_url || product?.thumbnail_url;
-    if (mainImage) {
-      return [mainImage, ...placeholders.slice(1)];
-    }
-    return placeholders;
-  }, [product?.image_url, product?.thumbnail_url]);
 
   if (loading) {
     return (
@@ -254,28 +277,62 @@ const ProductDetail = () => {
       <div className="max-w-6xl mx-auto px-4 lg:px-8 py-10">
         <div className="grid lg:grid-cols-[520px,1fr] gap-10">
           {/* Media */}
-          <div className="flex flex-col md:flex-row lg:flex-col gap-4">
-            <div className="flex md:flex-col gap-3 order-2 md:order-1">
+          <div className="flex flex-row gap-4 lg:sticky lg:top-10 lg:self-start">
+            {/* Thumbnails - Left Column */}
+            <div className="flex flex-col gap-3 flex-shrink-0">
               {galleryImages.map((img, idx) => (
                 <button
                   key={`${img}-${idx}`}
                   onClick={() => setSelectedImage(idx)}
-                  className={`w-20 h-20 rounded-2xl border-2 overflow-hidden transition-all ${
+                  className={`w-20 h-20 rounded-2xl border-2 overflow-hidden transition-all group ${
                     selectedImage === idx ? 'border-green-700 shadow-xl' : 'border-gray-200 hover:border-green-300'
                   }`}
                 >
-                  <img src={img} alt={`View ${idx + 1}`} className="w-full h-full object-cover" />
+                  <img 
+                    src={img} 
+                    alt={`View ${idx + 1}`} 
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-125" 
+                  />
                 </button>
               ))}
             </div>
-            <div className="flex-1 order-1 md:order-2">
+            {/* Main Image - Right Side */}
+            <div className="flex-1">
               {originalPrice && displayPrice < originalPrice && (
                 <span className="inline-block bg-orange-500 text-white px-4 py-1 rounded-full text-sm font-semibold mb-4">
                   SALE
                 </span>
               )}
-              <div className="aspect-[3/4] rounded-[32px] border border-gray-200 shadow-sm overflow-hidden bg-white">
-                <img src={galleryImages[selectedImage]} alt={product.name} className="w-full h-full object-cover" />
+              <div 
+                className="aspect-[3/4] rounded-[32px] border border-gray-200 shadow-sm overflow-hidden bg-white flex items-center justify-center p-4 relative cursor-zoom-in group"
+                onMouseEnter={() => setIsZoomed(true)}
+                onMouseLeave={() => setIsZoomed(false)}
+                onMouseMove={(e) => {
+                  if (isZoomed) {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const x = ((e.clientX - rect.left) / rect.width) * 100;
+                    const y = ((e.clientY - rect.top) / rect.height) * 100;
+                    setZoomPosition({ x, y });
+                  }
+                }}
+                onClick={() => setShowZoomModal(true)}
+              >
+                <img 
+                  src={galleryImages[selectedImage]} 
+                  alt={product.name} 
+                  className={`w-full h-full object-contain transition-transform duration-300 ${
+                    isZoomed ? 'scale-150' : 'scale-100'
+                  }`}
+                  style={{
+                    transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`
+                  }}
+                />
+                {/* Zoom indicator */}
+                <div className="absolute top-4 right-4 bg-white/80 backdrop-blur-sm rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                  </svg>
+                </div>
               </div>
             </div>
           </div>
@@ -399,16 +456,12 @@ const ProductDetail = () => {
           </div>
             </div>
 
-            <div className="flex flex-wrap gap-3 text-sm text-gray-600 mb-8">
-              {paymentIcons.map((method) => (
-                <div
-                  key={method.name}
-                  className="flex items-center gap-2 px-4 py-2 rounded-full border border-gray-200 bg-white shadow-sm"
-                >
-                  <span>{method.icon}</span>
-                  {method.name}
-                </div>
-              ))}
+            <div className="mb-8">
+              <img 
+                src="/assets/payment.png" 
+                alt="Payment Methods" 
+                className="max-w-xs h-auto object-contain"
+              />
             </div>
           </div>
         </div>
@@ -416,18 +469,53 @@ const ProductDetail = () => {
         <div className="grid md:grid-cols-2 gap-6 mt-12">
           <div className="bg-white border border-green-100 rounded-3xl p-6 shadow-sm">
             <h3 className="text-xl font-semibold text-gray-900 mb-4">Product Feature</h3>
-            <ul className="space-y-2 text-gray-600 text-sm">
-              <li>➤ Promotes vitality &amp; physical strength</li>
-              <li>➤ Boosts mood, focus, and overall well-being</li>
-              <li>➤ Stress resilience support &amp; stamina</li>
-              <li>➤ Natural testosterone support</li>
-              <li>➤ Helps in healthy weight management</li>
+            <ul className="space-y-2 text-gray-600 text-sm list-none">
+              <li className="flex items-start gap-3">
+                <img 
+                  src="/assets/pajamas_nature.png" 
+                  alt="" 
+                  className="w-5 h-5 flex-shrink-0 mt-0.5"
+                />
+                <span>Promotes vitality &amp; physical strength</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <img 
+                  src="/assets/pajamas_nature.png" 
+                  alt="" 
+                  className="w-5 h-5 flex-shrink-0 mt-0.5"
+                />
+                <span>Boosts mood, focus, and overall well-being</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <img 
+                  src="/assets/pajamas_nature.png" 
+                  alt="" 
+                  className="w-5 h-5 flex-shrink-0 mt-0.5"
+                />
+                <span>Stress resilience support &amp; stamina</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <img 
+                  src="/assets/pajamas_nature.png" 
+                  alt="" 
+                  className="w-5 h-5 flex-shrink-0 mt-0.5"
+                />
+                <span>Natural testosterone support</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <img 
+                  src="/assets/pajamas_nature.png" 
+                  alt="" 
+                  className="w-5 h-5 flex-shrink-0 mt-0.5"
+                />
+                <span>Helps in healthy weight management</span>
+              </li>
             </ul>
           </div>
           <div className="bg-white border border-green-100 rounded-3xl p-6 shadow-sm">
             <h3 className="text-xl font-semibold text-gray-900 mb-4">Product Description</h3>
             <p className="text-gray-600 leading-relaxed text-sm">
-              Nutra’s Bounty Male Vitality is crafted to support overall well-being. This potent formula combines ancient
+              Nutra's Bounty Male Vitality is crafted to support overall well-being. This potent formula combines ancient
               wisdom with modern science to deliver a comprehensive approach to strength, stamina, and confidence.
             </p>
           </div>
@@ -574,6 +662,48 @@ const ProductDetail = () => {
           ))}
         </div>
       </div>
+
+      {/* Zoom Modal */}
+      {showZoomModal && (
+        <div 
+          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+          onClick={() => setShowZoomModal(false)}
+        >
+          <button
+            onClick={() => setShowZoomModal(false)}
+            className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors z-10"
+          >
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          <div className="relative max-w-7xl max-h-[90vh] w-full h-full flex items-center justify-center">
+            <img 
+              src={galleryImages[selectedImage]} 
+              alt={product.name} 
+              className="max-w-full max-h-full object-contain"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+          {/* Thumbnail navigation in modal */}
+          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex gap-3">
+            {galleryImages.map((img, idx) => (
+              <button
+                key={`modal-thumb-${idx}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedImage(idx);
+                }}
+                className={`w-16 h-16 rounded-lg border-2 overflow-hidden transition-all ${
+                  selectedImage === idx ? 'border-white shadow-lg scale-110' : 'border-white/50 hover:border-white/80'
+                }`}
+              >
+                <img src={img} alt={`View ${idx + 1}`} className="w-full h-full object-cover" />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <div className="mt-16">

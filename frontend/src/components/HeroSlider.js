@@ -140,29 +140,33 @@ const HeroSlider = ({ slides = defaultSlides, auto = true, intervalMs = 5000 }) 
             </div>
 
             {/* Navigation Arrows */}
-            <div className="absolute inset-y-0 left-0 right-0 flex items-center justify-between pointer-events-none z-10 px-2 sm:px-6 lg:px-10">
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={prev}
-                className="pointer-events-auto w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/90 hover:bg-white backdrop-blur-sm flex items-center justify-center shadow-lg border border-gray-200 text-green-700"
-                aria-label="Previous slide"
-              >
-                <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={next}
-                className="pointer-events-auto w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/90 hover:bg-white backdrop-blur-sm flex items-center justify-center shadow-lg border border-gray-200 text-green-700"
-                aria-label="Next slide"
-              >
-                <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </motion.button>
+            <div className="absolute inset-y-0 left-0 right-0 flex items-center pointer-events-none z-10">
+              <div className="absolute -left-4 md:-left-6 lg:-left-8">
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={prev}
+                  className="pointer-events-auto w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/90 hover:bg-white backdrop-blur-sm flex items-center justify-center shadow-lg border border-gray-200 text-green-700"
+                  aria-label="Previous slide"
+                >
+                  <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </motion.button>
+              </div>
+              <div className="absolute right-4 md:right-8 lg:right-12">
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={next}
+                  className="pointer-events-auto w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/90 hover:bg-white backdrop-blur-sm flex items-center justify-center shadow-lg border border-gray-200 text-green-700"
+                  aria-label="Next slide"
+                >
+                  <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </motion.button>
+              </div>
             </div>
           </div>
 
