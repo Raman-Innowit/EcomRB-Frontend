@@ -9,8 +9,8 @@ const ARTICLES = [
     date: 'September 1, 2025',
     categories: ['Health', 'Healthy', 'Lifestyle'],
     snippet: 'Introduction to Magnesium and Its Importance for Wellness In the ever-expanding landscape of preventive healthcare, magnesium has become a cornerstone for maintaining optimal health and wellness...',
-    image: '/assets/magnesium-article.jpg',
-    slug: 'comprehensive-benefits-of-magnesium'
+    image: '/assets/magnesium-importance.jpg',
+    slug: 'comprehensive-benefits-of-magnesium-for-overall-wellness'
   },
   {
     id: 2,
@@ -108,7 +108,7 @@ const LatestNews = () => {
 
                 {/* Read More Button */}
                 <Link
-                  to={`/blog/${article.slug}`}
+                  to={`/${article.slug}`}
                   className="inline-block text-green-700 font-semibold hover:text-green-800 transition-colors"
                 >
                   Read More →

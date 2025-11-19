@@ -105,6 +105,7 @@ const ProductDetail = () => {
     },
   ];
 
+  // eslint-disable-next-line no-unused-vars
   const paymentIcons = [
     { name: 'Visa', icon: '💳' },
     { name: 'Mastercard', icon: '💳' },

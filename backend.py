@@ -6,16 +6,52 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 import pymysql
 from pymysql.cursors import DictCursor
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 
 def get_db_config() -> Dict[str, Any]:
 	"""
-	Parse DATABASE_URL and return MySQL connection config.
-	Format: mysql+pymysql://user:password@host:port/database
+	Get MySQL connection config from environment variables.
+	Supports both individual DB_* variables and DATABASE_URL for backward compatibility.
 	"""
+	# Try individual environment variables first
+	db_hostname = os.environ.get("DB_HOSTNAME", "").strip()
+	db_port = os.environ.get("DB_PORT", "").strip()
+	db_user = os.environ.get("DB_USER", "").strip()
+	db_password = os.environ.get("DB_PASSWORD", "").strip()
+	db_name = os.environ.get("DB_NAME", "").strip()
+	
+	# If individual variables are provided, use them
+	if db_hostname and db_user and db_name:
+		try:
+			port = int(db_port) if db_port else 3306
+		except ValueError:
+			port = 3306
+		
+		config = {
+			"host": db_hostname,
+			"port": port,
+			"user": db_user,
+			"password": db_password,
+			"database": db_name,
+			"charset": "utf8mb4",
+			"cursorclass": DictCursor,
+			"autocommit": False,
+			"connect_timeout": 10,
+		}
+		return config
+	
+	# Fallback to DATABASE_URL for backward compatibility
 	db_url = os.environ.get("DATABASE_URL", "").strip()
 	if not db_url:
-		raise ValueError("DATABASE_URL environment variable is required")
+		raise ValueError(
+			"Database configuration required. Please set either:\n"
+			"  - Individual variables: DB_HOSTNAME, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME\n"
+			"  - Or DATABASE_URL: mysql+pymysql://user:password@host:port/database"
+		)
 	
 	# Parse the URL
 	# mysql+pymysql://root:password%4012345@localhost:3306/ecommerce_admin
@@ -252,16 +288,18 @@ def create_app() -> Flask:
 			where.append("(p.base_price <= %s)")
 			params.append(float(max_price))
 		
-		# Note: health_benefit_id filter removed as it doesn't exist in current schema
-		# if health_benefit_id:
-		#     where.append("(p.health_benefit_id = %s)")
-		#     params.append(int(health_benefit_id))
+		# Health benefit filter using junction table
+		health_benefit_join = ""
+		if health_benefit_id:
+			health_benefit_join = "INNER JOIN product_health_benefits phb ON p.id = phb.product_id"
+			where.append("(phb.health_benefit_id = %s)")
+			params.append(int(health_benefit_id))
 
 		where_clause = f"WHERE {' AND '.join(where)}" if where else ""
 
 		cursor = conn.cursor()
 		# Use proper table alias in COUNT query
-		count_query = f"SELECT COUNT(*) AS c FROM products p {where_clause}"
+		count_query = f"SELECT COUNT(DISTINCT p.id) AS c FROM products p {health_benefit_join} {where_clause}"
 		cursor.execute(count_query, params)
 		total = cursor.fetchone()["c"]
 		
@@ -275,12 +313,13 @@ def create_app() -> Flask:
 		
 		cursor.execute(
 			f"""
-			SELECT p.id, p.name, p.slug, p.base_price, p.sale_price, p.base_currency, 
+			SELECT DISTINCT p.id, p.name, p.slug, p.base_price, p.sale_price, p.base_currency, 
 			       p.description, p.short_description, p.stock_quantity, p.featured, 
 			       p.category_id, p.created_at, p.thumbnail_url, p.image_url, p.sku,
 			       c.name AS category_name
 			FROM products p
 			LEFT JOIN categories c ON p.category_id = c.id
+			{health_benefit_join}
 			{where_clause}
 			ORDER BY {sort_column} {sort_order}
 			LIMIT %s OFFSET %s

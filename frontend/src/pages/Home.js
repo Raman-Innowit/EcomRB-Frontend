@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getPublicProducts, getPublicHealthBenefits } from '../services/api';
 import ProductCard from '../components/ProductCard';
-import { motion } from 'framer-motion';
 import HeroSlider from '../components/HeroSlider';
 
 const Home = () => {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import { AnimatePresence, motion } from 'framer-motion';
+import CloneFooter from '../components/CloneFooter';
 
 const Cart = () => {
   const {
@@ -117,6 +117,9 @@ const Cart = () => {
           </div>
         </div>
       </div>
+      
+      {/* Footer */}
+      <CloneFooter />
     </div>
   );
 };

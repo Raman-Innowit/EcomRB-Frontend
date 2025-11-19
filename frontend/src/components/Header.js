@@ -1,3 +1,5 @@
+// Health Benefits Dropdown - Fixed Order v3 - FORCE REBUILD
+// Order: Beauty & Radiance, Digestive Health, Healthy Ageing, Immunity Booster, Men's Health, Sleep Support, Sports & Fitness, Stress & Anxiety Relief, Women's Health
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
@@ -6,10 +8,41 @@ import { useAuth } from '../context/AuthContext';
 import { getPublicCategories, getPublicHealthBenefits } from '../services/api';
 import { motion, AnimatePresence } from 'framer-motion';
 
+// HARDCODED ORDER - Match Original Website
+const FIXED_HEALTH_BENEFITS_ORDER = [
+  'Immunity Booster',        // Position 1
+  'Sleep Support',           // Position 2
+  'Stress and Anxiety',      // Position 3 (renamed from Stress & Anxiety Relief)
+  'Men\'s Health',           // Position 4
+  'Women\'s Health',         // Position 5
+  'Beauty & Radiance',       // Position 6
+  'Healthy Ageing',          // Position 7
+  'Sports & Fitness'         // Position 8
+];
+
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [categories, setCategories] = useState([]);
-  const [healthBenefits, setHealthBenefits] = useState([]);
+  // Map health benefit names to their specific routes
+  const getHealthBenefitRoute = (name) => {
+    const routeMap = {
+      'Beauty & Radiance': '/beauty-radiance',
+      'Healthy Ageing': '/healthy-ageing',
+      'Immunity Booster': '/immunity-booster',
+      'Men\'s Health': '/mens-health',
+      'Sleep Support': '/sleep-support',
+      'Sports & Fitness': '/sports-fitness',
+      'Stress and Anxiety': '/stress-anxiety-relief', // Route stays same, display name changed
+      'Stress & Anxiety Relief': '/stress-anxiety-relief', // Keep for backward compatibility
+      'Women\'s Health': '/womens-health'
+    };
+    return routeMap[name] || '#';
+  };
+
+  // Initialize with hardcoded list immediately
+  const [healthBenefits, setHealthBenefits] = useState(() => 
+    FIXED_HEALTH_BENEFITS_ORDER.map(name => ({ id: null, name, route: getHealthBenefitRoute(name) }))
+  );
   const [showCategoryMenu, setShowCategoryMenu] = useState(false);
   const [showHealthMenu, setShowHealthMenu] = useState(false);
   const [showHealthSubMenu, setShowHealthSubMenu] = useState(false);
@@ -21,7 +54,41 @@ const Header = () => {
 
   useEffect(() => {
     getPublicCategories().then((data) => setCategories(data.categories || []));
-    getPublicHealthBenefits().then((data) => setHealthBenefits(data.health_benefits || []));
+    
+    // Set the hardcoded list immediately with correct order (already set in useState initializer)
+    // This ensures the correct order is shown even before API call completes
+    
+    // Fetch from API to get IDs, but maintain the hardcoded order
+    getPublicHealthBenefits()
+      .then((data) => {
+        const dbHealthBenefits = data.health_benefits || [];
+        // Create a mapping of name to ID from database
+        const nameToIdMap = {};
+        dbHealthBenefits.forEach((hb) => {
+          nameToIdMap[hb.name] = hb.id;
+        });
+        
+        // Build the list in the EXACT hardcoded order, adding IDs where available
+        const orderedList = FIXED_HEALTH_BENEFITS_ORDER.map((name) => ({
+          id: nameToIdMap[name] || null,
+          name: name,
+          route: getHealthBenefitRoute(name)
+        }));
+        
+        console.log('✅ Health Benefits Dropdown (Fixed Order):', orderedList);
+        console.log('✅ Order verified:', orderedList.map(hb => hb.name).join(' → '));
+        setHealthBenefits(orderedList);
+      })
+      .catch((err) => {
+        console.error('Error loading health benefits:', err);
+        // Keep the hardcoded list even if API fails - already set in initial state
+        const fallbackList = FIXED_HEALTH_BENEFITS_ORDER.map((name) => ({
+          id: null,
+          name: name,
+          route: getHealthBenefitRoute(name)
+        }));
+        setHealthBenefits(fallbackList);
+      });
   }, []);
 
   // Filter to show only specific categories in the header dropdown
@@ -206,11 +273,13 @@ const Header = () => {
                   >
                     {healthBenefits.map((hb) => (
                       <Link
-                        key={hb.id}
-                        to={`/health-benefit/${hb.id}`}
-                        className="block px-4 py-2 hover:bg-green-50 text-gray-700"
+                        key={hb.name}
+                        to={hb.route || '#'}
+                        className="flex items-center px-4 py-2.5 hover:bg-green-50 text-gray-700 transition-colors"
+                        style={{ fontSize: '15px' }}
                       >
-                        {hb.name}
+                        <span className="w-1 h-5 mr-3 flex-shrink-0" style={{ backgroundColor: '#1e6e3c' }}></span>
+                        <span>{hb.name}</span>
                       </Link>
                     ))}
                   </motion.div>
@@ -411,8 +480,8 @@ const Header = () => {
               </Link>
               {healthBenefits.slice(0, 5).map((hb) => (
                 <Link
-                  key={hb.id}
-                  to={`/health-benefit/${hb.id}`}
+                  key={hb.name}
+                  to={hb.route || '#'}
                   className="block py-2 hover:text-green-700 pl-4"
                   onClick={() => setIsMenuOpen(false)}
                 >

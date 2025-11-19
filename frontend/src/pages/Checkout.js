@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { createOrder } from '../services/api';
+import CloneFooter from '../components/CloneFooter';
 
 const Checkout = () => {
   const { cartItems, getTotalPrice, clearCart } = useCart();
@@ -202,6 +203,9 @@ const Checkout = () => {
           </div>
         </div>
       </div>
+      
+      {/* Footer */}
+      <CloneFooter />
     </div>
   );
 };

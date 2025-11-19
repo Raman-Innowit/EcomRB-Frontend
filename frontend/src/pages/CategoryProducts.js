@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { getPublicProducts } from '../services/api';
 import ProductCard from '../components/ProductCard';
 import { ProductCardSkeleton } from '../components/Skeleton';
-import { motion } from 'framer-motion';
+import CloneFooter from '../components/CloneFooter';
 
 const CategoryProducts = () => {
   const { id } = useParams();
@@ -76,6 +76,9 @@ const CategoryProducts = () => {
           )}
         </>
       )}
+      
+      {/* Footer */}
+      <CloneFooter />
     </div>
   );
 };

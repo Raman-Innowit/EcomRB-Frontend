@@ -10,6 +10,16 @@ import Products from './pages/Products';
 import ProductDetail from './pages/ProductDetail';
 import CategoryProducts from './pages/CategoryProducts';
 import HealthBenefitProducts from './pages/HealthBenefitProducts';
+import BeautyRadiance from './pages/BeautyRadiance';
+import DigestiveHealth from './pages/DigestiveHealth';
+import HealthyAgeing from './pages/HealthyAgeing';
+import ImmunityBooster from './pages/ImmunityBooster';
+import MensHealth from './pages/MensHealth';
+import SleepSupport from './pages/SleepSupport';
+import SportsFitness from './pages/SportsFitness';
+import StressAnxietyRelief from './pages/StressAnxietyRelief';
+import WomensHealth from './pages/WomensHealth';
+import MagnesiumArticle from './pages/MagnesiumArticle';
 import About from './pages/About';
 import Contact from './pages/Contact';
 import Cart from './pages/Cart';
@@ -45,6 +55,17 @@ function AnimatedRoutes() {
         <Route path="/product/:id" element={<PageTransition><ProductDetail /></PageTransition>} />
         <Route path="/category/:id" element={<PageTransition><CategoryProducts /></PageTransition>} />
         <Route path="/health-benefit/:id" element={<PageTransition><HealthBenefitProducts /></PageTransition>} />
+        {/* Individual Health Benefit Pages */}
+        <Route path="/beauty-radiance" element={<PageTransition><BeautyRadiance /></PageTransition>} />
+        <Route path="/digestive-health" element={<PageTransition><DigestiveHealth /></PageTransition>} />
+        <Route path="/healthy-ageing" element={<PageTransition><HealthyAgeing /></PageTransition>} />
+        <Route path="/immunity-booster" element={<PageTransition><ImmunityBooster /></PageTransition>} />
+        <Route path="/mens-health" element={<PageTransition><MensHealth /></PageTransition>} />
+        <Route path="/sleep-support" element={<PageTransition><SleepSupport /></PageTransition>} />
+        <Route path="/sports-fitness" element={<PageTransition><SportsFitness /></PageTransition>} />
+        <Route path="/stress-anxiety-relief" element={<PageTransition><StressAnxietyRelief /></PageTransition>} />
+        <Route path="/womens-health" element={<PageTransition><WomensHealth /></PageTransition>} />
+        <Route path="/comprehensive-benefits-of-magnesium-for-overall-wellness" element={<PageTransition><MagnesiumArticle /></PageTransition>} />
         <Route path="/about" element={<PageTransition><About /></PageTransition>} />
         <Route path="/contact" element={<PageTransition><Contact /></PageTransition>} />
         <Route path="/cart" element={<PageTransition><Cart /></PageTransition>} />

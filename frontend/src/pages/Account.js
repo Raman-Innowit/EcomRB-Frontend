@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import CloneFooter from '../components/CloneFooter';
 
 const Account = () => {
   const navigate = useNavigate();
@@ -195,6 +196,9 @@ const Account = () => {
           </div>
         </div>
       </div>
+      
+      {/* Footer */}
+      <CloneFooter />
     </div>
   );
 };

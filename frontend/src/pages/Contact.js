@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import CloneFooter from '../components/CloneFooter';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -29,9 +30,9 @@ const Contact = () => {
         <div>
           <h2 className="text-2xl font-semibold mb-4">Follow Us</h2>
           <div className="space-y-2">
-            <a href="#" className="block">Facebook</a>
-            <a href="#" className="block">Instagram</a>
-            <a href="#" className="block">Twitter</a>
+            <button type="button" className="block text-left hover:text-green-700 transition-colors">Facebook</button>
+            <button type="button" className="block text-left hover:text-green-700 transition-colors">Instagram</button>
+            <button type="button" className="block text-left hover:text-green-700 transition-colors">Twitter</button>
           </div>
         </div>
       </div>
@@ -73,6 +74,9 @@ const Contact = () => {
           </button>
         </div>
       </form>
+      
+      {/* Footer */}
+      <CloneFooter />
     </div>
   );
 };

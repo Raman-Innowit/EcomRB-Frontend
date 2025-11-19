@@ -1,38 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { getPublicProducts, getPublicCategories } from '../services/api';
 import ProductCard from '../components/ProductCard';
 import { ProductCardSkeleton } from '../components/Skeleton';
 import CloneFooter from '../components/CloneFooter';
 
-const HealthBenefitProducts = () => {
-  const { id } = useParams();
+const HealthyAgeing = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [searchValue, setSearchValue] = useState('');
-  const [healthBenefitName, setHealthBenefitName] = useState('');
-
-  // Get health benefit name from URL or use default
-  useEffect(() => {
-    // Map health benefit IDs to names
-    const healthBenefitMap = {
-      1: 'Immunity Booster',
-      2: 'Sleep Support',
-      3: 'Stress & Anxiety Relief',
-      4: "Men's Health",
-      5: "Women's Health",
-      6: 'Beauty & Radiance',
-      7: 'Healthy Ageing',
-      8: 'Sports & Fitness',
-      17: 'Digestive Health'
-    };
-    setHealthBenefitName(healthBenefitMap[id] || 'Health Benefit');
-  }, [id]);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -48,14 +28,10 @@ const HealthBenefitProducts = () => {
 
   useEffect(() => {
     const fetchProducts = async () => {
-      if (!id) return;
-      
       setLoading(true);
-      setError(null);
-      
       try {
         const params = {
-          health_benefit_id: parseInt(id),
+          health_benefit_id: 7, // Healthy Ageing ID
           page,
           per_page: 20,
         };
@@ -70,19 +46,13 @@ const HealthBenefitProducts = () => {
         setTotalPages(data.pages || 1);
       } catch (err) {
         console.error('Error fetching products:', err);
-        setError('Failed to load products. Please try again later.');
       } finally {
         setLoading(false);
       }
     };
     
     fetchProducts();
-  }, [id, page, searchParams]);
-
-  // Reset to page 1 when health benefit changes
-  useEffect(() => {
-    setPage(1);
-  }, [id]);
+  }, [page, searchParams]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -107,20 +77,6 @@ const HealthBenefitProducts = () => {
     setPage(1);
   };
 
-  if (error) {
-    return (
-      <div className="container mx-auto px-4 py-16 text-center">
-        <p className="text-red-600 mb-4">{error}</p>
-        <button
-          onClick={() => window.location.reload()}
-          className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
-        >
-          Retry
-        </button>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Banner - Image Background Only */}
@@ -129,32 +85,34 @@ const HealthBenefitProducts = () => {
         <div 
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: 'url(/assets/ayurhms-1.jpg)',
+            backgroundImage: 'url(/assets/healthy-ageing-bg.png)',
           }}
         />
-        
         {/* Content Container */}
         <div className="relative z-10 h-full container mx-auto px-4 md:px-8 flex items-center">
           <div className="w-full flex flex-col md:flex-row items-start md:items-center justify-between">
             {/* Left Side - Logo and Text */}
             <div className="flex-1 mb-4 md:mb-0">
-              {/* Logo */}
+              {/* Logo with TM */}
               <div className="mb-4">
-                <img 
-                  src="/assets/nutras-bounty-logo.png" 
-                  alt="Nutra's Bounty" 
-                  className="h-12 md:h-16 w-auto object-contain"
-                />
+                <div className="flex items-center">
+                  <img 
+                    src="/assets/nutras-bounty-logo.png" 
+                    alt="Nutra's Bounty" 
+                    className="h-12 md:h-16 w-auto object-contain"
+                  />
+                  <span className="text-xs ml-1" style={{ color: '#1e6e3c', marginTop: '-8px' }}>TM</span>
+                </div>
               </div>
               
               {/* Main Title */}
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-2" style={{ color: '#374151' }}>
-                {healthBenefitName}
+                Healthy Ageing
               </h1>
               
               {/* Breadcrumb */}
               <div className="text-sm md:text-base mb-2" style={{ color: '#000' }}>
-                <Link to="/" className="hover:text-green-600 transition-colors" style={{ color: '#000' }}>HOME</Link> &gt; {healthBenefitName.toUpperCase()}
+                <Link to="/" className="hover:text-green-600 transition-colors" style={{ color: '#000' }}>HOME</Link> &gt; HEALTHY AGEING
               </div>
             </div>
           </div>
@@ -164,33 +122,42 @@ const HealthBenefitProducts = () => {
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Main Products Area */}
+          {/* Main Content Area - Left Side */}
           <main className="lg:w-3/4 order-2 lg:order-1">
+            {/* Descriptive Text */}
+            <div className="mb-6">
+              <p className="text-gray-700 leading-relaxed mb-4" style={{ fontSize: '15px', lineHeight: '1.7' }}>
+                Nutra's Bounty healthy ageing products will give you the nutritional support needed for you to maintain your health as you get older. Our healthy ageing supplements are based on strong scientific evidence, innovations, and quality components to enable you to age confidently and to feel your best every day.
+              </p>
+              <p className="text-gray-700 leading-relaxed" style={{ fontSize: '15px', lineHeight: '1.7' }}>
+                We provide credible products that are supported by science and are made in a high-standard way with high quality ingredients.
+              </p>
+            </div>
+
+            {/* Products Grid */}
             {loading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 mt-8">
                 {Array.from({ length: 9 }).map((_, i) => (
                   <ProductCardSkeleton key={i} />
                 ))}
               </div>
             ) : products.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-gray-600 text-lg">No products found for {healthBenefitName}</p>
+              <div className="text-center py-12 mt-8">
+                <p className="text-gray-600 text-lg">No products found for Healthy Ageing</p>
               </div>
             ) : (
               <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 mt-8">
                   {products.map((product) => (
                     <ProductCard key={product.id} product={product} />
                   ))}
                 </div>
-
                 {totalPages > 1 && (
                   <div className="flex justify-center items-center gap-4 mt-8">
                     <button
                       onClick={() => setPage((p) => Math.max(1, p - 1))}
                       disabled={page === 1}
                       className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
-                      aria-label="Previous page"
                     >
                       Previous
                     </button>
@@ -199,7 +166,6 @@ const HealthBenefitProducts = () => {
                       onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                       disabled={page === totalPages}
                       className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
-                      aria-label="Next page"
                     >
                       Next
                     </button>
@@ -225,9 +191,9 @@ const HealthBenefitProducts = () => {
                 <button
                   type="submit"
                   className="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 rounded hover:bg-gray-100 transition"
-                  style={{ color: '#1e6e3c' }}
+                  style={{ color: '#1e6e3c', backgroundColor: '#1e6e3c' }}
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
                 </button>
@@ -237,7 +203,7 @@ const HealthBenefitProducts = () => {
             {/* Categories */}
             <div className="mb-6">
               <h3 className="text-lg font-bold mb-4 flex items-center uppercase tracking-wide" style={{ color: '#000' }}>
-                <span className="w-1 h-6 mr-3" style={{ backgroundColor: '#1e6e3c' }}></span>
+                <span className="mr-2" style={{ color: '#1e6e3c' }}>|</span>
                 Categories
               </h3>
               <div className="space-y-0">
@@ -252,7 +218,6 @@ const HealthBenefitProducts = () => {
                   <span>All Products ({products.length})</span>
                 </button>
                 {categories.map((cat) => {
-                  // Count products in this category for current health benefit
                   const categoryProducts = products.filter(p => p.category_id === cat.id);
                   return (
                     <button
@@ -285,10 +250,9 @@ const HealthBenefitProducts = () => {
         </div>
       </div>
 
-      {/* Footer */}
       <CloneFooter />
     </div>
   );
 };
 
-export default HealthBenefitProducts;
+export default HealthyAgeing;
