@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { getPublicProduct } from '../services/api';
+import { getPublicProduct, getPublicProducts } from '../services/api';
 import { useCart } from '../context/CartContext';
 import QuantitySelector from '../components/QuantitySelector';
 import CloneFooter from '../components/CloneFooter';
+import ProductCard from '../components/ProductCard';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -16,6 +17,13 @@ const ProductDetail = () => {
   const [activeInfoTab, setActiveInfoTab] = useState('keyIngredients');
   const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
   const [showZoom, setShowZoom] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviewRating, setReviewRating] = useState(0);
+  const [reviewText, setReviewText] = useState('');
+  const [reviewName, setReviewName] = useState('');
+  const [reviewEmail, setReviewEmail] = useState('');
+  const [reviewTerms, setReviewTerms] = useState(false);
+  const [bestSellers, setBestSellers] = useState([]);
   const { addToCart } = useCart();
 
   const packOptions = [
@@ -133,36 +141,19 @@ const ProductDetail = () => {
     },
   ];
 
-  const bestSellers = [
-    {
-      name: 'PCOS Care',
-      price: 670,
-      originalPrice: 999,
-      image:
-        'https://images.unsplash.com/photo-1502740479091-635887520276?auto=format&fit=crop&w=400&q=60',
-    },
-    {
-      name: 'Multivitamin Gummies',
-      price: 670,
-      originalPrice: 999,
-      image:
-        'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?auto=format&fit=crop&w=400&q=60',
-    },
-    {
-      name: 'Hair Serum',
-      price: 799,
-      originalPrice: 1199,
-      image:
-        'https://images.unsplash.com/photo-1458253329476-1ebb8593a652?auto=format&fit=crop&w=400&q=60',
-    },
-    {
-      name: 'Face Wash with Glutathione',
-      price: 599,
-      originalPrice: 900,
-      image:
-        'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=400&q=60',
-    },
-  ];
+  useEffect(() => {
+    // Fetch best sellers products
+    const fetchBestSellers = async () => {
+      try {
+        const data = await getPublicProducts({ featured: true, per_page: 4 });
+        setBestSellers(data.products || []);
+      } catch (error) {
+        console.error('Error fetching best sellers:', error);
+        setBestSellers([]);
+      }
+    };
+    fetchBestSellers();
+  }, []);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -390,7 +381,7 @@ const ProductDetail = () => {
                 <button
                     key={pack.label}
                   onClick={() => setSelectedPack(idx)}
-                    className={`relative w-full max-w-[255px] rounded-[28px] border transition-all duration-200 overflow-hidden text-center px-6 py-6 shadow-sm ${
+                    className={`relative w-full max-w-[255px] border transition-all duration-200 overflow-hidden text-center px-6 py-6 shadow-sm ${
                       selectedPack === idx ? 'border-[#1e8f3a] shadow-lg' : 'border-[#e1dbcf] hover:border-[#1e8f3a]'
                     }`}
                     style={{
@@ -418,7 +409,7 @@ const ProductDetail = () => {
                       </p>
                     </div>
 
-                    <div className="mx-auto bg-[#f3efe7] border border-[#e8dfd1] rounded-[18px] px-3.5 py-2.5 flex flex-col items-center justify-center gap-1.5" style={{ width: '92%', aspectRatio: '1 / 1' }}>
+                    <div className="mx-auto bg-[#f3efe7] border border-[#e8dfd1] px-3.5 py-2.5 flex flex-col items-center justify-center gap-1.5" style={{ width: '92%', aspectRatio: '1 / 1' }}>
                       <div className="bg-[#e30202] text-white text-xs font-bold px-3 py-0.5 rounded-md uppercase tracking-wider">
                         {pack.discount}%
                       </div>
@@ -564,9 +555,8 @@ const ProductDetail = () => {
         </div>
 
         <div className="mt-12">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-3xl font-semibold text-gray-900">Key Ingredients</h3>
-            <p className="text-sm text-gray-500">Premium botanicals for performance &amp; vitality</p>
+          <div className="text-center mb-6">
+            <h3 className="text-3xl font-bold text-gray-900">Key Ingredients</h3>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {ingredientCards.map((ingredient) => (
@@ -588,35 +578,35 @@ const ProductDetail = () => {
       </div>
 
       {/* Disclaimer */}
-      <div className="mt-14 rounded-2xl bg-[#1e8f3a] text-white text-center px-6 py-5">
-        <h3 className="text-xl font-bold mb-3 uppercase tracking-wide">DISCLAIMER</h3>
+      <div className="mt-14 bg-[#1e8f3a] text-white text-center px-6 py-5">
+        <h3 className="text-3xl font-bold mb-3 uppercase tracking-wide">DISCLAIMER</h3>
         <p className="text-base font-normal leading-relaxed">
           Always consult with a qualified health physician/Nutritionist before taking any new dietary supplement. This product is not intended to diagnose, treat, cure, or prevent any diseases.
         </p>
       </div>
 
       {/* FAQ */}
-      <div className="mt-14">
+      <div className="mt-14 px-6 md:px-12 lg:px-16 xl:px-24">
         <h2 className="text-3xl font-semibold text-center text-gray-900 mb-8">Frequently asked questions (FAQs)</h2>
         <div className="space-y-4">
           {faqItems.map((faq) => {
             const isOpen = activeInfoTab === faq.question;
             return (
               <div key={faq.question} className="space-y-0">
-                <div className="bg-white border border-gray-900 rounded-2xl px-5 py-4 flex items-center justify-between">
+                <div 
+                  onClick={() =>
+                    setActiveInfoTab((prev) => (prev === faq.question ? '' : faq.question))
+                  }
+                  className="bg-white border border-gray-900 rounded-2xl px-5 py-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors"
+                >
                   <span className="text-base font-medium text-gray-900">{faq.question}</span>
-                  <button
-                    onClick={() =>
-                      setActiveInfoTab((prev) => (prev === faq.question ? '' : faq.question))
-                    }
-                    className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-900 hover:bg-gray-50 transition-colors"
-                  >
+                  <div className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-900 pointer-events-none">
                     <span className="text-xl font-light text-gray-900">{isOpen ? '−' : '+'}</span>
-                  </button>
+                  </div>
                 </div>
                 {isOpen && (
                   <div className="bg-white border border-gray-900 rounded-2xl px-5 py-4 mt-2">
-                    <p className="text-sm text-gray-700 leading-relaxed">{faq.answer}</p>
+                    <p className="text-base font-medium text-gray-900 leading-relaxed">{faq.answer}</p>
                   </div>
                 )}
               </div>
@@ -625,56 +615,229 @@ const ProductDetail = () => {
         </div>
       </div>
 
-      {/* Reviews Summary */}
-      <div className="mt-16 bg-[#efeadd] rounded-3xl px-6 py-10">
-        <div className="flex flex-col lg:flex-row items-center gap-10">
-          <div className="text-center">
-            <p className="text-5xl font-bold text-gray-800">0.0</p>
-            <p className="text-yellow-500 text-xl mt-1">★★★★★</p>
-            <p className="text-sm text-gray-500 mt-2">Based on 0 reviews</p>
-          </div>
-          <div className="flex-1 w-full space-y-2 text-sm text-gray-700">
-            {[5, 4, 3, 2, 1].map((star) => (
-              <div key={star} className="flex items-center gap-3">
-                <span className="w-10">{star} star</span>
-                <div className="flex-1 h-3 bg-white rounded-full border border-gray-200" />
-                <span className="w-8 text-right">0%</span>
+      {/* Review Modal */}
+      {showReviewModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-[#efeadd] rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            {/* Header */}
+            <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setShowReviewModal(false)}
+                  className="text-gray-600 hover:text-gray-900"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <h2 className="text-lg font-semibold text-gray-900">Add a review</h2>
               </div>
-            ))}
+              <button
+                onClick={() => setShowReviewModal(false)}
+                className="text-gray-600 hover:text-gray-900"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 space-y-6">
+              {/* Product Info */}
+              <div className="flex items-center gap-4">
+                {product && product.images && product.images.length > 0 && (
+                  <img
+                    src={product.images[0]}
+                    alt={product.name}
+                    className="w-16 h-16 object-cover rounded-lg"
+                  />
+                )}
+                <h3 className="text-lg font-semibold text-gray-900">{product?.name || 'Product Name'}</h3>
+              </div>
+
+              {/* Rating */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Rating <span className="text-red-500">*</span>
+                </label>
+                <div className="flex items-center gap-2">
+                  <div className="flex gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => setReviewRating(star)}
+                        className="focus:outline-none"
+                      >
+                        <svg
+                          className={`w-8 h-8 ${
+                            star <= reviewRating ? 'text-yellow-400 fill-current' : 'text-gray-300'
+                          }`}
+                          fill={star <= reviewRating ? 'currentColor' : 'none'}
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
+                          />
+                        </svg>
+                      </button>
+                    ))}
+                  </div>
+                  <span className="text-sm text-gray-600">{reviewRating}/5</span>
+                </div>
+              </div>
+
+              {/* Review Text */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Your review</label>
+                <textarea
+                  value={reviewText}
+                  onChange={(e) => setReviewText(e.target.value)}
+                  rows={6}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-y"
+                  placeholder="Write your review here..."
+                />
+              </div>
+
+              {/* Name and Email */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
+                  <input
+                    type="text"
+                    value={reviewName}
+                    onChange={(e) => setReviewName(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="Your name"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                  <input
+                    type="email"
+                    value={reviewEmail}
+                    onChange={(e) => setReviewEmail(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="Your email"
+                  />
+                </div>
+              </div>
+
+              {/* Media Upload */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Add photos or video to your review
+                </label>
+                <div className="flex gap-4">
+                  <button
+                    type="button"
+                    className="w-20 h-20 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors"
+                  >
+                    <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    className="w-20 h-20 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors"
+                  >
+                    <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              {/* Terms and Conditions */}
+              <div className="flex items-start gap-2">
+                <input
+                  type="checkbox"
+                  id="reviewTerms"
+                  checked={reviewTerms}
+                  onChange={(e) => setReviewTerms(e.target.checked)}
+                  className="mt-1 w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                />
+                <label htmlFor="reviewTerms" className="text-sm text-gray-700">
+                  I have read and agree to the Terms and Conditions and Privacy Policy.
+                </label>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-4 pt-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    // Handle submit logic here
+                    setShowReviewModal(false);
+                  }}
+                  className="flex-1 px-6 py-3 bg-green-800 text-white font-semibold rounded-lg hover:bg-green-900 transition-colors"
+                >
+                  Submit
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowReviewModal(false)}
+                  className="flex-1 px-6 py-3 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
           </div>
-          <button className="px-6 py-3 rounded-lg bg-green-800 text-white font-semibold hover:bg-green-900 transition">
-            Add a review
-          </button>
         </div>
-        <p className="text-center text-sm text-gray-500 mt-8">Sorry, no reviews match your current selections</p>
+      )}
+
+      {/* Reviews Summary */}
+      <div className="mt-16 px-6 md:px-12 lg:px-16 xl:px-24">
+        <div className="bg-[#efeadd] py-10 px-6 md:px-12 lg:px-16">
+          <div className="bg-white border border-gray-200 px-6 py-8">
+            <div className="flex flex-col lg:flex-row items-center gap-6">
+              <div className="text-center lg:text-left">
+                <p className="text-5xl font-bold text-gray-800">0.0</p>
+                <div className="flex justify-center lg:justify-start gap-1 mt-2">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <svg key={star} className="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                    </svg>
+                  ))}
+                </div>
+                <p className="text-sm text-gray-500 mt-2">Based on 0 reviews</p>
+              </div>
+              <div className="hidden lg:block w-px h-20 bg-gray-200"></div>
+              <div className="flex-1 w-full space-y-2 text-sm text-gray-700">
+                {[5, 4, 3, 2, 1].map((star) => (
+                  <div key={star} className="flex items-center gap-3">
+                    <span className="w-16">{star} star</span>
+                    <div className="flex-1 h-3 bg-white rounded-full border border-gray-200" />
+                    <span className="w-10 text-right">0%</span>
+                  </div>
+                ))}
+              </div>
+              <div className="hidden lg:block w-px h-20 bg-gray-200"></div>
+              <button 
+                onClick={() => setShowReviewModal(true)}
+                className="px-6 py-3 rounded-lg bg-green-800 text-white font-semibold hover:bg-green-900 transition whitespace-nowrap"
+              >
+                Add a review
+              </button>
+            </div>
+          </div>
+          <p className="text-center text-sm text-gray-900 mt-6">Sorry, no reviews match your current selections</p>
+        </div>
       </div>
 
       {/* Power of Nature */}
       <div className="mt-16 text-center">
-        <h2 className="text-3xl font-semibold text-green-900 mb-2">Power of Nature</h2>
-        <p className="text-gray-600 mb-8">Discover our best-selling products made with the goodness of nature.</p>
+        <h2 className="text-4xl md:text-5xl font-bold text-green-900 mb-4 italic" style={{ fontFamily: 'serif' }}>Power of Nature</h2>
+        <h3 className="text-2xl md:text-3xl font-medium text-gray-900 mb-8">Best Sellers Products</h3>
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {bestSellers.map((item) => (
-            <div key={item.name} className="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden">
-              <div className="relative">
-                <img src={item.image} alt={item.name} className="w-full h-52 object-cover" />
-                <span className="absolute top-3 right-3 bg-green-800 text-white text-xs font-semibold px-3 py-1 rounded-full">
-                  -35%
-                </span>
-              </div>
-              <div className="px-5 py-4 text-center">
-                <h3 className="font-semibold text-gray-900 mb-2">{item.name}</h3>
-                <div className="flex items-center justify-center gap-2 mb-4">
-                  <span className="text-gray-400 line-through">
-                    ₹{item.originalPrice}
-                  </span>
-                  <span className="text-green-700 font-bold">₹{item.price}</span>
-                </div>
-                <button className="w-full bg-green-800 text-white py-2.5 rounded-lg font-medium hover:bg-green-900 transition">
-                  View Product
-                </button>
-              </div>
-            </div>
+          {bestSellers.map((product) => (
+            <ProductCard key={product.id} product={product} />
           ))}
         </div>
       </div>

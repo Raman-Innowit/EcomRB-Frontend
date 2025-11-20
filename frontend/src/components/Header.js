@@ -47,6 +47,8 @@ const Header = () => {
   const [showHealthMenu, setShowHealthMenu] = useState(false);
   const [showHealthSubMenu, setShowHealthSubMenu] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
+  const [showSearchModal, setShowSearchModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const { getCartCount } = useCart();
   const { getWishlistCount } = useWishlist();
   const { isAuthenticated } = useAuth();
@@ -96,6 +98,18 @@ const Header = () => {
         setHealthBenefits(fallbackList);
       });
   }, []);
+
+  // Close search modal on ESC key
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape' && showSearchModal) {
+        setShowSearchModal(false);
+        setSearchQuery('');
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [showSearchModal]);
 
   // Filter to show only specific categories in the header dropdown
   const allowedCategoryNames = ['Health Supplements', 'Cosmetics', 'Honey'];
@@ -163,13 +177,15 @@ const Header = () => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 6 }}
                     transition={{ duration: 0.18 }}
-                    className="absolute left-0 mt-2 w-64 bg-white rounded-md shadow-lg border border-gray-200 py-2"
+                    className="absolute left-0 mt-2 w-72 bg-white rounded-md shadow-lg border border-gray-200 py-2"
                   >
                     <Link
                       to="/products"
-                      className="block px-4 py-2 hover:bg-green-50 text-gray-700 border-l-4 border-green-700"
+                      className="flex items-center px-4 py-2.5 hover:bg-green-50 text-gray-700 transition-colors"
+                      style={{ fontSize: '15px' }}
                     >
-                      All Product
+                      <span className="w-1 h-5 mr-3 flex-shrink-0" style={{ backgroundColor: '#1e6e3c' }}></span>
+                      <span>All Product</span>
                     </Link>
                     {headerCategories.map((cat) => {
                       if (cat.name === 'Health Supplements') {
@@ -182,9 +198,13 @@ const Header = () => {
                           >
                             <Link
                               to={`/category/${cat.id}`}
-                              className="block px-4 py-2 hover:bg-green-50 text-gray-700 flex items-center justify-between"
+                              className="flex items-center px-4 py-2.5 hover:bg-green-50 text-gray-700 transition-colors justify-between"
+                              style={{ fontSize: '15px' }}
                             >
-                              <span>{cat.name}</span>
+                              <div className="flex items-center">
+                                <span className="w-1 h-5 mr-3 flex-shrink-0" style={{ backgroundColor: '#1e6e3c' }}></span>
+                                <span>{cat.name}</span>
+                              </div>
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                               </svg>
@@ -202,15 +222,19 @@ const Header = () => {
                                 >
                                   <Link
                                     to="/category/essential-supplements"
-                                    className="block px-4 py-2 hover:bg-green-50 text-gray-700"
+                                    className="flex items-center px-4 py-2.5 hover:bg-green-50 text-gray-700 transition-colors"
+                                    style={{ fontSize: '15px' }}
                                   >
-                                    Essential Supplements
+                                    <span className="w-1 h-5 mr-3 flex-shrink-0" style={{ backgroundColor: '#1e6e3c' }}></span>
+                                    <span>Essential Supplements</span>
                                   </Link>
                                   <Link
                                     to="/category/speciality-supplements"
-                                    className="block px-4 py-2 hover:bg-green-50 text-gray-700"
+                                    className="flex items-center px-4 py-2.5 hover:bg-green-50 text-gray-700 transition-colors"
+                                    style={{ fontSize: '15px' }}
                                   >
-                                    Speciality Supplements
+                                    <span className="w-1 h-5 mr-3 flex-shrink-0" style={{ backgroundColor: '#1e6e3c' }}></span>
+                                    <span>Speciality Supplements</span>
                                   </Link>
                                 </motion.div>
                               )}
@@ -222,9 +246,11 @@ const Header = () => {
                         <Link
                           key={cat.id}
                           to={`/category/${cat.id}`}
-                          className="block px-4 py-2 hover:bg-green-50 text-gray-700"
+                          className="flex items-center px-4 py-2.5 hover:bg-green-50 text-gray-700 transition-colors"
+                          style={{ fontSize: '15px' }}
                         >
-                          {cat.name}
+                          <span className="w-1 h-5 mr-3 flex-shrink-0" style={{ backgroundColor: '#1e6e3c' }}></span>
+                          <span>{cat.name}</span>
                         </Link>
                       );
                     })}
@@ -334,6 +360,7 @@ const Header = () => {
           <div className="flex items-center space-x-6">
             {/* Search Icon */}
             <button 
+              onClick={() => setShowSearchModal(true)}
               className="transition-colors"
               style={{ color: '#333' }}
               onMouseEnter={(e) => e.currentTarget.style.color = '#2d6a4f'}
@@ -613,6 +640,97 @@ const Header = () => {
                       <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
                     </svg>
                   </a>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Search Modal */}
+      <AnimatePresence>
+        {showSearchModal && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 bg-black bg-opacity-50 z-50"
+              onClick={() => setShowSearchModal(false)}
+            />
+            
+            {/* Search Modal Content */}
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.2 }}
+              className="fixed top-0 left-0 right-0 bg-white z-50 shadow-lg"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="container mx-auto px-4 py-4">
+                <div className="flex items-center">
+                  {/* Search Icon */}
+                  <svg
+                    className="w-6 h-6 text-gray-400 mr-3"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
+                  </svg>
+                  
+                  {/* Search Input */}
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      if (searchQuery.trim()) {
+                        navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
+                        setShowSearchModal(false);
+                        setSearchQuery('');
+                      }
+                    }}
+                    className="flex-1"
+                  >
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search..."
+                      autoFocus
+                      className="w-full text-gray-700 placeholder-gray-400 border-none outline-none text-lg"
+                    />
+                  </form>
+                  
+                  {/* Close Button */}
+                  <button
+                    onClick={() => {
+                      setShowSearchModal(false);
+                      setSearchQuery('');
+                    }}
+                    className="ml-4 text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    <svg
+                      className="w-6 h-6"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
                 </div>
               </div>
             </motion.div>

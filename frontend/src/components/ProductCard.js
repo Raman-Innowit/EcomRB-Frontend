@@ -1,11 +1,12 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 
 const ProductCard = ({ product }) => {
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
+  const navigate = useNavigate();
   const displayPrice = product.converted_sale_price || product.converted_price;
   const originalPrice = product.converted_sale_price ? product.converted_price : null;
   const inWishlist = isInWishlist(product.id);
@@ -21,6 +22,20 @@ const ProductCard = ({ product }) => {
       quantity: 1,
       slug: product.slug,
     });
+  };
+
+  const handleBuyNow = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addToCart({
+      productId: product.id,
+      name: product.name,
+      price: product.converted_price,
+      salePrice: product.converted_sale_price,
+      quantity: 1,
+      slug: product.slug,
+    });
+    navigate('/checkout');
   };
 
   return (
@@ -131,8 +146,8 @@ const ProductCard = ({ product }) => {
       
       {/* Buy Now Button */}
       <div className="px-4 pb-4 mt-auto">
-        <Link
-          to={`/product/${product.id}`}
+        <button
+          onClick={handleBuyNow}
           className="block w-full text-center py-3 rounded font-semibold transition-colors"
           style={{ 
             backgroundColor: '#1e6e3c',
@@ -142,7 +157,7 @@ const ProductCard = ({ product }) => {
           }}
         >
           BUY NOW
-        </Link>
+        </button>
       </div>
     </div>
   );

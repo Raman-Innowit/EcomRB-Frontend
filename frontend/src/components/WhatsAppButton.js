@@ -1,9 +1,12 @@
 import React from 'react';
 
 const WhatsAppButton = () => {
+  // Phone number from Contact Us modal: 91 6375-257347
+  const phoneNumber = '916375257347'; // Remove spaces and dashes for WhatsApp link
+  
   return (
     <a
-      href="https://wa.me/1234567890"
+      href={`https://wa.me/${phoneNumber}`}
       target="_blank"
       rel="noopener noreferrer"
       className="fixed bottom-6 right-6 z-50 bg-gray-100 rounded-full px-4 py-3 shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center gap-2"

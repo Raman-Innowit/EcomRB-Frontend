@@ -35,34 +35,42 @@ const Register = () => {
 
   return (
     <div className="flex flex-col min-h-screen relative">
-      {/* Background with white overlay */}
+      {/* Background with blurred capsules image */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute inset-0 bg-[#f3f8ef]"></div>
+        <div 
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage: 'url(/assets/why-us-1.png)',
+            filter: 'blur(8px)',
+            transform: 'scale(1.1)',
+            opacity: 1
+          }}
+        ></div>
+        <div className="absolute inset-0 bg-white/60"></div>
       </div>
 
       {/* Main Content */}
       <div className="relative z-10 flex-1 py-12 px-4">
         <div className="container mx-auto max-w-6xl">
-          {/* White Card Container */}
-          <div className="bg-white rounded-[32px] shadow-xl overflow-hidden">
-            {/* Heading inside the card */}
-            <div className="text-center py-8 px-8">
-              <h1 
-                className="text-4xl md:text-5xl font-bold"
-                style={{ 
-                  color: '#2d6a1f',
-                  fontFamily: 'Poppins, sans-serif'
-                }}
-              >
-                Become a Member of the Herbal Revolution
-              </h1>
-            </div>
+          {/* Heading */}
+          <div className="text-center mb-8">
+            <h1 
+              className="text-3xl md:text-4xl font-bold"
+              style={{ 
+                color: '#2d6a1f',
+                fontFamily: 'Poppins, sans-serif'
+              }}
+            >
+              Become a Member of the Herbal Revolution
+            </h1>
+          </div>
 
-            {/* Form and Image Container - Side by Side */}
-            <div className="flex flex-col lg:flex-row">
-              {/* Left Side - Registration Form */}
-              <div className="flex-1 p-8 lg:p-12 flex items-center justify-center">
-                <form onSubmit={handleSubmit} className="w-full max-w-[380px] space-y-5">
+          {/* Form and Image Container - Side by Side */}
+          <div className="flex flex-col lg:flex-row items-center gap-8">
+            {/* Left Side - Registration Form */}
+            <div className="flex-1 w-full max-w-[500px]">
+              <div className="bg-white rounded-lg shadow-lg p-8">
+                <form onSubmit={handleSubmit} className="space-y-5">
                   <div>
                     <input
                       type="text"
@@ -162,32 +170,64 @@ const Register = () => {
                   </div>
                 </form>
               </div>
+            </div>
 
-              {/* Right Side - Curved Green Leaf Structure */}
-              <div className="relative w-full lg:w-[500px] h-[450px] lg:h-[500px] flex-shrink-0">
-                {/* Leaf structure with smooth curved left edge and green ombre gradient */}
+            {/* Right Side - Leaf Cutout with Image Inside */}
+            <div 
+              className="relative w-full lg:w-[500px] h-[400px] lg:h-[500px] flex-shrink-0"
+              style={{
+                backgroundImage: 'url(/assets/why-us-1.png)',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat'
+              }}
+            >
+              {/* Semi-transparent whitish overlay */}
+              <div 
+                className="absolute inset-0"
+                style={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                  backdropFilter: 'blur(2px)'
+                }}
+              >
+                {/* Leaf cutout - transparent where leaf is */}
                 <div 
-                  className="relative w-full h-full flex items-center justify-center"
+                  className="absolute inset-0"
                   style={{
-                    clipPath: 'polygon(15% 0%, 5% 50%, 15% 100%, 100% 100%, 100% 0%)',
-                    background: 'linear-gradient(135deg, #15803d 0%, #1a8a45 15%, #21944d 30%, #2a9e55 45%, #35a85d 60%, #40b265 75%, #4db870 90%, #5ac97b 100%)',
-                    boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
-                    borderRadius: '0 32px 32px 0'
+                    maskImage: 'url(/assets/why-us-1.png)',
+                    WebkitMaskImage: 'url(/assets/why-us-1.png)',
+                    maskSize: 'cover',
+                    WebkitMaskSize: 'cover',
+                    maskPosition: 'center',
+                    WebkitMaskPosition: 'center',
+                    maskRepeat: 'no-repeat',
+                    WebkitMaskRepeat: 'no-repeat',
+                    backgroundColor: 'transparent',
+                    mixBlendMode: 'destination-out'
                   }}
-                >
-                  {/* RasayanaBio Logo - Centered in white */}
-                  <div className="absolute inset-0 flex items-center justify-center z-20">
-                    <img 
-                      src="/assets/rb.png" 
-                      alt="RasayanaBio" 
-                      className="h-24 md:h-32 w-auto object-contain"
-                      style={{ 
-                        filter: 'brightness(0) invert(1)',
-                        opacity: 1
-                      }}
-                    />
-                  </div>
-                </div>
+                ></div>
+              </div>
+              
+              {/* Second image - visible only through leaf-shaped cutout */}
+              <div 
+                className="absolute inset-0"
+                style={{
+                  maskImage: 'url(/assets/why-us-1.png)',
+                  WebkitMaskImage: 'url(/assets/why-us-1.png)',
+                  maskSize: 'cover',
+                  WebkitMaskSize: 'cover',
+                  maskPosition: 'center',
+                  WebkitMaskPosition: 'center',
+                  maskRepeat: 'no-repeat',
+                  WebkitMaskRepeat: 'no-repeat',
+                  zIndex: 10
+                }}
+              >
+                <img 
+                  src="/assets/1-1.png" 
+                  alt="Capsules background" 
+                  className="w-full h-full object-cover"
+                />
               </div>
             </div>
           </div>

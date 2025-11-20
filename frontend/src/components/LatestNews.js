@@ -9,7 +9,7 @@ const ARTICLES = [
     date: 'September 1, 2025',
     categories: ['Health', 'Healthy', 'Lifestyle'],
     snippet: 'Introduction to Magnesium and Its Importance for Wellness In the ever-expanding landscape of preventive healthcare, magnesium has become a cornerstone for maintaining optimal health and wellness...',
-    image: '/assets/magnesium-importance.jpg',
+    image: '/assets/Key-Roles-of-Magnesium-in-the-Bo-scaled.jpg',
     slug: 'comprehensive-benefits-of-magnesium-for-overall-wellness'
   },
   {
@@ -36,10 +36,10 @@ const ARTICLES = [
 
 const LatestNews = () => {
   return (
-    <section className="py-16 bg-white">
+    <section className="py-8 bg-white">
       <div className="container mx-auto px-4">
         {/* Header Section */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
           <div>
             <p 
               className="text-green-600 text-lg mb-2 font-serif italic"
@@ -57,7 +57,7 @@ const LatestNews = () => {
         </div>
 
         {/* Section Title */}
-        <h2 className="text-4xl md:text-5xl font-bold text-green-800 mb-12">
+        <h2 className="text-4xl md:text-5xl font-bold text-green-800 mb-8">
           Our Latest News
         </h2>
 

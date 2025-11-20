@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const CloneAbout = () => {
   return (
@@ -26,9 +27,9 @@ const CloneAbout = () => {
             </p>
           </div>
           <div className="mt-8">
-            <a href="#about" className="inline-block bg-green-800 hover:bg-green-900 text-white px-6 py-3 rounded-lg font-semibold shadow-sm">
+            <Link to="/about" className="inline-block bg-green-800 hover:bg-green-900 text-white px-6 py-3 rounded-lg font-semibold shadow-sm">
               READ MORE
-            </a>
+            </Link>
           </div>
         </div>
 

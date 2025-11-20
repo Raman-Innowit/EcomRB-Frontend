@@ -24,9 +24,9 @@ const About = () => {
         {/* Background banner image */}
         <div className="absolute inset-0">
           <img
-            src="/assets/about-banner.jpg"
+            src="/assets/banner-1.jpg"
             alt=""
-            className="w-full h-full object-cover opacity-30"
+            className="w-full h-full object-cover"
           />
         </div>
 
