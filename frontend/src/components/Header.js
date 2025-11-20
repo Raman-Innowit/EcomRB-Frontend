@@ -53,7 +53,13 @@ const Header = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    getPublicCategories().then((data) => setCategories(data.categories || []));
+    getPublicCategories()
+      .then((data) => setCategories(data.categories || []))
+      .catch((err) => {
+        console.error('Error loading categories:', err);
+        // Set empty array on error to prevent crashes
+        setCategories([]);
+      });
     
     // Set the hardcoded list immediately with correct order (already set in useState initializer)
     // This ensures the correct order is shown even before API call completes

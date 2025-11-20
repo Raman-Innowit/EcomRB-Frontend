@@ -31,6 +31,9 @@ def get_db_config() -> Dict[str, Any]:
 		except ValueError:
 			port = 3306
 		
+		# Increase timeout for remote connections
+		connect_timeout = int(os.environ.get("DB_CONNECT_TIMEOUT", "30"))
+		
 		config = {
 			"host": db_hostname,
 			"port": port,
@@ -40,8 +43,27 @@ def get_db_config() -> Dict[str, Any]:
 			"charset": "utf8mb4",
 			"cursorclass": DictCursor,
 			"autocommit": False,
-			"connect_timeout": 10,
+			"connect_timeout": connect_timeout,
 		}
+		
+		# Add SSL configuration if provided (for remote servers)
+		ssl_ca = os.environ.get("DB_SSL_CA", "").strip()
+		ssl_cert = os.environ.get("DB_SSL_CERT", "").strip()
+		ssl_key = os.environ.get("DB_SSL_KEY", "").strip()
+		ssl_disabled = os.environ.get("DB_SSL_DISABLED", "false").strip().lower() == "true"
+		
+		if ssl_disabled:
+			config["ssl"] = {"check_hostname": False}
+		elif ssl_ca or ssl_cert or ssl_key:
+			ssl_config = {}
+			if ssl_ca:
+				ssl_config["ca"] = ssl_ca
+			if ssl_cert:
+				ssl_config["cert"] = ssl_cert
+			if ssl_key:
+				ssl_config["key"] = ssl_key
+			config["ssl"] = ssl_config
+		
 		return config
 	
 	# Fallback to DATABASE_URL for backward compatibility
@@ -62,6 +84,9 @@ def get_db_config() -> Dict[str, Any]:
 	
 	password = urllib.parse.unquote(parsed.password or "")
 	
+	# Increase timeout for remote connections
+	connect_timeout = int(os.environ.get("DB_CONNECT_TIMEOUT", "30"))
+	
 	config = {
 		"host": parsed.hostname or "localhost",
 		"port": parsed.port or 3306,
@@ -71,8 +96,27 @@ def get_db_config() -> Dict[str, Any]:
 		"charset": "utf8mb4",
 		"cursorclass": DictCursor,
 		"autocommit": False,
-		"connect_timeout": 10,
+		"connect_timeout": connect_timeout,
 	}
+	
+	# Add SSL configuration if provided (for remote servers)
+	ssl_ca = os.environ.get("DB_SSL_CA", "").strip()
+	ssl_cert = os.environ.get("DB_SSL_CERT", "").strip()
+	ssl_key = os.environ.get("DB_SSL_KEY", "").strip()
+	ssl_disabled = os.environ.get("DB_SSL_DISABLED", "false").strip().lower() == "true"
+	
+	if ssl_disabled:
+		config["ssl"] = {"check_hostname": False}
+	elif ssl_ca or ssl_cert or ssl_key:
+		ssl_config = {}
+		if ssl_ca:
+			ssl_config["ca"] = ssl_ca
+		if ssl_cert:
+			ssl_config["cert"] = ssl_cert
+		if ssl_key:
+			ssl_config["key"] = ssl_key
+		config["ssl"] = ssl_config
+	
 	return config
 
 
@@ -85,25 +129,6 @@ def open_db():
 		conn = pymysql.connect(**config)
 		return conn
 	except pymysql.err.OperationalError as e:
-		error_code, error_msg = e.args
-		print(f"\n{'='*60}")
-		print(f"Database Connection Error (Code {error_code}): {error_msg}")
-		print(f"{'='*60}")
-		print(f"Connection Details:")
-		print(f"  Host: {config['host']}")
-		print(f"  Port: {config['port']}")
-		print(f"  User: {config['user']}")
-		print(f"  Database: {config['database']}")
-		print(f"  Password: {'*' * len(config['password']) if config['password'] else '(empty)'}")
-		print(f"{'='*60}")
-		if error_code == 1045:
-			print("\nPossible solutions:")
-			print("1. Verify MySQL is running: Check MySQL service status")
-			print("2. Check password: The password might be incorrect")
-			print("3. Try connecting without database first to test credentials")
-			print("4. Verify user exists: Run 'SELECT user FROM mysql.user;' in MySQL")
-			print("5. Check if database exists: Run 'SHOW DATABASES;' in MySQL")
-		print(f"{'='*60}\n")
 		raise
 
 
@@ -174,7 +199,7 @@ def ensure_schema() -> None:
 		conn.commit()
 	except Exception as e:
 		conn.rollback()
-		print(f"Error creating schema: {e}")
+		raise
 	finally:
 		cursor.close()
 		conn.close()
@@ -230,7 +255,10 @@ def create_app() -> Flask:
 	CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 	# Ensure minimal schema exists so the app can run immediately
-	ensure_schema()
+	try:
+		ensure_schema()
+	except Exception:
+		pass
 
 	@app.get("/health")
 	def health() -> Tuple[str, int]:
@@ -338,29 +366,35 @@ def create_app() -> Flask:
 
 	@app.get("/api/public/categories")
 	def public_categories():
-		conn = open_db()
-		cursor = conn.cursor()
-		cursor.execute("""
-			SELECT c.id, c.name, COUNT(p.id) AS product_count
-			FROM categories c
-			LEFT JOIN products p ON c.id = p.category_id AND p.is_active = 1
-			GROUP BY c.id, c.name
-			ORDER BY c.name ASC
-		""")
-		rows = cursor.fetchall()
-		cursor.close()
-		conn.close()
-		return jsonify({"categories": [{"id": r["id"], "name": r["name"], "product_count": r["product_count"] or 0} for r in rows]})
+		try:
+			conn = open_db()
+			cursor = conn.cursor()
+			cursor.execute("""
+				SELECT c.id, c.name, COUNT(p.id) AS product_count
+				FROM categories c
+				LEFT JOIN products p ON c.id = p.category_id AND p.is_active = 1
+				GROUP BY c.id, c.name
+				ORDER BY c.name ASC
+			""")
+			rows = cursor.fetchall()
+			cursor.close()
+			conn.close()
+			return jsonify({"categories": [{"id": r["id"], "name": r["name"], "product_count": r["product_count"] or 0} for r in rows]})
+		except Exception as e:
+			return jsonify({"error": "Failed to fetch categories", "message": str(e)}), 500
 
 	@app.get("/api/public/health-benefits")
 	def public_health_benefits():
-		conn = open_db()
-		cursor = conn.cursor()
-		cursor.execute("SELECT id, name FROM health_benefits ORDER BY name ASC")
-		rows = cursor.fetchall()
-		cursor.close()
-		conn.close()
-		return jsonify({"health_benefits": [{"id": r["id"], "name": r["name"]} for r in rows]})
+		try:
+			conn = open_db()
+			cursor = conn.cursor()
+			cursor.execute("SELECT id, name FROM health_benefits ORDER BY name ASC")
+			rows = cursor.fetchall()
+			cursor.close()
+			conn.close()
+			return jsonify({"health_benefits": [{"id": r["id"], "name": r["name"]} for r in rows]})
+		except Exception as e:
+			return jsonify({"error": "Failed to fetch health benefits", "message": str(e)}), 500
 
 	@app.get("/api/public/product/<int:product_id>")
 	def public_product_detail(product_id: int):
