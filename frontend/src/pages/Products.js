@@ -149,32 +149,46 @@ const Products = () => {
         />
         
         <div className="container mx-auto relative z-10">
-          {/* Logo */}
-          <div className="mb-6">
-            <img 
-              src="/assets/products-logo.png" 
-              alt="RasayanaBio" 
-              className="h-16 w-auto"
-            />
+          <div className="relative" style={{ paddingLeft: '0', marginLeft: '0' }}>
+            {/* Logo */}
+            <div className="relative mt-8 mb-6" style={{ paddingLeft: '0' }}>
+              <img 
+                src="/assets/products-logo.png" 
+                alt="RasayanaBio" 
+                className="h-16 w-auto object-contain"
+                style={{ marginLeft: '0' }}
+              />
+            </div>
+            
+            {/* Shop Heading */}
+            <h1 
+              className="text-5xl md:text-6xl font-bold mb-4 relative z-10"
+              style={{
+                color: '#374151',
+                paddingLeft: '0',
+                marginLeft: '0',
+                fontSize: '3rem',
+                lineHeight: '1.2'
+              }}
+            >
+              Shop
+            </h1>
+            
+            {/* Breadcrumbs */}
+            <div 
+              className="text-sm font-sans uppercase relative z-10" 
+              style={{ 
+                color: '#000000', 
+                paddingLeft: '0', 
+                marginLeft: '0',
+                fontSize: '0.875rem'
+              }}
+            >
+              <Link to="/" className="hover:text-green-700 transition-colors">HOME</Link>
+              <span className="mx-2">&gt;</span>
+              <span>PRODUCT</span>
+            </div>
           </div>
-          
-          {/* Shop Heading */}
-          <h1 
-            className="text-5xl md:text-6xl font-bold mb-4"
-            style={{
-              color: '#1F2937',
-              fontFamily: 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
-            }}
-          >
-            Shop
-          </h1>
-          
-          {/* Breadcrumbs */}
-          <nav className="text-sm" style={{ color: '#9CA3AF' }}>
-            <Link to="/" className="hover:text-green-700 transition-colors">HOME</Link>
-            <span className="mx-2">›</span>
-            <span style={{ color: '#9CA3AF' }}>PRODUCT</span>
-          </nav>
         </div>
       </div>
 

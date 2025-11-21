@@ -7,16 +7,47 @@ const defaultSlides = [
     id: 1,
     title: (
       <>
-        <div className="mb-3">
-          <img src="/assets/lotus-logo.png" alt="Lotus" className="w-20 h-20 md:w-24 md:h-24 object-contain" />
-        </div>
-        <div className="text-green-800 leading-tight space-y-3">
-          <div className="text-2xl md:text-3xl lg:text-4xl font-bold">सर्वे भवन्तु सुखिनः,</div>
-          <div className="text-5xl md:text-6xl lg:text-7xl font-extrabold">सर्वे सन्तु निरामयाः</div>
+        <div className="mb-4">
+          <div className="mb-2">
+            <img src="/assets/lotus-logo.png" alt="Lotus" className="w-20 h-20 md:w-24 md:h-24 object-contain" />
+          </div>
+          <div className="space-y-2">
+            <div 
+              className="text-2xl md:text-3xl lg:text-4xl font-medium block" 
+              style={{ 
+                color: '#16a34a',
+                fontFamily: 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+                lineHeight: '1.5'
+              }}
+            >
+              सर्वे भवन्तु सुखिनः,
+            </div>
+            <div 
+              className="text-4xl md:text-5xl lg:text-6xl font-bold block" 
+              style={{ 
+                color: '#15803d',
+                fontFamily: 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+                lineHeight: '1.3'
+              }}
+            >
+              सर्वे सन्तु निरामयाः
+            </div>
+          </div>
         </div>
       </>
     ),
-    subtitle: <span className="text-gray-800 text-xl md:text-2xl mt-2 block">May all be happy, may all be free from disease</span>,
+    subtitle: (
+      <span 
+        className="block mt-3 text-base md:text-lg" 
+        style={{ 
+          color: '#000000',
+          fontFamily: 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+          lineHeight: '1.6'
+        }}
+      >
+        May all be happy, may all be free from disease
+      </span>
+    ),
     ctaText: 'VIEW MORE',
     ctaLink: '/products',
     bgFrom: 'from-gray-50',
@@ -28,13 +59,41 @@ const defaultSlides = [
     id: 2,
     title: (
       <>
-        <div className="mb-2">
-          <img src="/assets/lotus-logo.png" alt="Lotus" className="w-20 h-20 md:w-24 md:h-24 object-contain" />
-        </div>
-        <div className="space-y-1">
-          <div className="text-4xl md:text-5xl lg:text-6xl italic text-black" style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic' }}>The greatest</div>
-          <div className="font-extrabold text-6xl md:text-7xl lg:text-8xl" style={{ color: '#15803d' }}>Wealth Is</div>
-          <div className="text-5xl md:text-6xl lg:text-7xl font-bold text-black">Health</div>
+        <div className="mb-4">
+          <div className="mb-2">
+            <img src="/assets/lotus-logo.png" alt="Lotus" className="w-20 h-20 md:w-24 md:h-24 object-contain" />
+          </div>
+          <div className="space-y-1">
+            <div 
+              className="text-3xl md:text-4xl lg:text-5xl italic text-black block" 
+              style={{ 
+                fontFamily: 'Georgia, serif', 
+                fontStyle: 'italic',
+                lineHeight: '1.4'
+              }}
+            >
+              The greatest
+            </div>
+            <div 
+              className="font-bold text-5xl md:text-6xl lg:text-7xl block" 
+              style={{ 
+                color: '#15803d',
+                fontFamily: 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+                lineHeight: '1.2'
+              }}
+            >
+              Wealth Is
+            </div>
+            <div 
+              className="text-4xl md:text-5xl lg:text-6xl font-bold text-black block" 
+              style={{ 
+                fontFamily: 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+                lineHeight: '1.2'
+              }}
+            >
+              Health
+            </div>
+          </div>
         </div>
       </>
     ),
@@ -47,14 +106,44 @@ const defaultSlides = [
     id: 3,
     title: (
       <>
-        <div className="mb-2">
-          <img src="/assets/lotus-logo.png" alt="Lotus" className="w-20 h-20 md:w-24 md:h-24 object-contain" />
-        </div>
-        <span className="text-2xl md:text-3xl text-black block mb-1" style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic' }}>From</span>
-        <span className="font-extrabold text-4xl md:text-5xl lg:text-6xl block leading-tight mb-3" style={{ color: '#15803d' }}>Youthful Promise to Ageless Beauty</span>
-        <div className="text-lg md:text-xl text-black mt-2 leading-relaxed">
-          High Potency Collagen No side effects<br />
-          <span className="font-bold">Radiant Results</span>
+        <div className="mb-4">
+          <div className="mb-2">
+            <img src="/assets/lotus-logo.png" alt="Lotus" className="w-20 h-20 md:w-24 md:h-24 object-contain" />
+          </div>
+          <span 
+            className="block mb-3 text-xl md:text-2xl" 
+            style={{ 
+              fontFamily: 'Georgia, serif', 
+              fontStyle: 'italic',
+              color: '#374151',
+              lineHeight: '1.5'
+            }}
+          >
+            From
+          </span>
+          <h1 
+            className="font-bold block mb-4 text-4xl md:text-5xl lg:text-6xl" 
+            style={{ 
+              fontFamily: 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+              color: '#15803d',
+              lineHeight: '1.1',
+              letterSpacing: '-0.02em'
+            }}
+          >
+            Youthful Promise<br />
+            <span style={{ paddingLeft: '0.5rem' }}>to Ageless Beauty</span>
+          </h1>
+          <div 
+            className="mt-4 space-y-1 text-base md:text-lg" 
+            style={{ 
+              fontFamily: 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+              color: '#374151',
+              lineHeight: '1.6'
+            }}
+          >
+            <div>High Potency Collagen No side effects</div>
+            <div className="font-bold">Radiant Results</div>
+          </div>
         </div>
       </>
     ),

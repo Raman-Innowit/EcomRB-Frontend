@@ -32,8 +32,14 @@ const About = () => {
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="grid md:grid-cols-2 gap-8 items-center">
+            <style>{`
+              .woman-image-container {
+                transform: scale(1.3);
+                transform-origin: center;
+              }
+            `}</style>
             {/* Left Section */}
-            <div className="relative">
+            <div className="relative" style={{ paddingLeft: '0', marginLeft: '0' }}>
               {/* Leaf illustration - upper left */}
               <div className="absolute top-0 left-0 w-32 h-32 opacity-20">
                 <svg viewBox="0 0 100 100" fill="none" stroke="#6b7280" strokeWidth="1">
@@ -48,24 +54,42 @@ const About = () => {
               </div>
 
               {/* Logo with TM */}
-              <div className="relative mt-8 mb-6">
+              <div className="relative mt-8 mb-6" style={{ paddingLeft: '0' }}>
                 <img
                   src="/assets/about-logo.png"
                   alt="RasayanaBio"
                   className="h-16 w-auto object-contain"
+                  style={{ marginLeft: '0' }}
                 />
               </div>
 
               {/* Page Title */}
-              <h1 className="text-5xl md:text-6xl font-bold text-gray-800 mb-4 relative z-10">
+              <h1 
+                className="text-5xl md:text-6xl font-bold mb-4 relative z-10" 
+                style={{ 
+                  color: '#374151', 
+                  paddingLeft: '0', 
+                  marginLeft: '0',
+                  fontSize: '3rem',
+                  lineHeight: '1.2'
+                }}
+              >
                 About Us
               </h1>
 
               {/* Breadcrumbs */}
-              <div className="text-gray-600 text-sm relative z-10">
-                <Link to="/" className="hover:text-green-700 hover:underline transition-colors">HOME</Link>
+              <div 
+                className="text-sm font-sans uppercase relative z-10" 
+                style={{ 
+                  color: '#000000', 
+                  paddingLeft: '0', 
+                  marginLeft: '0',
+                  fontSize: '0.875rem'
+                }}
+              >
+                <Link to="/" className="hover:text-green-700 transition-colors">HOME</Link>
                 <span className="mx-2">&gt;</span>
-                <span className="text-gray-800">ABOUT US</span>
+                <span>ABOUT US</span>
               </div>
 
               {/* Pill illustrations */}
@@ -82,38 +106,14 @@ const About = () => {
             </div>
 
             {/* Right Section - Woman with Plant */}
-            <div className="relative">
-              {/* Dark green frame */}
-              <div className="relative bg-green-800 rounded-2xl p-6 overflow-visible">
-                {/* White logo inside frame */}
-                <div className="absolute top-4 left-4 z-20">
-                  <img
-                    src="/assets/about-logo.png"
-                    alt="RasayanaBio"
-                    className="h-8 w-auto object-contain brightness-0 invert"
-                  />
-                </div>
-
-                {/* Woman with plant image */}
-                <div className="relative rounded-lg overflow-visible">
-                  <img
-                    src="/assets/about-woman.png"
-                    alt="Woman with plant"
-                    className="w-full h-auto rounded-lg"
-                  />
-                  
-                  {/* Leaves extending beyond frame - decorative overlay */}
-                  <div className="absolute -bottom-4 -right-4 w-24 h-24 opacity-80">
-                    <svg viewBox="0 0 100 100" fill="#16a34a">
-                      <path d="M50 10 Q30 30 20 50 Q30 70 50 90 Q70 70 80 50 Q70 30 50 10" />
-                    </svg>
-                  </div>
-                  <div className="absolute -top-2 -right-2 w-16 h-16 opacity-80">
-                    <svg viewBox="0 0 100 100" fill="#16a34a">
-                      <path d="M50 10 Q30 30 20 50 Q30 70 50 90 Q70 70 80 50 Q70 30 50 10" />
-                    </svg>
-                  </div>
-                </div>
+            <div className="relative woman-image-container">
+              {/* Woman with plant image */}
+              <div className="relative rounded-lg overflow-visible">
+                <img
+                  src="/assets/about-woman.png"
+                  alt="Woman with plant"
+                  className="w-full h-auto rounded-lg"
+                />
               </div>
             </div>
           </div>

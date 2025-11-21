@@ -31,6 +31,7 @@ import TermsOfService from './pages/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import RefundPolicy from './pages/RefundPolicy';
 import PressRelease from './pages/PressRelease';
+import Blog from './pages/Blog';
 import About from './pages/About';
 import Contact from './pages/Contact';
 import Cart from './pages/Cart';
@@ -107,6 +108,7 @@ function AnimatedRoutes() {
         <Route path="/privacy-policy" element={<PageTransition><PrivacyPolicy /></PageTransition>} />
         <Route path="/refund-policy" element={<PageTransition><RefundPolicy /></PageTransition>} />
         <Route path="/press-release" element={<PageTransition><PressRelease /></PageTransition>} />
+        <Route path="/blog" element={<PageTransition><Blog /></PageTransition>} />
         <Route path="/account" element={<PageTransition><Account /></PageTransition>} />
       </Routes>
     </AnimatePresence>
