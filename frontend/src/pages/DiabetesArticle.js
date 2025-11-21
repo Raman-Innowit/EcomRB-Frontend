@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import CloneFooter from '../components/CloneFooter';
 
-const MagnesiumArticle = () => {
+const DiabetesArticle = () => {
   const headingColor = '#1c5f2a';
   const bodyColor = '#2f2f2f';
   const bodyFontSize = '17px';
@@ -17,22 +17,22 @@ const MagnesiumArticle = () => {
           <main className="lg:w-3/4 order-2 lg:order-1">
             {/* Tags */}
             <div className="mb-6 flex flex-wrap gap-2">
+              <span className="px-3 py-1.5 text-sm font-medium" style={{ backgroundColor: '#22c55e', color: '#fff' }}>
+                diabetes
+              </span>
               <span className="px-3 py-1.5 text-sm font-medium" style={{ backgroundColor: '#f59e0b', color: '#fff' }}>
                 health
               </span>
               <span className="px-3 py-1.5 text-sm font-medium" style={{ backgroundColor: '#84cc16', color: '#fff' }}>
                 healthy
               </span>
-              <span className="px-3 py-1.5 text-sm font-medium" style={{ backgroundColor: '#22c55e', color: '#fff' }}>
-                lifestyle
-              </span>
             </div>
 
             {/* Feature Image */}
             <div className="mt-4 mb-8">
               <img
-                src="/assets/Key-Roles-of-Magnesium-in-the-Bo-scaled.jpg"
-                alt="Magnesium and Its Importance"
+                src="/assets/diabetes-article.png"
+                alt="Early Detection of Diabetes"
                 className="w-full h-auto rounded-lg"
                 style={{ maxHeight: '600px', objectFit: 'cover' }}
               />
@@ -41,7 +41,7 @@ const MagnesiumArticle = () => {
             {/* Article Metadata */}
             <div className="mb-6 flex items-center justify-between text-gray-600" style={{ fontSize: bodyFontSize }}>
               <div>
-                <span>September 1, 2025</span>
+                <span>October 9, 2024</span>
                 <span className="mx-2">•</span>
                 <span>By Dr Monisha Singhal</span>
               </div>
@@ -53,247 +53,327 @@ const MagnesiumArticle = () => {
               className="text-4xl md:text-5xl font-bold mb-8 leading-tight"
               style={{ color: '#1f2937', fontFamily: 'Georgia, serif' }}
             >
-              Comprehensive Benefits of Magnesium for Overall Wellness
+              Stay Healthy, Stay Informed: Early Detection of Diabetes and Preventive Strategies
             </h1>
 
             {/* Introduction Section */}
             <div className="mb-10">
-              <h2 className="text-2xl md:text-3xl font-bold mb-6" style={{ color: headingColor }}>
-                Introduction to Magnesium and Its Importance for Wellness
-              </h2>
               <p className="leading-relaxed mb-6" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
-                In the ever-expanding landscape of preventive healthcare, magnesium has become a cornerstone for maintaining optimal health and wellness. Despite being involved in over <strong style={{ color: headingColor }}>300 biochemical reactions</strong>, magnesium often doesn't receive the attention it deserves.
+                Uncontrolled diabetes is a serious condition and the worst is being unaware of one's Diabetes!
+              </p>
+              <p className="leading-relaxed mb-6" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
+                Even in today's world, diabetes is one of the most rapidly rising health problems worldwide affecting millions. The frightening part is that about half of the population having diabetes is diagnosed so late that people only find out they have the disease once they present complications. We all know diabetes is a chronic condition — but a quick diagnosis can help patients manage the disease and avoid dire health implications.
+              </p>
+              <p className="leading-relaxed mb-6" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
+                In this blog, we'll explore the importance of recognizing early symptoms, understanding key risk factors like family history and lifestyle, and so on.
+              </p>
+              <p className="leading-relaxed mb-6" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
+                Let's learn about diabetes:
               </p>
             </div>
 
-            {/* Key Roles Section */}
+            {/* What is Diabetes Section */}
             <div className="mb-10">
               <h2 className="text-2xl md:text-3xl font-bold mb-6" style={{ color: headingColor }}>
-                Key Roles of Magnesium in the Body
-              </h2>
-              <ul className="space-y-4 mb-6">
-                <li className="flex items-start">
-                  <span className="font-bold text-gray-800 mr-2" style={{ fontSize: '18px' }}>Energy Production</span>
-                  <span style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>– Crucial for ATP (body's main energy source).</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="font-bold text-gray-800 mr-2" style={{ fontSize: '18px' }}>Bone Strength</span>
-                  <span style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>– Works with calcium & vitamin D to prevent osteoporosis.</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="font-bold text-gray-800 mr-2" style={{ fontSize: '18px' }}>Heart Health</span>
-                  <span style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>– Regulates heartbeat and blood pressure.</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="font-bold text-gray-800 mr-2" style={{ fontSize: '18px' }}>Mental Wellness</span>
-                  <span style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>– Reduces stress, anxiety, and migraines.</span>
-                </li>
-              </ul>
-              <div className="mb-8 flex justify-center">
-                <img
-                  src="/assets/How-to-Incorporate-Magnesium-into-Your-We-scaled.jpg"
-                  alt="Key Roles of Magnesium"
-                  className="h-auto rounded-lg"
-                  style={{ maxWidth: '70%', height: 'auto' }}
-                />
-              </div>
-            </div>
-
-            {/* Identifying Deficiency Section */}
-            <div className="mb-10">
-              <h2 className="text-2xl md:text-3xl font-bold mb-6" style={{ color: headingColor }}>
-                Identifying Magnesium Deficiency and Its Causes
+                What is Diabetes?
               </h2>
               <p className="leading-relaxed mb-6" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
-                Modern lifestyles often lead to <strong style={{ color: headingColor }}>low magnesium levels</strong> due to:
+                Diabetes is a long-term health condition that affects how your body turns food into energy. The pancreas makes a hormone—insulin—that helps the body use sugar (glucose) from food to enter cells where it can be used for energy. This is when the body either does not make enough insulin or cannot use it properly, leaving glucose in the blood and resulting in high levels of sugar.
               </p>
-              <ul className="list-disc list-inside space-y-3 mb-6" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
-                <li>High intake of processed foods</li>
-                <li>Stress, lack of sleep</li>
-                <li>Excess alcohol use</li>
-                <li>Nutrient-depleting medications</li>
-              </ul>
+              <p className="leading-relaxed mb-6" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
+                It is an autoimmune disease characterized by the destruction of insulin-producing cells in the pancreas. While children and young adults are often diagnosed, this form can occur at any age.
+              </p>
+              <p className="leading-relaxed mb-6" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
+                Some diabetic patients don't seek medical attention, and the implications of not identifying and treating the disease promptly can lead to complications from diabetic retinopathy hence, why it is necessary to identify these risk factors and implement modern preventive strategies.
+              </p>
             </div>
 
-            {/* Symptoms Section */}
+            {/* Common Signs of Undetected Diabetes Section */}
             <div className="mb-10">
               <h2 className="text-2xl md:text-3xl font-bold mb-6" style={{ color: headingColor }}>
-                Symptoms and Health Impacts of Magnesium Deficiency
+                Common Signs of Undetected Diabetes
               </h2>
-              <div className="mb-8 flex justify-center">
-                <img
-                  src="/assets/common-symptoms.png"
-                  alt="Common Symptoms"
-                  className="h-auto rounded-lg"
-                  style={{ maxWidth: '41%', height: 'auto' }}
-                />
+              <p className="leading-relaxed mb-6" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
+                Many individuals are often unaware of their condition, with mild or no symptoms. However, if you notice certain signs, it's important to get tested.
+              </p>
+
+              {/* Fatigue Section */}
+              <div className="mb-8">
+                <h3 className="text-xl md:text-2xl font-bold mb-4" style={{ color: headingColor }}>
+                  Fatigue
+                </h3>
+                <p className="leading-relaxed mb-4" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
+                  A person can get too tired even when engaged in very light activities like short walks, and such unexplained weariness in the body is often one of the initial concerns of diabetes about the interactions of diabetes and tissues. It is typical in such cases for the body to seek intermittent starvation, resulting from a decreased use of glucose, in order to feed off fat instead.
+                </p>
               </div>
+
+              {/* Family History Section */}
+              <div className="mb-8">
+                <h3 className="text-xl md:text-2xl font-bold mb-4" style={{ color: headingColor }}>
+                  Family History of Diabetes
+                </h3>
+                <p className="leading-relaxed mb-4" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
+                  If you are the child or sibling of a diabetic patient, your chance of contracting the condition is quite high. A family history of diabetes can be said to be one of the important reasons for which you should regularly monitor your blood sugar levels, more so if you have any other complaints at the same time.
+                </p>
+              </div>
+
+              {/* Frequent Urination Section */}
+              <div className="mb-8">
+                <h3 className="text-xl md:text-2xl font-bold mb-4" style={{ color: headingColor }}>
+                  Frequent Urination
+                </h3>
+                <p className="leading-relaxed mb-4" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
+                  The excess sugar in your blood leads to excess fluid intake to remove the sugar from concentrations in the blood. Therefore, you may notice that you are going to the restroom to pass urine every short while, even at night.
+                </p>
+              </div>
+
+              {/* Increased Thirst Section */}
+              <div className="mb-8">
+                <h3 className="text-xl md:text-2xl font-bold mb-4" style={{ color: headingColor }}>
+                  Increased Thirst
+                </h3>
+                <p className="leading-relaxed mb-4" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
+                  Excessive voiding of urine can lead to a lost thirst stimulus hence making one's thirst wanting. However, if you answer yes to this question, even when increasing fluids, you still feel thirsty; you may have elevated blood sugars.
+                </p>
+              </div>
+
+              {/* Other Symptoms Section */}
+              <div className="mb-8">
+                <h3 className="text-xl md:text-2xl font-bold mb-4" style={{ color: headingColor }}>
+                  Other Symptoms to check
+                </h3>
+                <p className="leading-relaxed mb-4" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
+                  Even outside those common symptoms, other associated ones sometimes confound the diagnosis of diabetes. Here is a list of:
+                </p>
+
+                {/* Unexplained Weight Loss */}
+                <div className="mb-6">
+                  <h4 className="text-lg md:text-xl font-bold mb-3" style={{ color: headingColor }}>
+                    Unexplained Weight Loss:
+                  </h4>
+                  <p className="leading-relaxed mb-4" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
+                    Despite normal food intake many people complain of weight loss because of the need for energy in the muscles and fat combustion on account of low insulin levels.
+                  </p>
+                </div>
+
+                {/* Blurred Vision */}
+                <div className="mb-6">
+                  <h4 className="text-lg md:text-xl font-bold mb-3" style={{ color: headingColor }}>
+                    Blurred Vision:
+                  </h4>
+                  <p className="leading-relaxed mb-4" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
+                    Due to excess sugar in the blood, damage may occur to the blood vessels that affect the eyes, leading to vision problems that may be temporary or permanent.
+                  </p>
+                </div>
+
+                {/* On-going Wounds */}
+                <div className="mb-6">
+                  <h4 className="text-lg md:text-xl font-bold mb-3" style={{ color: headingColor }}>
+                    On-going Wounds:
+                  </h4>
+                  <p className="leading-relaxed mb-4" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
+                    Diabetes also causes weak blood circulation and weak immune systems which also contributes to slow healing of any cut or sore.
+                  </p>
+                </div>
+
+                {/* Tingling or Numbness */}
+                <div className="mb-6">
+                  <h4 className="text-lg md:text-xl font-bold mb-3" style={{ color: headingColor }}>
+                    Tingling or Numbness:
+                  </h4>
+                  <p className="leading-relaxed mb-4" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
+                    Victims of diabetes are likely to suffer from neurological complications in most cases on their more distal regions encompassing hands or feet. This may present itself as a burning sensation, loss of sensation, or even discomfort.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Risk Factors for Diabetes Section */}
+            <div className="mb-10">
+              <h2 className="text-2xl md:text-3xl font-bold mb-6" style={{ color: headingColor }}>
+                Risk Factors for Diabetes
+              </h2>
+              <p className="leading-relaxed mb-6" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
+                Besides the symptoms presented, other risk factors in particular can augment the chances of having diabetes. Being aware of such factors would enable you to manage your health more effectively.
+              </p>
+
+              {/* Age */}
               <div className="mb-6">
-                <p className="font-bold text-gray-800 mb-3" style={{ fontSize: '18px' }}>Early signs:</p>
-                <p style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>muscle cramps, fatigue, weakness</p>
+                <h3 className="text-xl md:text-2xl font-bold mb-4" style={{ color: headingColor }}>
+                  Age
+                </h3>
+                <p className="leading-relaxed mb-4" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
+                  The chances of having type 2 diabetes increase gradually as one advances in age, especially after one hits 45 years.
+                </p>
               </div>
+
+              {/* Weight */}
               <div className="mb-6">
-                <p className="font-bold text-gray-800 mb-3" style={{ fontSize: '18px' }}>Advanced risks:</p>
-                <p style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>high blood pressure, osteoporosis, type 2 diabetes, irregular heartbeat, anxiety, and depression</p>
+                <h3 className="text-xl md:text-2xl font-bold mb-4" style={{ color: headingColor }}>
+                  Weight
+                </h3>
+                <p className="leading-relaxed mb-4" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
+                  Weight gain as well as obesity are regarded as the most significant risk factors for being diagnosed with type 2 diabetes.
+                </p>
+              </div>
+
+              {/* Sedentary Lifestyle */}
+              <div className="mb-6">
+                <h3 className="text-xl md:text-2xl font-bold mb-4" style={{ color: headingColor }}>
+                  Sedentary Lifestyle
+                </h3>
+                <p className="leading-relaxed mb-4" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
+                  Lack of exercise can result in gaining excess weight coupled with increased insulin resistance which raises the susceptibility to diabetes.
+                </p>
+              </div>
+
+              {/* Diet */}
+              <div className="mb-6">
+                <h3 className="text-xl md:text-2xl font-bold mb-4" style={{ color: headingColor }}>
+                  Diet
+                </h3>
+                <p className="leading-relaxed mb-4" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
+                  Eating a lot of refined foods, sugar, and bad fats will make one obese and have metabolic complications.
+                </p>
+              </div>
+
+              {/* Ethnicity */}
+              <div className="mb-6">
+                <h3 className="text-xl md:text-2xl font-bold mb-4" style={{ color: headingColor }}>
+                  Ethnicity
+                </h3>
+                <p className="leading-relaxed mb-4" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
+                  It has been recognized that some ethnic groups are more susceptible to diabetes primarily including but not limited to African Americans, Hispanic/Latino Americans, Native Americans, and even Asian Americans.
+                </p>
               </div>
             </div>
 
-            {/* Dietary Sources Section */}
+            {/* Taking Action: Early Testing and Diagnosis Section */}
             <div className="mb-10">
               <h2 className="text-2xl md:text-3xl font-bold mb-6" style={{ color: headingColor }}>
-                Dietary Sources Rich in Magnesium
+                Taking Action: Early Testing and Diagnosis
               </h2>
               <p className="leading-relaxed mb-6" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
-                Top foods high in magnesium include:
+                If your risk of diabetes is high, or you have any of the symptoms mentioned above, it is important to be examined.
               </p>
-              <ul className="list-disc list-inside space-y-3 mb-6" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
-                <li>Spinach and leafy greens</li>
-                <li>Lentils, black beans</li>
-                <li>Almonds, pumpkin seeds</li>
-                <li>Whole grains</li>
-                <li>Bananas</li>
-              </ul>
-              <p className="mb-6" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
-                💡 Eating spinach + almonds + a banana = ~190 mg magnesium.
-              </p>
-            </div>
 
-            {/* Image before Forms of Magnesium Section */}
-            <div className="mb-10 flex justify-center">
-              <img
-                src="/assets/Magnesium-and-Its-Importance-for2-scaled.jpg"
-                alt="Magnesium and Its Importance"
-                className="h-auto rounded-lg"
-                style={{ maxWidth: '70%', height: 'auto' }}
-              />
-            </div>
-
-            {/* Forms of Magnesium Section */}
-            <div className="mb-10">
-              <h2 className="text-2xl md:text-3xl font-bold mb-6" style={{ color: headingColor }}>
-                Exploring Different Forms of Magnesium Supplements
-              </h2>
-              <ul className="space-y-4 mb-8" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
-                <li><strong className="text-gray-800">Magnesium Citrate</strong> – best for constipation & good absorption.</li>
-                <li><strong className="text-gray-800">Magnesium Glycinate</strong> – calming, improves sleep & reduces anxiety.</li>
-                <li><strong className="text-gray-800">Magnesium Oxide</strong> – cost-effective but less absorbable.</li>
-              </ul>
-              <div className="mb-8 flex justify-center">
-                <img
-                  src="/assets/Identifying-Magnesium-Deficiency-and-scaled.jpg"
-                  alt="Identifying Magnesium Deficiency"
-                  className="h-auto rounded-lg"
-                  style={{ maxWidth: '70%', height: 'auto' }}
-                />
-              </div>
-            </div>
-
-            {/* Choosing the Right Magnesium Supplement Section */}
-            <div className="mb-10">
-              <h2 className="text-2xl md:text-3xl font-bold mb-6" style={{ color: headingColor }}>
-                Choosing the Right Magnesium Supplement
-              </h2>
               <p className="leading-relaxed mb-4" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
-                Selection depends on health goals:
+                Different forms of blood tests for diagnosis:
               </p>
-              <ul className="space-y-3 mb-6" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
-                <li>For <strong className="text-gray-800">constipation</strong> → Citrate</li>
-                <li>For <strong className="text-gray-800">relaxation & sleep</strong> → Glycinate</li>
-                <li>For <strong className="text-gray-800">affordable option</strong> → Oxide</li>
+
+              <ul className="space-y-4 mb-6" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
+                <li>
+                  <strong className="text-gray-800">Fasting Plasma Glucose Test (FPG)</strong> - Assesses the level of blood sugar taken in at least 8 hours of fasting.
+                </li>
+                <li>
+                  <strong className="text-gray-800">A1C Test</strong> - Evaluates a person's A1C in terms of blood glucose levels over two to three months even in diabetics.
+                </li>
+                <li>
+                  <strong className="text-gray-800">Oral Glucose Tolerance Test (OGTT)</strong> - Measures the blood sugar concentration before and after glucose ingestion and assesses how the body handles glucose.
+                </li>
               </ul>
+
               <p className="leading-relaxed mb-6" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
-                Always check <strong style={{ color: headingColor }}>bioavailability, dosage, and tolerance</strong> before choosing.
+                Early testing is especially very important when one has a family background or risk factors of being diabetic as the condition is caught at initial stages and managed well.
               </p>
             </div>
 
-            {/* Side Effects Section */}
+            {/* Diabetes Management Section */}
             <div className="mb-10">
               <h2 className="text-2xl md:text-3xl font-bold mb-6" style={{ color: headingColor }}>
-                Side Effects of Excessive Magnesium
+                Diabetes Management: Lifestyle and Pharmacological Strategies
               </h2>
-              <p className="leading-relaxed mb-4" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
-                Overuse can cause:
+              <p className="leading-relaxed mb-6" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
+                After diagnosis, it is important to manage diabetes by adopting some changes in life and accepting medical treatment since both work better than one alone. Here are remedies to manage diabetes and impede its aggressive progression.
               </p>
-              <ul className="space-y-3 mb-8" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
-                <li>Diarrhea, nausea, stomach cramps</li>
-                <li>Severe cases (especially in kidney issues) → toxicity</li>
-              </ul>
-              <div className="mb-8 flex justify-center">
-                <img
-                  src="/assets/Potential-Side-Effects-and-Risks-of-scaled.jpg"
-                  alt="Potential Side Effects and Risks"
-                  className="h-auto rounded-lg"
-                  style={{ maxWidth: '70%', height: 'auto' }}
-                />
+
+              {/* Dietary practices */}
+              <div className="mb-8">
+                <h3 className="text-xl md:text-2xl font-bold mb-4" style={{ color: headingColor }}>
+                  Dietary practices and nutrition management
+                </h3>
+                <p className="leading-relaxed mb-4" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
+                  Creative management of diabetes is finding a way of eating well-balanced nutritious meals. In this case:
+                </p>
+                <ul className="space-y-3 mb-4" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
+                  <li><strong className="text-gray-800">Whole Grains:</strong> Replace sculpture grains with whole grains such as brown rice, quinoa, and whole wheat.</li>
+                  <li><strong className="text-gray-800">Healthy Fats:</strong> Avoid saturated fats and shift to unsaturated fats like those found in olive oil, avocados, and nuts.</li>
+                  <li><strong className="text-gray-800">Lean Proteins:</strong> Cut back on meat and begin learning sources of protein such source fish chicken beans legumes.</li>
+                  <li><strong className="text-gray-800">Fiber:</strong> Blood sugar levels are controlled by eating high fiber content foods such as vegetables fruits and legumes.</li>
+                </ul>
+                <p className="leading-relaxed mb-4" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
+                  Avoid foods high in sugar, unhealthy fats, and processed carbohydrates, which can cause blood sugar spikes.
+                </p>
+              </div>
+
+              {/* Regular Exercise */}
+              <div className="mb-8">
+                <h3 className="text-xl md:text-2xl font-bold mb-4" style={{ color: headingColor }}>
+                  Regular Exercise
+                </h3>
+                <p className="leading-relaxed mb-4" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
+                  Bodily movements help in bringing down the glucose levels and thus give the body more insulin. Do moderate exercise for 30 minutes at least such as walking, swimming, or cycling on most days of the week.
+                </p>
+              </div>
+
+              {/* Monitoring Blood Sugar */}
+              <div className="mb-8">
+                <h3 className="text-xl md:text-2xl font-bold mb-4" style={{ color: headingColor }}>
+                  Monitoring Blood Sugar
+                </h3>
+                <p className="leading-relaxed mb-4" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
+                  Through regular check-ups of your blood sugar, you can be sure how your body behaves with different foods, activities, and medications. Therefore, the possibility to be aware and to keep your blood sugar at an acceptable level is achieved.
+                </p>
+              </div>
+
+              {/* Medications and Insulin */}
+              <div className="mb-8">
+                <h3 className="text-xl md:text-2xl font-bold mb-4" style={{ color: headingColor }}>
+                  Medications and Insulin
+                </h3>
+                <p className="leading-relaxed mb-4" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
+                  Depending on the kind and stage of your diabetes, your doctor might suggest the drugs to regulate the blood sugar counts. Some individuals with Type 2 diabetes may need insulin treatment if lifestyle corrections and the previously mentioned pills no longer keep their blood glucose level down.
+                </p>
               </div>
             </div>
 
-            {/* How to Incorporate Magnesium Section */}
+            {/* Prevention Strategies Section */}
             <div className="mb-10">
               <h2 className="text-2xl md:text-3xl font-bold mb-6" style={{ color: headingColor }}>
-                How to Incorporate Magnesium into Your Wellness Routine
-              </h2>
-              <ul className="space-y-3 mb-6" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
-                <li className="flex items-start">
-                  <span className="text-green-700 mr-2" style={{ fontSize: '20px' }}>✓</span>
-                  <span>Eat magnesium-rich foods daily</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-green-700 mr-2" style={{ fontSize: '20px' }}>✓</span>
-                  <span>Limit processed foods</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-green-700 mr-2" style={{ fontSize: '20px' }}>✓</span>
-                  <span>Use supplements only if necessary</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-green-700 mr-2" style={{ fontSize: '20px' }}>✓</span>
-                  <span>Track total intake</span>
-                </li>
-              </ul>
-              
-              <p className="font-bold text-gray-800 mb-3" style={{ fontSize: '18px' }}>
-                Recommended Daily Intake (RDA):
-              </p>
-              <ul className="list-disc list-inside space-y-2 mb-6" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
-                <li>Women: 320 mg</li>
-                <li>Men: 420 mg</li>
-              </ul>
-
-              <h3 className="text-xl md:text-2xl font-bold mb-4" style={{ color: headingColor }}>
-                Consulting Healthcare Professionals
-              </h3>
-              <p className="leading-relaxed mb-8" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
-                Always consult a doctor before starting supplements—especially if you take medications or have health conditions.
-              </p>
-              
-              <div className="mb-8 flex justify-center">
-                <img
-                  src="/assets/Consultation-with-Healthcare-Professionals-scaled.jpg"
-                  alt="Consultation with Healthcare Professionals"
-                  className="h-auto rounded-lg"
-                  style={{ maxWidth: '70%', height: 'auto' }}
-                />
-              </div>
-            </div>
-
-            {/* Conclusion Section */}
-            <div className="mb-10">
-              <h2 className="text-2xl md:text-3xl font-bold mb-6" style={{ color: headingColor }}>
-                Conclusion
+                Prevention Strategies
               </h2>
               <p className="leading-relaxed mb-6" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
-                Magnesium is essential for <strong style={{ color: headingColor }}>energy, strong bones, heart health, and mental well-being</strong>. With the right diet and supplements, you can unlock its full wellness benefits for both immediate and long-term health.
+                For those at risk of developing diabetes, there are several ways to prevent or delay its onset:
+              </p>
+
+              <ul className="space-y-4 mb-6" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
+                <li>
+                  <strong className="text-gray-800">Keep Fit and Eat Healthily:</strong> Loss of a small amount of weight (5%-10% of your body weight) can significantly lower your chances of getting Type 2 diabetes.
+                </li>
+                <li>
+                  <strong className="text-gray-800">Be Active:</strong> Besides weight management, exercise regularly also enhances insulin sensitivity.
+                </li>
+                <li>
+                  <strong className="text-gray-800">Frequent Self-Monitoring:</strong> If you have prediabetes or other risk factors, doing regular blood sugar tests can assist you in the early detection of problems.
+                </li>
+              </ul>
+            </div>
+
+            {/* Summary Section */}
+            <div className="mb-10">
+              <h2 className="text-2xl md:text-3xl font-bold mb-6" style={{ color: headingColor }}>
+                Summary
+              </h2>
+              <p className="leading-relaxed mb-6" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
+                Diabetes is a potentially life-threatening disease, but early detection and aggressive treatment can significantly improve the quality of life and prevent further complications. Rapid action is required for any early symptoms of diabetes, for example, if you face fatigue, frequent urination, or excessive thirst, inform your healthcare provider promptly so that you can undergo the testing.
+              </p>
+              <p className="leading-relaxed mb-6" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
+                At Rasayana Bio, we are committed to raising awareness about diabetes and providing resources for those affected by the condition. Visit www.rasayanabio.com to learn more about how you can manage and prevent diabetes, and take control of your health today.
               </p>
               
               {/* Hashtags */}
               <div className="mb-6 flex flex-wrap gap-2">
-                <span style={{ color: bodyColor, fontSize: bodyFontSize }}>##Benefits of magnesium</span>
-                <span style={{ color: bodyColor, fontSize: bodyFontSize }}>##Best magnesium supplements</span>
-                <span style={{ color: bodyColor, fontSize: bodyFontSize }}>##Magnesium deficiency symptoms</span>
-                <span style={{ color: bodyColor, fontSize: bodyFontSize }}>##Magnesium for wellness</span>
-                <span style={{ color: bodyColor, fontSize: bodyFontSize }}>##Magnesium-rich foods</span>
-                <span style={{ color: bodyColor, fontSize: bodyFontSize }}>#Magnesium for sleep and anxiety</span>
+                <span style={{ color: bodyColor, fontSize: bodyFontSize }}>#Diabetes</span>
               </div>
 
               {/* Social Media Icons */}
@@ -476,7 +556,7 @@ const MagnesiumArticle = () => {
                   </div>
                 </article>
 
-                {/* Post 2 - Diabetes Article */}
+                {/* Post 2 - Diabetes Article (current article) */}
                 <article className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden border border-gray-100">
                   <div className="relative w-full h-64 overflow-hidden">
                     <img
@@ -518,9 +598,10 @@ const MagnesiumArticle = () => {
                 </article>
               </div>
             </div>
+
+            {/* Sidebar - Right Side */}
           </main>
 
-          {/* Sidebar - Right Side */}
           <aside className="lg:w-1/4 order-1 lg:order-2">
             {/* Search Box */}
             <div className="mb-8">
@@ -630,34 +711,19 @@ const MagnesiumArticle = () => {
               </h3>
               <div className="flex flex-wrap gap-2">
                 <button className="px-3 py-1.5 rounded font-medium border border-gray-300 hover:bg-green-50 transition-colors" style={{ color: '#374151', backgroundColor: '#f3f4f6', fontSize: bodyFontSize }}>
-                  ASHWAGANDHA
+                  DIABETES
                 </button>
                 <button className="px-3 py-1.5 rounded font-medium border border-gray-300 hover:bg-green-50 transition-colors" style={{ color: '#374151', backgroundColor: '#f3f4f6', fontSize: bodyFontSize }}>
-                  AYURVEDIC
+                  HEALTH
                 </button>
                 <button className="px-3 py-1.5 rounded font-medium border border-gray-300 hover:bg-green-50 transition-colors" style={{ color: '#374151', backgroundColor: '#f3f4f6', fontSize: bodyFontSize }}>
-                  AYURVEDIC PRODUCTS
+                  HEALTHY
                 </button>
                 <button className="px-3 py-1.5 rounded font-medium border border-gray-300 hover:bg-green-50 transition-colors" style={{ color: '#374151', backgroundColor: '#f3f4f6', fontSize: bodyFontSize }}>
-                  FEMALE WELLNESS
+                  PREVENTION
                 </button>
                 <button className="px-3 py-1.5 rounded font-medium border border-gray-300 hover:bg-green-50 transition-colors" style={{ color: '#374151', backgroundColor: '#f3f4f6', fontSize: bodyFontSize }}>
-                  NO HARSH CHEMICALS
-                </button>
-                <button className="px-3 py-1.5 rounded font-medium border border-gray-300 hover:bg-green-50 transition-colors" style={{ color: '#374151', backgroundColor: '#f3f4f6', fontSize: bodyFontSize }}>
-                  NON-GMO
-                </button>
-                <button className="px-3 py-1.5 rounded font-medium border border-gray-300 hover:bg-green-50 transition-colors" style={{ color: '#374151', backgroundColor: '#f3f4f6', fontSize: bodyFontSize }}>
-                  NUT- AND GLUTEN-FREE
-                </button>
-                <button className="px-3 py-1.5 rounded font-medium border border-gray-300 hover:bg-green-50 transition-colors" style={{ color: '#374151', backgroundColor: '#f3f4f6', fontSize: bodyFontSize }}>
-                  PRODUCTS
-                </button>
-                <button className="px-3 py-1.5 rounded font-medium border border-gray-300 hover:bg-green-50 transition-colors" style={{ color: '#374151', backgroundColor: '#f3f4f6', fontSize: bodyFontSize }}>
-                  SCIENTIFICALLY TESTED
-                </button>
-                <button className="px-3 py-1.5 rounded font-medium border border-gray-300 hover:bg-green-50 transition-colors" style={{ color: '#374151', backgroundColor: '#f3f4f6', fontSize: bodyFontSize }}>
-                  SOY-FREE
+                  EARLY DETECTION
                 </button>
               </div>
             </div>
@@ -671,5 +737,5 @@ const MagnesiumArticle = () => {
   );
 };
 
-export default MagnesiumArticle;
+export default DiabetesArticle;
 

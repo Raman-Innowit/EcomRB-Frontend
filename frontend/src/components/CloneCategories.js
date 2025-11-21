@@ -1,45 +1,54 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const categories = [
   {
     label: 'Immunity Booster',
     color: '#f97316',
     img: '/assets/cat-immunity.png',
+    route: '/immunity-booster',
   },
   {
     label: 'Sleep Support',
     color: '#84cc16',
     img: '/assets/cat-sleep.png',
+    route: '/sleep-support',
   },
   {
     label: 'Stress and Anxiety',
     color: '#14b8a6',
     img: '/assets/cat-stress.png',
+    route: '/stress-anxiety-relief',
   },
   {
     label: "Men's Health",
     color: '#0ea5e9',
     img: '/assets/cat-men.png',
+    route: '/mens-health',
   },
   {
     label: "Women's Health",
     color: '#ec4899',
     img: '/assets/cat-women.png',
+    route: '/womens-health',
   },
   {
     label: 'Beauty & Radiance',
     color: '#a855f7',
     img: '/assets/cat-beauty.png',
+    route: '/beauty-radiance',
   },
   {
     label: 'Healthy Aging',
     color: '#a16207',
     img: '/assets/cat-aging.png',
+    route: '/bone-and-joint-health',
   },
   {
     label: 'Sports & Fitness',
     color: '#f97316',
     img: '/assets/cat-sports.png',
+    route: '/brain-health',
   },
 ];
 
@@ -52,7 +61,7 @@ const CloneCategories = () => {
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-10 md:gap-14">
         {categories.map((cat) => (
-          <div key={cat.label} className="text-center group">
+          <Link key={cat.label} to={cat.route} className="text-center group cursor-pointer">
             <div className="relative inline-block">
               {/* Small leaf badge */}
               <div className="absolute -top-3 -left-3 z-10">
@@ -67,8 +76,8 @@ const CloneCategories = () => {
                 <img src={cat.img} alt={cat.label} className="relative w-14 h-14 md:w-16 md:h-16 object-contain" />
               </div>
             </div>
-            <div className="mt-5 font-semibold text-green-900 text-base md:text-lg tracking-tight">{cat.label}</div>
-          </div>
+            <div className="mt-5 font-semibold text-green-900 text-base md:text-lg tracking-tight group-hover:text-green-700 transition-colors">{cat.label}</div>
+          </Link>
         ))}
       </div>
     </section>

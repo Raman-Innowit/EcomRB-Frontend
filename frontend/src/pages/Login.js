@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import CloneFooter from '../components/CloneFooter';
 
@@ -59,9 +59,9 @@ const Login = () => {
                   />
                   Keep me signed in
                 </label>
-                <button type="button" className="hover:underline" style={{ color: '#15803d' }}>
+                <Link to="/password-reset" className="hover:underline" style={{ color: '#15803d' }}>
                   Forgot your password?
-                </button>
+                </Link>
               </div>
               {error && <p className="text-sm text-red-600">{error}</p>}
               <div className="flex gap-4">

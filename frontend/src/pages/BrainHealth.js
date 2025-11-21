@@ -5,7 +5,7 @@ import ProductCard from '../components/ProductCard';
 import { ProductCardSkeleton } from '../components/Skeleton';
 import CloneFooter from '../components/CloneFooter';
 
-const ImmunityBooster = () => {
+const BrainHealth = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -14,7 +14,7 @@ const ImmunityBooster = () => {
       setLoading(true);
       try {
         const params = {
-          health_benefit_id: 1, // Immunity Booster ID
+          health_benefit_id: 8, // Sports & Fitness ID (using same products)
           page: 1,
           per_page: 20,
         };
@@ -44,7 +44,7 @@ const ImmunityBooster = () => {
         <div className="relative z-10 h-full container mx-auto px-4 md:px-8 flex items-center justify-center">
           <div className="text-center">
             <div className="text-lg md:text-xl lg:text-2xl font-bold" style={{ color: '#ffffff' }}>
-              <Link to="/" className="hover:text-green-200 transition-colors" style={{ color: '#ffffff' }}>Home</Link> » immune booster
+              <Link to="/" className="hover:text-green-200 transition-colors" style={{ color: '#ffffff' }}>Home</Link> » brain health
             </div>
           </div>
         </div>
@@ -71,13 +71,13 @@ const ImmunityBooster = () => {
           {/* Right Side - Content */}
           <div className="lg:w-1/2">
             <h1 className="text-4xl md:text-5xl font-bold mb-6" style={{ color: '#1f2937' }}>
-              Immune Booster
+              Brain Health
             </h1>
             <p className="text-lg leading-relaxed mb-4" style={{ color: '#2f2f2f', lineHeight: '1.8' }}>
-              To strengthen your immune system, pick Nutra's Bounty supplements, as we provide an Immune Booster. Our products are specially formulated to support your body's natural defenses. The supplements contain essential nutrients like vitamin C, zinc, and vitamin D, which are known to help maintain a strong and healthy immune system.
+              The importance of maintaining brain health increases with age. Nutra's Bounty recognised this need, and that's why we provide a selection of supplements for brain health that are intended to preserve ideal nerve and brain function. You may boost your brain's ability as you age by addressing several aspects of brain health, such as mental alertness, memory, focus, and more.
             </p>
-            <p className="text-lg leading-relaxed" style={{ color: '#2f2f2f', lineHeight: '1.8' }}>
-              With the help of Nutra's Bounty supplements, your body will feel protected and resilient.
+            <p className="text-lg leading-relaxed mb-4" style={{ color: '#2f2f2f', lineHeight: '1.8' }}>
+              Our brain health supplements are made with high-quality ingredients and are supported by thorough scientific study, they are intended to keep you focused and alert while promoting your brain's vibrancy and general health.
             </p>
           </div>
         </div>
@@ -85,7 +85,7 @@ const ImmunityBooster = () => {
         {/* Products Section */}
         <div className="mt-16">
           <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center" style={{ color: '#1f2937' }}>
-            Immune Booster Products
+            Brain Health Products
           </h2>
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
@@ -95,7 +95,7 @@ const ImmunityBooster = () => {
             </div>
           ) : products.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-gray-600 text-lg">No products found for Immunity Booster</p>
+              <p className="text-gray-600 text-lg">No products found for Brain Health</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
@@ -113,4 +113,5 @@ const ImmunityBooster = () => {
   );
 };
 
-export default ImmunityBooster;
+export default BrainHealth;
+

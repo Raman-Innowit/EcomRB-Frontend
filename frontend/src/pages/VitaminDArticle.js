@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import CloneFooter from '../components/CloneFooter';
 
-const MagnesiumArticle = () => {
+const VitaminDArticle = () => {
   const headingColor = '#1c5f2a';
   const bodyColor = '#2f2f2f';
   const bodyFontSize = '17px';
@@ -13,26 +13,18 @@ const MagnesiumArticle = () => {
       {/* Main Content */}
       <div className="container mx-auto px-4 py-12">
         <div className="flex flex-col lg:flex-row gap-12">
-          {/* Main Content Area - Left Side */}
           <main className="lg:w-3/4 order-2 lg:order-1">
             {/* Tags */}
             <div className="mb-6 flex flex-wrap gap-2">
-              <span className="px-3 py-1.5 text-sm font-medium" style={{ backgroundColor: '#f59e0b', color: '#fff' }}>
-                health
-              </span>
-              <span className="px-3 py-1.5 text-sm font-medium" style={{ backgroundColor: '#84cc16', color: '#fff' }}>
-                healthy
-              </span>
-              <span className="px-3 py-1.5 text-sm font-medium" style={{ backgroundColor: '#22c55e', color: '#fff' }}>
-                lifestyle
-              </span>
+              <span className="px-3 py-1.5 text-sm font-medium" style={{ backgroundColor: '#d4a574', color: '#fff' }}>ayurvedic</span>
+              <span className="px-3 py-1.5 text-sm font-medium" style={{ backgroundColor: '#f59e0b', color: '#fff' }}>health</span>
             </div>
 
             {/* Feature Image */}
             <div className="mt-4 mb-8">
               <img
-                src="/assets/Key-Roles-of-Magnesium-in-the-Bo-scaled.jpg"
-                alt="Magnesium and Its Importance"
+                src="/assets/vitamin-d-article.png"
+                alt="6 good sources of vitamin D for vegans"
                 className="w-full h-auto rounded-lg"
                 style={{ maxHeight: '600px', objectFit: 'cover' }}
               />
@@ -41,7 +33,7 @@ const MagnesiumArticle = () => {
             {/* Article Metadata */}
             <div className="mb-6 flex items-center justify-between text-gray-600" style={{ fontSize: bodyFontSize }}>
               <div>
-                <span>September 1, 2025</span>
+                <span>February 27, 2020</span>
                 <span className="mx-2">•</span>
                 <span>By Dr Monisha Singhal</span>
               </div>
@@ -53,268 +45,52 @@ const MagnesiumArticle = () => {
               className="text-4xl md:text-5xl font-bold mb-8 leading-tight"
               style={{ color: '#1f2937', fontFamily: 'Georgia, serif' }}
             >
-              Comprehensive Benefits of Magnesium for Overall Wellness
+              6 good sources of vitamin D for vegans
             </h1>
 
-            {/* Introduction Section */}
+            {/* Article Content */}
             <div className="mb-10">
-              <h2 className="text-2xl md:text-3xl font-bold mb-6" style={{ color: headingColor }}>
-                Introduction to Magnesium and Its Importance for Wellness
-              </h2>
               <p className="leading-relaxed mb-6" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
-                In the ever-expanding landscape of preventive healthcare, magnesium has become a cornerstone for maintaining optimal health and wellness. Despite being involved in over <strong style={{ color: headingColor }}>300 biochemical reactions</strong>, magnesium often doesn't receive the attention it deserves.
+                Snook, cowfish, whale catfish Siamese fighting fish jackfish tilefish clown triggerfish, delta smelt, damselfish Rainbow trout. Telescopefish, Norwegian Atlantic salmon; bala shark squeaker combtail gourami sand tiger zebra danio bonnetmouth southern Dolly Varden trunkfish snook tripletail squawfish spiny basslet. Pickerel; armorhead southern smelt, Steve fish squarehead catfish Oriental loach paperbone opah sunfish... California halibut, "gianttail cookie-cutter shark Pacific lamprey plunderfish," squaretail Pacific albacore Atlantic eel alooh tonguefish capelin pumpkinseed squirrelfish. Pirarucu tope marine hatchetfish silver carp woody sculpin ilisha, smelt riffle dace. Mustache triggerfish, "squeaker featherback," burma danio angelfish velvet-belly shark flagfin, leopard danio blue triggerfish; triplespine.
               </p>
+
+              {/* Blockquote */}
+              <blockquote className="mb-6 pl-6 border-l-4" style={{ borderColor: headingColor }}>
+                <p className="leading-relaxed mb-4 italic" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
+                  <span className="text-4xl leading-none" style={{ color: headingColor }}>"</span>
+                  No animal product contamination or usage is present in any food, cosmetic, clothing items – ideal for Pure Vegetarians, Jains and of course for Vegans. Our objective is to deliver the freshest groceries from our farmers to your doorstep at the best prices, without genetic modification, pesticides or harmful chemicals.
+                  <span className="text-4xl leading-none" style={{ color: headingColor }}>"</span>
+                </p>
+              </blockquote>
             </div>
 
-            {/* Key Roles Section */}
-            <div className="mb-10">
-              <h2 className="text-2xl md:text-3xl font-bold mb-6" style={{ color: headingColor }}>
-                Key Roles of Magnesium in the Body
-              </h2>
-              <ul className="space-y-4 mb-6">
-                <li className="flex items-start">
-                  <span className="font-bold text-gray-800 mr-2" style={{ fontSize: '18px' }}>Energy Production</span>
-                  <span style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>– Crucial for ATP (body's main energy source).</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="font-bold text-gray-800 mr-2" style={{ fontSize: '18px' }}>Bone Strength</span>
-                  <span style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>– Works with calcium & vitamin D to prevent osteoporosis.</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="font-bold text-gray-800 mr-2" style={{ fontSize: '18px' }}>Heart Health</span>
-                  <span style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>– Regulates heartbeat and blood pressure.</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="font-bold text-gray-800 mr-2" style={{ fontSize: '18px' }}>Mental Wellness</span>
-                  <span style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>– Reduces stress, anxiety, and migraines.</span>
-                </li>
-              </ul>
-              <div className="mb-8 flex justify-center">
-                <img
-                  src="/assets/How-to-Incorporate-Magnesium-into-Your-We-scaled.jpg"
-                  alt="Key Roles of Magnesium"
-                  className="h-auto rounded-lg"
-                  style={{ maxWidth: '70%', height: 'auto' }}
-                />
-              </div>
+            {/* Hashtags */}
+            <div className="mb-6 flex flex-wrap gap-2">
+              <span style={{ color: bodyColor, fontSize: bodyFontSize }}>#Diet</span>
+              <span style={{ color: bodyColor, fontSize: bodyFontSize }}>, </span>
+              <span style={{ color: bodyColor, fontSize: bodyFontSize }}>#Nutrition</span>
+              <span style={{ color: bodyColor, fontSize: bodyFontSize }}>, </span>
+              <span style={{ color: bodyColor, fontSize: bodyFontSize }}>#Vegans</span>
             </div>
 
-            {/* Identifying Deficiency Section */}
-            <div className="mb-10">
-              <h2 className="text-2xl md:text-3xl font-bold mb-6" style={{ color: headingColor }}>
-                Identifying Magnesium Deficiency and Its Causes
-              </h2>
-              <p className="leading-relaxed mb-6" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
-                Modern lifestyles often lead to <strong style={{ color: headingColor }}>low magnesium levels</strong> due to:
-              </p>
-              <ul className="list-disc list-inside space-y-3 mb-6" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
-                <li>High intake of processed foods</li>
-                <li>Stress, lack of sleep</li>
-                <li>Excess alcohol use</li>
-                <li>Nutrient-depleting medications</li>
-              </ul>
-            </div>
-
-            {/* Symptoms Section */}
-            <div className="mb-10">
-              <h2 className="text-2xl md:text-3xl font-bold mb-6" style={{ color: headingColor }}>
-                Symptoms and Health Impacts of Magnesium Deficiency
-              </h2>
-              <div className="mb-8 flex justify-center">
-                <img
-                  src="/assets/common-symptoms.png"
-                  alt="Common Symptoms"
-                  className="h-auto rounded-lg"
-                  style={{ maxWidth: '41%', height: 'auto' }}
-                />
-              </div>
-              <div className="mb-6">
-                <p className="font-bold text-gray-800 mb-3" style={{ fontSize: '18px' }}>Early signs:</p>
-                <p style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>muscle cramps, fatigue, weakness</p>
-              </div>
-              <div className="mb-6">
-                <p className="font-bold text-gray-800 mb-3" style={{ fontSize: '18px' }}>Advanced risks:</p>
-                <p style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>high blood pressure, osteoporosis, type 2 diabetes, irregular heartbeat, anxiety, and depression</p>
-              </div>
-            </div>
-
-            {/* Dietary Sources Section */}
-            <div className="mb-10">
-              <h2 className="text-2xl md:text-3xl font-bold mb-6" style={{ color: headingColor }}>
-                Dietary Sources Rich in Magnesium
-              </h2>
-              <p className="leading-relaxed mb-6" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
-                Top foods high in magnesium include:
-              </p>
-              <ul className="list-disc list-inside space-y-3 mb-6" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
-                <li>Spinach and leafy greens</li>
-                <li>Lentils, black beans</li>
-                <li>Almonds, pumpkin seeds</li>
-                <li>Whole grains</li>
-                <li>Bananas</li>
-              </ul>
-              <p className="mb-6" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
-                💡 Eating spinach + almonds + a banana = ~190 mg magnesium.
-              </p>
-            </div>
-
-            {/* Image before Forms of Magnesium Section */}
-            <div className="mb-10 flex justify-center">
-              <img
-                src="/assets/Magnesium-and-Its-Importance-for2-scaled.jpg"
-                alt="Magnesium and Its Importance"
-                className="h-auto rounded-lg"
-                style={{ maxWidth: '70%', height: 'auto' }}
-              />
-            </div>
-
-            {/* Forms of Magnesium Section */}
-            <div className="mb-10">
-              <h2 className="text-2xl md:text-3xl font-bold mb-6" style={{ color: headingColor }}>
-                Exploring Different Forms of Magnesium Supplements
-              </h2>
-              <ul className="space-y-4 mb-8" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
-                <li><strong className="text-gray-800">Magnesium Citrate</strong> – best for constipation & good absorption.</li>
-                <li><strong className="text-gray-800">Magnesium Glycinate</strong> – calming, improves sleep & reduces anxiety.</li>
-                <li><strong className="text-gray-800">Magnesium Oxide</strong> – cost-effective but less absorbable.</li>
-              </ul>
-              <div className="mb-8 flex justify-center">
-                <img
-                  src="/assets/Identifying-Magnesium-Deficiency-and-scaled.jpg"
-                  alt="Identifying Magnesium Deficiency"
-                  className="h-auto rounded-lg"
-                  style={{ maxWidth: '70%', height: 'auto' }}
-                />
-              </div>
-            </div>
-
-            {/* Choosing the Right Magnesium Supplement Section */}
-            <div className="mb-10">
-              <h2 className="text-2xl md:text-3xl font-bold mb-6" style={{ color: headingColor }}>
-                Choosing the Right Magnesium Supplement
-              </h2>
-              <p className="leading-relaxed mb-4" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
-                Selection depends on health goals:
-              </p>
-              <ul className="space-y-3 mb-6" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
-                <li>For <strong className="text-gray-800">constipation</strong> → Citrate</li>
-                <li>For <strong className="text-gray-800">relaxation & sleep</strong> → Glycinate</li>
-                <li>For <strong className="text-gray-800">affordable option</strong> → Oxide</li>
-              </ul>
-              <p className="leading-relaxed mb-6" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
-                Always check <strong style={{ color: headingColor }}>bioavailability, dosage, and tolerance</strong> before choosing.
-              </p>
-            </div>
-
-            {/* Side Effects Section */}
-            <div className="mb-10">
-              <h2 className="text-2xl md:text-3xl font-bold mb-6" style={{ color: headingColor }}>
-                Side Effects of Excessive Magnesium
-              </h2>
-              <p className="leading-relaxed mb-4" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
-                Overuse can cause:
-              </p>
-              <ul className="space-y-3 mb-8" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
-                <li>Diarrhea, nausea, stomach cramps</li>
-                <li>Severe cases (especially in kidney issues) → toxicity</li>
-              </ul>
-              <div className="mb-8 flex justify-center">
-                <img
-                  src="/assets/Potential-Side-Effects-and-Risks-of-scaled.jpg"
-                  alt="Potential Side Effects and Risks"
-                  className="h-auto rounded-lg"
-                  style={{ maxWidth: '70%', height: 'auto' }}
-                />
-              </div>
-            </div>
-
-            {/* How to Incorporate Magnesium Section */}
-            <div className="mb-10">
-              <h2 className="text-2xl md:text-3xl font-bold mb-6" style={{ color: headingColor }}>
-                How to Incorporate Magnesium into Your Wellness Routine
-              </h2>
-              <ul className="space-y-3 mb-6" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
-                <li className="flex items-start">
-                  <span className="text-green-700 mr-2" style={{ fontSize: '20px' }}>✓</span>
-                  <span>Eat magnesium-rich foods daily</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-green-700 mr-2" style={{ fontSize: '20px' }}>✓</span>
-                  <span>Limit processed foods</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-green-700 mr-2" style={{ fontSize: '20px' }}>✓</span>
-                  <span>Use supplements only if necessary</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-green-700 mr-2" style={{ fontSize: '20px' }}>✓</span>
-                  <span>Track total intake</span>
-                </li>
-              </ul>
-              
-              <p className="font-bold text-gray-800 mb-3" style={{ fontSize: '18px' }}>
-                Recommended Daily Intake (RDA):
-              </p>
-              <ul className="list-disc list-inside space-y-2 mb-6" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
-                <li>Women: 320 mg</li>
-                <li>Men: 420 mg</li>
-              </ul>
-
-              <h3 className="text-xl md:text-2xl font-bold mb-4" style={{ color: headingColor }}>
-                Consulting Healthcare Professionals
-              </h3>
-              <p className="leading-relaxed mb-8" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
-                Always consult a doctor before starting supplements—especially if you take medications or have health conditions.
-              </p>
-              
-              <div className="mb-8 flex justify-center">
-                <img
-                  src="/assets/Consultation-with-Healthcare-Professionals-scaled.jpg"
-                  alt="Consultation with Healthcare Professionals"
-                  className="h-auto rounded-lg"
-                  style={{ maxWidth: '70%', height: 'auto' }}
-                />
-              </div>
-            </div>
-
-            {/* Conclusion Section */}
-            <div className="mb-10">
-              <h2 className="text-2xl md:text-3xl font-bold mb-6" style={{ color: headingColor }}>
-                Conclusion
-              </h2>
-              <p className="leading-relaxed mb-6" style={{ color: bodyColor, fontSize: bodyFontSize, lineHeight: bodyLineHeight }}>
-                Magnesium is essential for <strong style={{ color: headingColor }}>energy, strong bones, heart health, and mental well-being</strong>. With the right diet and supplements, you can unlock its full wellness benefits for both immediate and long-term health.
-              </p>
-              
-              {/* Hashtags */}
-              <div className="mb-6 flex flex-wrap gap-2">
-                <span style={{ color: bodyColor, fontSize: bodyFontSize }}>##Benefits of magnesium</span>
-                <span style={{ color: bodyColor, fontSize: bodyFontSize }}>##Best magnesium supplements</span>
-                <span style={{ color: bodyColor, fontSize: bodyFontSize }}>##Magnesium deficiency symptoms</span>
-                <span style={{ color: bodyColor, fontSize: bodyFontSize }}>##Magnesium for wellness</span>
-                <span style={{ color: bodyColor, fontSize: bodyFontSize }}>##Magnesium-rich foods</span>
-                <span style={{ color: bodyColor, fontSize: bodyFontSize }}>#Magnesium for sleep and anxiety</span>
-              </div>
-
-              {/* Social Media Icons */}
-              <div className="flex gap-4 mb-10">
-                <a href="https://facebook.com/rasayanabio" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 transition">
-                  <span className="font-bold text-sm">f</span>
-                </a>
-                <a href="https://twitter.com/rasayanabio" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-blue-400 text-white flex items-center justify-center hover:bg-blue-500 transition">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/>
-                  </svg>
-                </a>
-                <a href="https://linkedin.com/company/rasayanabio" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-blue-700 text-white flex items-center justify-center hover:bg-blue-800 transition">
-                  <span className="font-bold text-xs">in</span>
-                </a>
-                <a href="https://instagram.com/rasayanabio" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-pink-600 text-white flex items-center justify-center hover:bg-pink-700 transition">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-                  </svg>
-                </a>
-              </div>
+            {/* Social Media Icons */}
+            <div className="flex gap-4 mb-10">
+              <a href="https://facebook.com/rasayanabio" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 transition">
+                <span className="font-bold text-sm">f</span>
+              </a>
+              <a href="https://twitter.com/rasayanabio" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-blue-400 text-white flex items-center justify-center hover:bg-blue-500 transition">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/>
+                </svg>
+              </a>
+              <a href="https://linkedin.com/company/rasayanabio" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-blue-700 text-white flex items-center justify-center hover:bg-blue-800 transition">
+                <span className="font-bold text-xs">in</span>
+              </a>
+              <a href="https://instagram.com/rasayanabio" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-pink-600 text-white flex items-center justify-center hover:bg-pink-700 transition">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                </svg>
+              </a>
             </div>
 
             {/* Post a Comment Section */}
@@ -413,8 +189,8 @@ const MagnesiumArticle = () => {
                     <div className="ml-auto flex items-center gap-2 text-gray-500" style={{ fontSize: bodyFontSize }}>
                       <span>reCAPTCHA</span>
                       <div className="flex flex-col" style={{ fontSize: bodyFontSize }}>
-                        <a href="/privacy-policy" className="text-blue-600 hover:underline">Privacy</a>
-                        <a href="/terms-of-service" className="text-blue-600 hover:underline">Terms</a>
+                        <a href="#" className="text-blue-600 hover:underline">Privacy</a>
+                        <a href="#" className="text-blue-600 hover:underline">Terms</a>
                       </div>
                     </div>
                   </div>
@@ -671,5 +447,5 @@ const MagnesiumArticle = () => {
   );
 };
 
-export default MagnesiumArticle;
+export default VitaminDArticle;
 

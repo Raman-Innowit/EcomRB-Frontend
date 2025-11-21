@@ -165,7 +165,49 @@ const CloneFooter = () => {
 
             {/* Copyright */}
             <div className="text-center text-sm">
-              <p className="text-black font-bold">Copyright© 2025. RasayanaBio. All rights reserved.</p>
+              <p className="text-gray-500 font-bold mb-4">Copyright© 2025. RasayanaBio. All rights reserved.</p>
+              
+              {/* Social Media Icons */}
+              <div className="flex items-center justify-center gap-4 mt-4">
+                <a 
+                  href="https://facebook.com" 
+                  aria-label="Facebook" 
+                  className="w-10 h-10 grid place-items-center rounded-full transition-all duration-300 hover:scale-110"
+                  style={{ backgroundColor: '#2d5016' }}
+                >
+                  <span className="text-white font-bold text-lg">f</span>
+                </a>
+                <a 
+                  href="https://twitter.com" 
+                  aria-label="Twitter" 
+                  className="w-10 h-10 grid place-items-center rounded-full transition-all duration-300 hover:scale-110"
+                  style={{ backgroundColor: '#2d5016' }}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
+                    <path d="M22.46 6c-.77.35-1.6.58-2.46.69a4.22 4.22 0 0 0 1.85-2.33 8.44 8.44 0 0 1-2.68 1.03 4.21 4.21 0 0 0-7.17 3.84A11.94 11.94 0 0 1 3.16 4.9a4.19 4.19 0 0 0-.57 2.12c0 1.46.74 2.75 1.87 3.5a4.22 4.22 0 0 1-1.91-.53v.05c0 2.04 1.45 3.74 3.36 4.13-.36.1-.75.16-1.15.16-.28 0-.55-.03-.82-.08.55 1.72 2.16 2.98 4.07 3.01A8.45 8.45 0 0 1 2 19.54a11.9 11.9 0 0 0 6.44 1.89c7.73 0 11.96-6.4 11.96-11.95 0-.18-.01-.36-.02-.54A8.5 8.5 0 0 0 22.46 6z"/>
+                  </svg>
+                </a>
+                <a 
+                  href="https://linkedin.com" 
+                  aria-label="LinkedIn" 
+                  className="w-10 h-10 grid place-items-center rounded-full transition-all duration-300 hover:scale-110"
+                  style={{ backgroundColor: '#2d5016' }}
+                >
+                  <span className="text-white font-bold text-xs">in</span>
+                </a>
+                <a 
+                  href="https://instagram.com" 
+                  aria-label="Instagram" 
+                  className="w-10 h-10 grid place-items-center rounded-full transition-all duration-300 hover:scale-110"
+                  style={{ backgroundColor: '#2d5016' }}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+                  </svg>
+                </a>
+              </div>
             </div>
           </div>
         </div>

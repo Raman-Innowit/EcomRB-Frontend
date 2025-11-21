@@ -30,7 +30,7 @@ const ARTICLES = [
     categories: ['Ayurvedic', 'Health'],
     snippet: 'Vitamin D is essential for maintaining strong bones, supporting immune function, and promoting overall health. For vegans, finding adequate sources of this crucial nutrient can be challenging...',
     image: '/assets/vitamin-d-article.png',
-    slug: 'vitamin-d-sources-for-vegans'
+    slug: '6-good-sources-of-vitamin-d-for-vegans'
   },
 ];
 
