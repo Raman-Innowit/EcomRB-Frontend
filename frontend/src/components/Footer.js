@@ -180,7 +180,9 @@ const Footer = () => {
         </p>
         <div className="flex items-center justify-center gap-4" style={{ animation: 'fadeIn 1s ease-out 0.2s backwards' }}>
           <a 
-            href="https://facebook.com" 
+            href="https://www.facebook.com/people/RasayanaBio/61565640287427/" 
+            target="_blank"
+            rel="noopener noreferrer"
             aria-label="Facebook" 
             className="w-10 h-10 grid place-items-center rounded-full transition-all duration-300 hover:scale-110 hover:-translate-y-1"
             style={{ backgroundColor: '#2d5016' }}
@@ -200,7 +202,9 @@ const Footer = () => {
             </svg>
           </a>
           <a 
-            href="https://instagram.com" 
+            href="https://www.instagram.com/rasayanabio_/" 
+            target="_blank"
+            rel="noopener noreferrer"
             aria-label="Instagram" 
             className="w-10 h-10 grid place-items-center rounded-full transition-all duration-300 hover:scale-110 hover:-translate-y-1"
             style={{ backgroundColor: '#2d5016' }}

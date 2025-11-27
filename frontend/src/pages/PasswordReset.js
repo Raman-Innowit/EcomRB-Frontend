@@ -185,21 +185,16 @@ const PasswordReset = () => {
                 Tags
               </h3>
               <div className="flex flex-wrap gap-2">
-                <button className="px-3 py-1.5 rounded font-medium border border-gray-300 hover:bg-green-50 transition-colors" style={{ color: '#374151', backgroundColor: '#f3f4f6', fontSize: bodyFontSize }}>
-                  Ayurvedic
-                </button>
-                <button className="px-3 py-1.5 rounded font-medium border border-gray-300 hover:bg-green-50 transition-colors" style={{ color: '#374151', backgroundColor: '#f3f4f6', fontSize: bodyFontSize }}>
-                  Diabetes
-                </button>
-                <button className="px-3 py-1.5 rounded font-medium border border-gray-300 hover:bg-green-50 transition-colors" style={{ color: '#374151', backgroundColor: '#f3f4f6', fontSize: bodyFontSize }}>
-                  Health
-                </button>
-                <button className="px-3 py-1.5 rounded font-medium border border-gray-300 hover:bg-green-50 transition-colors" style={{ color: '#374151', backgroundColor: '#f3f4f6', fontSize: bodyFontSize }}>
-                  Healthy
-                </button>
-                <button className="px-3 py-1.5 rounded font-medium border border-gray-300 hover:bg-green-50 transition-colors" style={{ color: '#374151', backgroundColor: '#f3f4f6', fontSize: bodyFontSize }}>
-                  Lifestyle
-                </button>
+                {['Ayurvedic', 'Diabetes', 'Health', 'Healthy', 'Lifestyle'].map((tag) => (
+                  <Link
+                    key={tag}
+                    to={`/products?search=${encodeURIComponent(tag)}`}
+                    className="px-3 py-1.5 rounded font-medium border border-gray-300 transition-colors hover:bg-[#1e8f3a] hover:text-white hover:border-[#1e8f3a]"
+                    style={{ color: '#374151', backgroundColor: '#f3f4f6', fontSize: bodyFontSize }}
+                  >
+                    {tag}
+                  </Link>
+                ))}
               </div>
             </div>
           </aside>

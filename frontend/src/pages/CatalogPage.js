@@ -230,36 +230,16 @@ const CatalogPage = () => {
                 Tags
               </h3>
               <div className="flex flex-wrap gap-2">
-                <button className="px-3 py-1.5 rounded font-medium border border-gray-300 hover:bg-green-50 transition-colors" style={{ color: '#374151', backgroundColor: '#f3f4f6', fontSize: bodyFontSize }}>
-                  ASHWAGANDHA
-                </button>
-                <button className="px-3 py-1.5 rounded font-medium border border-gray-300 hover:bg-green-50 transition-colors" style={{ color: '#374151', backgroundColor: '#f3f4f6', fontSize: bodyFontSize }}>
-                  AYURVEDIC
-                </button>
-                <button className="px-3 py-1.5 rounded font-medium border border-gray-300 hover:bg-green-50 transition-colors" style={{ color: '#374151', backgroundColor: '#f3f4f6', fontSize: bodyFontSize }}>
-                  AYURVEDIC PRODUCTS
-                </button>
-                <button className="px-3 py-1.5 rounded font-medium border border-gray-300 hover:bg-green-50 transition-colors" style={{ color: '#374151', backgroundColor: '#f3f4f6', fontSize: bodyFontSize }}>
-                  FEMALE WELLNESS
-                </button>
-                <button className="px-3 py-1.5 rounded font-medium border border-gray-300 hover:bg-green-50 transition-colors" style={{ color: '#374151', backgroundColor: '#f3f4f6', fontSize: bodyFontSize }}>
-                  NO HARSH CHEMICALS
-                </button>
-                <button className="px-3 py-1.5 rounded font-medium border border-gray-300 hover:bg-green-50 transition-colors" style={{ color: '#374151', backgroundColor: '#f3f4f6', fontSize: bodyFontSize }}>
-                  NON-GMO
-                </button>
-                <button className="px-3 py-1.5 rounded font-medium border border-gray-300 hover:bg-green-50 transition-colors" style={{ color: '#374151', backgroundColor: '#f3f4f6', fontSize: bodyFontSize }}>
-                  NUT- AND GLUTEN-FREE
-                </button>
-                <button className="px-3 py-1.5 rounded font-medium border border-gray-300 hover:bg-green-50 transition-colors" style={{ color: '#374151', backgroundColor: '#f3f4f6', fontSize: bodyFontSize }}>
-                  PRODUCTS
-                </button>
-                <button className="px-3 py-1.5 rounded font-medium border border-gray-300 hover:bg-green-50 transition-colors" style={{ color: '#374151', backgroundColor: '#f3f4f6', fontSize: bodyFontSize }}>
-                  SCIENTIFICALLY TESTED
-                </button>
-                <button className="px-3 py-1.5 rounded font-medium border border-gray-300 hover:bg-green-50 transition-colors" style={{ color: '#374151', backgroundColor: '#f3f4f6', fontSize: bodyFontSize }}>
-                  SOY-FREE
-                </button>
+                {['ASHWAGANDHA', 'AYURVEDIC', 'AYURVEDIC PRODUCTS', 'FEMALE WELLNESS', 'NO HARSH CHEMICALS', 'NON-GMO', 'NUT- AND GLUTEN-FREE', 'PRODUCTS', 'SCIENTIFICALLY TESTED', 'SOY-FREE'].map((tag) => (
+                  <Link
+                    key={tag}
+                    to={`/products?search=${encodeURIComponent(tag)}`}
+                    className="px-3 py-1.5 rounded font-medium border border-gray-300 transition-colors hover:bg-[#1e8f3a] hover:text-white hover:border-[#1e8f3a]"
+                    style={{ color: '#374151', backgroundColor: '#f3f4f6', fontSize: bodyFontSize }}
+                  >
+                    {tag}
+                  </Link>
+                ))}
               </div>
             </div>
           </aside>

@@ -8,6 +8,7 @@ import Header from './components/Header';
 import Home from './pages/Home';
 import Products from './pages/Products';
 import ProductDetail from './pages/ProductDetail';
+import ProductPack from './pages/ProductPack';
 import CategoryProducts from './pages/CategoryProducts';
 import HealthBenefitProducts from './pages/HealthBenefitProducts';
 import BeautyRadiance from './pages/BeautyRadiance';
@@ -77,6 +78,7 @@ function AnimatedRoutes() {
         <Route path="/products" element={<Products />} />
         <Route path="/catalog-page" element={<PageTransition><CatalogPage /></PageTransition>} />
         <Route path="/product/:id" element={<PageTransition><ProductDetail /></PageTransition>} />
+        <Route path="/product/:id/pack/:packType" element={<PageTransition><ProductPack /></PageTransition>} />
         <Route path="/category/:id" element={<PageTransition><CategoryProducts /></PageTransition>} />
         <Route path="/health-benefit/:id" element={<PageTransition><HealthBenefitProducts /></PageTransition>} />
         {/* Individual Health Benefit Pages */}

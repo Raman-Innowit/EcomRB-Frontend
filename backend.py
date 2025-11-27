@@ -1,5 +1,6 @@
 import os
 import urllib.parse
+from pathlib import Path
 from typing import Any, Dict, List, Tuple, Optional
 
 from flask import Flask, jsonify, request
@@ -9,7 +10,9 @@ from pymysql.cursors import DictCursor
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
-load_dotenv()
+# Get the directory where this script is located
+env_path = Path(__file__).parent / '.env'
+load_dotenv(env_path, override=True)
 
 
 def get_db_config() -> Dict[str, Any]:
@@ -26,13 +29,21 @@ def get_db_config() -> Dict[str, Any]:
 	
 	# If individual variables are provided, use them
 	if db_hostname and db_user and db_name:
+		if not db_port:
+			raise ValueError("DB_PORT environment variable is required")
 		try:
-			port = int(db_port) if db_port else 3306
+			port = int(db_port)
 		except ValueError:
-			port = 3306
+			raise ValueError(f"DB_PORT must be a valid integer, got: {db_port}")
 		
-		# Increase timeout for remote connections
-		connect_timeout = int(os.environ.get("DB_CONNECT_TIMEOUT", "30"))
+		# Connection timeout for remote connections
+		connect_timeout_str = os.environ.get("DB_CONNECT_TIMEOUT")
+		if not connect_timeout_str:
+			raise ValueError("DB_CONNECT_TIMEOUT environment variable is required")
+		try:
+			connect_timeout = int(connect_timeout_str)
+		except ValueError:
+			raise ValueError(f"DB_CONNECT_TIMEOUT must be a valid integer, got: {connect_timeout_str}")
 		
 		config = {
 			"host": db_hostname,
@@ -76,7 +87,7 @@ def get_db_config() -> Dict[str, Any]:
 		)
 	
 	# Parse the URL
-	# mysql+pymysql://root:password%4012345@localhost:3306/ecommerce_admin
+	# Format: mysql+pymysql://user:password@host:port/database
 	if db_url.startswith("mysql+pymysql://"):
 		db_url = db_url.replace("mysql+pymysql://", "mysql://")
 	
@@ -84,15 +95,31 @@ def get_db_config() -> Dict[str, Any]:
 	
 	password = urllib.parse.unquote(parsed.password or "")
 	
-	# Increase timeout for remote connections
-	connect_timeout = int(os.environ.get("DB_CONNECT_TIMEOUT", "30"))
+	# Connection timeout for remote connections
+	connect_timeout_str = os.environ.get("DB_CONNECT_TIMEOUT")
+	if not connect_timeout_str:
+		raise ValueError("DB_CONNECT_TIMEOUT environment variable is required")
+	try:
+		connect_timeout = int(connect_timeout_str)
+	except ValueError:
+		raise ValueError(f"DB_CONNECT_TIMEOUT must be a valid integer, got: {connect_timeout_str}")
+	
+	if not parsed.hostname:
+		raise ValueError("Database hostname is required in DATABASE_URL")
+	if not parsed.port:
+		raise ValueError("Database port is required in DATABASE_URL")
+	if not parsed.username:
+		raise ValueError("Database username is required in DATABASE_URL")
+	database_name = parsed.path.lstrip("/") if parsed.path else None
+	if not database_name:
+		raise ValueError("Database name is required in DATABASE_URL")
 	
 	config = {
-		"host": parsed.hostname or "localhost",
-		"port": parsed.port or 3306,
-		"user": parsed.username or "root",
+		"host": parsed.hostname,
+		"port": parsed.port,
+		"user": parsed.username,
 		"password": password,
-		"database": parsed.path.lstrip("/") if parsed.path else "ecommerce_admin",
+		"database": database_name,
 		"charset": "utf8mb4",
 		"cursorclass": DictCursor,
 		"autocommit": False,
@@ -129,6 +156,19 @@ def open_db():
 		conn = pymysql.connect(**config)
 		return conn
 	except pymysql.err.OperationalError as e:
+		error_msg = str(e)
+		if "Can't connect to MySQL server" in error_msg:
+			host = config.get('host', 'unknown')
+			port = config.get('port', 'unknown')
+			raise ConnectionError(
+				f"Unable to connect to database server at {host}:{port}. "
+				f"Please verify:\n"
+				f"1. The database server is running and accessible\n"
+				f"2. Your IP address is whitelisted on the server\n"
+				f"3. The firewall allows connections on port {port}\n"
+				f"4. The host, port, and database name are correct\n"
+				f"Original error: {error_msg}"
+			) from e
 		raise
 
 
@@ -215,6 +255,19 @@ def serialize_product(row: Dict[str, Any]) -> Dict[str, Any]:
 	base_price = float(row.get("base_price") or 0) if row.get("base_price") is not None else None
 	sale_price = float(row.get("sale_price")) if row.get("sale_price") is not None else None
 	
+	# Parse comma-separated image URLs
+	image_url_raw = row.get("image_url")
+	image_urls = []
+	if image_url_raw:
+		# Split by comma and clean up whitespace
+		# Filter out empty strings but keep all non-empty URLs
+		# Handle cases with trailing commas or extra whitespace
+		raw_str = str(image_url_raw).strip()
+		if raw_str:
+			image_urls = [url.strip() for url in raw_str.split(",") if url and url.strip()]
+	
+	thumbnail_url = row.get("thumbnail_url")
+	
 	product = {
 		"id": row["id"],
 		"name": row.get("name", ""),
@@ -228,8 +281,10 @@ def serialize_product(row: Dict[str, Any]) -> Dict[str, Any]:
 		"featured": bool(row.get("featured", False)),
 		"category_id": row.get("category_id"),
 		"created_at": row.get("created_at"),
-		"thumbnail_url": row.get("thumbnail_url"),
-		"image_url": row.get("image_url"),
+		"thumbnail_url": thumbnail_url,
+		"image_url": image_urls[0] if image_urls else None,  # First image for backward compatibility
+		"image_urls": image_urls,  # Array of all images (parsed from comma-separated image_url)
+		"image_url_raw": str(image_url_raw) if image_url_raw else None,  # Original comma-separated string from DB
 		"sku": row.get("sku"),
 	}
 	
@@ -275,94 +330,111 @@ def create_app() -> Flask:
 		- search (string, optional) - simple LIKE on name
 		- category_id, health_benefit_id (ignored here but accepted for future)
 		"""
-		page = max(int(request.args.get("page", 1) or 1), 1)
-		per_page = min(max(int(request.args.get("per_page", 20) or 20), 1), 100)
-		search = (request.args.get("search") or "").strip()
-		sort_by = (request.args.get("sort_by") or "created_at").strip()
-		sort_order = (request.args.get("sort_order") or "desc").strip().lower()
+		try:
+			page = max(int(request.args.get("page", 1) or 1), 1)
+			per_page = min(max(int(request.args.get("per_page", 20) or 20), 1), 100)
+			search = (request.args.get("search") or "").strip()
+			sort_by = (request.args.get("sort_by") or "created_at").strip()
+			sort_order = (request.args.get("sort_order") or "desc").strip().lower()
 
-		sort_by_whitelist = {"created_at", "name", "price"}
-		if sort_by not in sort_by_whitelist:
-			sort_by = "created_at"
-		sort_order = "ASC" if sort_order == "asc" else "DESC"
+			sort_by_whitelist = {"created_at", "name", "price"}
+			if sort_by not in sort_by_whitelist:
+				sort_by = "created_at"
+			sort_order = "ASC" if sort_order == "asc" else "DESC"
 
-		offset = (page - 1) * per_page
+			offset = (page - 1) * per_page
 
-		conn = open_db()
-		params: List[Any] = []
-		where = []
-		
-		# Only show active products
-		where.append("p.is_active = 1")
-		
-		if search:
-			where.append("p.name LIKE %s")
-			params.append(f"%{search}%")
-		
-		# Optional filters accepted by the frontend
-		category_id = request.args.get("category_id")
-		health_benefit_id = request.args.get("health_benefit_id")
-		if category_id:
-			where.append("(p.category_id = %s)")
-			params.append(int(category_id))
-		
-		# Price filters
-		min_price = request.args.get("min_price")
-		max_price = request.args.get("max_price")
-		if min_price:
-			where.append("(p.base_price >= %s)")
-			params.append(float(min_price))
-		if max_price:
-			where.append("(p.base_price <= %s)")
-			params.append(float(max_price))
-		
-		# Health benefit filter using junction table
-		health_benefit_join = ""
-		if health_benefit_id:
-			health_benefit_join = "INNER JOIN product_health_benefits phb ON p.id = phb.product_id"
-			where.append("(phb.health_benefit_id = %s)")
-			params.append(int(health_benefit_id))
+			conn = open_db()
+			params: List[Any] = []
+			where = []
+			
+			# Only show active products
+			where.append("p.is_active = 1")
+			
+			if search:
+				where.append("p.name LIKE %s")
+				params.append(f"%{search}%")
+			
+			# Optional filters accepted by the frontend
+			category_id = request.args.get("category_id")
+			health_benefit_id = request.args.get("health_benefit_id")
+			if category_id:
+				where.append("(p.category_id = %s)")
+				params.append(int(category_id))
+			
+			# Price filters
+			min_price = request.args.get("min_price")
+			max_price = request.args.get("max_price")
+			if min_price:
+				where.append("(p.base_price >= %s)")
+				params.append(float(min_price))
+			if max_price:
+				where.append("(p.base_price <= %s)")
+				params.append(float(max_price))
+			
+			# Health benefit filter using junction table
+			health_benefit_join = ""
+			if health_benefit_id:
+				health_benefit_join = "INNER JOIN product_health_benefits phb ON p.id = phb.product_id"
+				where.append("(phb.health_benefit_id = %s)")
+				params.append(int(health_benefit_id))
 
-		where_clause = f"WHERE {' AND '.join(where)}" if where else ""
+			where_clause = f"WHERE {' AND '.join(where)}" if where else ""
 
-		cursor = conn.cursor()
-		# Use proper table alias in COUNT query
-		count_query = f"SELECT COUNT(DISTINCT p.id) AS c FROM products p {health_benefit_join} {where_clause}"
-		cursor.execute(count_query, params)
-		total = cursor.fetchone()["c"]
-		
-		# Map sort_by to use table alias and actual column names
-		sort_column_map = {
-			"created_at": "p.created_at",
-			"name": "p.name",
-			"price": "p.base_price"  # Use base_price instead of price
-		}
-		sort_column = sort_column_map.get(sort_by, "p.created_at")
-		
-		cursor.execute(
-			f"""
-			SELECT DISTINCT p.id, p.name, p.slug, p.base_price, p.sale_price, p.base_currency, 
-			       p.description, p.short_description, p.stock_quantity, p.featured, 
-			       p.category_id, p.created_at, p.thumbnail_url, p.image_url, p.sku,
-			       c.name AS category_name
-			FROM products p
-			LEFT JOIN categories c ON p.category_id = c.id
-			{health_benefit_join}
-			{where_clause}
-			ORDER BY {sort_column} {sort_order}
-			LIMIT %s OFFSET %s
-			""",
-			[*params, per_page, offset],
-		)
-		rows = cursor.fetchall()
-		cursor.close()
-		conn.close()
+			cursor = conn.cursor()
+			# Use proper table alias in COUNT query
+			count_query = f"SELECT COUNT(DISTINCT p.id) AS c FROM products p {health_benefit_join} {where_clause}"
+			cursor.execute(count_query, params)
+			total = cursor.fetchone()["c"]
+			
+			# Map sort_by to use table alias and actual column names
+			sort_column_map = {
+				"created_at": "p.created_at",
+				"name": "p.name",
+				"price": "p.base_price"  # Use base_price instead of price
+			}
+			sort_column = sort_column_map.get(sort_by, "p.created_at")
+			
+			cursor.execute(
+				f"""
+				SELECT DISTINCT p.id, p.name, p.slug, p.base_price, p.sale_price, p.base_currency, 
+				       p.description, p.short_description, p.stock_quantity, p.featured, 
+				       p.category_id, p.created_at, p.thumbnail_url, p.image_url, p.sku,
+				       c.name AS category_name
+				FROM products p
+				LEFT JOIN categories c ON p.category_id = c.id
+				{health_benefit_join}
+				{where_clause}
+				ORDER BY {sort_column} {sort_order}
+				LIMIT %s OFFSET %s
+				""",
+				[*params, per_page, offset],
+			)
+			rows = cursor.fetchall()
+			cursor.close()
+			conn.close()
 
-		products = [serialize_product(r) for r in rows]
+			products = [serialize_product(r) for r in rows]
 
-		# Compute total pages similar to backend the frontend expects
-		pages = max((total + per_page - 1) // per_page, 1) if total else 1
-		return jsonify({"products": products, "total": total, "pages": pages})
+			# Compute total pages similar to backend the frontend expects
+			pages = max((total + per_page - 1) // per_page, 1) if total else 1
+			return jsonify({"products": products, "total": total, "pages": pages})
+		except ConnectionError as e:
+			return jsonify({
+				"error": "Database connection failed",
+				"message": "Unable to connect to database. Please check your database server configuration.",
+				"products": [],
+				"total": 0,
+				"pages": 1
+			}), 503
+		except Exception as e:
+			return jsonify({
+				"error": "Failed to fetch products",
+				"message": str(e),
+				"products": [],
+				"total": 0,
+				"pages": 1
+			}), 500
 
 	@app.get("/api/public/categories")
 	def public_categories():
@@ -398,26 +470,145 @@ def create_app() -> Flask:
 
 	@app.get("/api/public/product/<int:product_id>")
 	def public_product_detail(product_id: int):
+		import json
 		conn = open_db()
 		cursor = conn.cursor()
+		
+		# Get product with category, health benefits, and all dynamic content fields
 		cursor.execute(
 			"""
 			SELECT p.id, p.name, p.slug, p.base_price, p.sale_price, p.base_currency, 
 			       p.description, p.short_description, p.stock_quantity, p.featured, 
 			       p.category_id, p.created_at, p.thumbnail_url, p.image_url, p.sku,
-			       c.name AS category_name
+			       p.min_order_quantity, p.max_order_quantity,
+			       p.product_features, p.reviews, p.directions, p.highlights,
+			       p.product_type, p.color_name, p.color_shade, p.is_taxable, p.tax_rate,
+			       p.is_grouped_product, p.site_id, p.reward_points,
+			       c.name AS category_name,
+			       GROUP_CONCAT(DISTINCT hb.id) AS health_benefit_ids,
+			       GROUP_CONCAT(DISTINCT hb.name) AS health_benefit_names
 			FROM products p
 			LEFT JOIN categories c ON p.category_id = c.id
-			WHERE p.id = %s
+			LEFT JOIN product_health_benefits phb ON p.id = phb.product_id
+			LEFT JOIN health_benefits hb ON phb.health_benefit_id = hb.id
+			WHERE p.id = %s AND p.is_active = 1
+			GROUP BY p.id, p.name, p.slug, p.base_price, p.sale_price, p.base_currency, 
+			         p.description, p.short_description, p.stock_quantity, p.featured, 
+			         p.category_id, p.created_at, p.thumbnail_url, p.image_url, p.sku,
+			         p.min_order_quantity, p.max_order_quantity, p.product_features, 
+			         p.reviews, p.directions, p.highlights, p.product_type, p.color_name,
+			         p.color_shade, p.is_taxable, p.tax_rate, p.is_grouped_product, 
+			         p.site_id, p.reward_points, c.name
 			""",
 			(product_id,),
 		)
 		row = cursor.fetchone()
+		
+		if not row:
+			cursor.close()
+			conn.close()
+			return jsonify({"error": "Not found"}), 404
+		
+		# Try to fetch additional columns that might exist (for backward compatibility)
+		# These are fields that may not be in all database versions
+		try:
+			cursor.execute("""
+				SELECT COLUMN_NAME 
+				FROM INFORMATION_SCHEMA.COLUMNS 
+				WHERE TABLE_SCHEMA = DATABASE() 
+				AND TABLE_NAME = 'products' 
+				AND COLUMN_NAME IN (
+					'key_ingredients', 'recommended_dosage', 'dosage', 'warning', 'faqs', 
+					'additional_images', 'ingredient_details', 'gallery_images'
+				)
+			""")
+			available_columns = [col['COLUMN_NAME'] for col in cursor.fetchall()]
+			
+			# Fetch additional fields if they exist
+			if available_columns:
+				cursor.execute(
+					f"""
+					SELECT {', '.join([f'p.{col}' for col in available_columns])}
+					FROM products p
+					WHERE p.id = %s
+					""",
+					(product_id,),
+				)
+				additional_row = cursor.fetchone()
+				if additional_row:
+					for col in available_columns:
+						value = additional_row.get(col)
+						if value:
+							# Try to parse JSON fields
+							if col in ['product_features', 'faqs', 'additional_images', 'ingredient_details', 'gallery_images', 'highlights', 'reviews']:
+								try:
+									row[col] = json.loads(value) if isinstance(value, str) else value
+								except (json.JSONDecodeError, TypeError):
+									row[col] = value
+							else:
+								row[col] = value
+		except Exception:
+			# If additional fields query fails, just continue without them
+			pass
+		
+		# Parse JSON fields that are already in the row (if they're strings)
+		json_fields = ['product_features', 'highlights', 'reviews', 'gallery_images', 'additional_images', 'ingredient_details', 'faqs']
+		for field in json_fields:
+			if row.get(field) and isinstance(row.get(field), str):
+				try:
+					row[field] = json.loads(row[field])
+				except (json.JSONDecodeError, TypeError):
+					pass
+		
+		# Handle dosage field - check for both 'dosage' and 'recommended_dosage'
+		if row.get('dosage') and not row.get('recommended_dosage'):
+			row['recommended_dosage'] = row.get('dosage')
+		
+		# Parse health benefits
+		health_benefit_ids = []
+		health_benefit_names = []
+		if row.get("health_benefit_ids") and row.get("health_benefit_names"):
+			try:
+				health_benefit_ids = [int(x) for x in str(row["health_benefit_ids"]).split(",") if x.strip()]
+				health_benefit_names = [x.strip() for x in str(row["health_benefit_names"]).split(",") if x.strip()]
+			except (ValueError, AttributeError):
+				health_benefit_ids = []
+				health_benefit_names = []
+		
+		# Build health benefits array
+		health_benefits = []
+		for i, hb_id in enumerate(health_benefit_ids):
+			if i < len(health_benefit_names):
+				health_benefits.append({
+					"id": hb_id,
+					"name": health_benefit_names[i]
+				})
+		
+		# Serialize product
+		product = serialize_product(row)
+		product["health_benefits"] = health_benefits if health_benefits else []
+		product["min_order_quantity"] = row.get("min_order_quantity") or 1
+		product["max_order_quantity"] = row.get("max_order_quantity") or 10
+		
+		# Add short_description as a separate field
+		if row.get("short_description"):
+			product["short_description"] = row.get("short_description")
+		
+		# Add all dynamic content fields from database
+		dynamic_fields = [
+			"product_features", "highlights", "directions", "reviews",
+			"key_ingredients", "recommended_dosage", "warning", "faqs", 
+			"additional_images", "gallery_images", "ingredient_details",
+			"product_type", "color_name", "color_shade", "is_taxable", 
+			"tax_rate", "is_grouped_product", "site_id", "reward_points"
+		]
+		for field in dynamic_fields:
+			if row.get(field) is not None:
+				product[field] = row.get(field)
+		
 		cursor.close()
 		conn.close()
-		if not row:
-			return jsonify({"error": "Not found"}), 404
-		return jsonify({"product": serialize_product(row)})
+		return jsonify({"product": product})
 	
 	@app.post("/api/public/orders")
 	def create_order():
@@ -519,8 +710,19 @@ if __name__ == "__main__":
 	- Configure DB file path with DATABASE_URL=sqlite:///path/to/file.db
 	"""
 	app = create_app()
-	host = os.environ.get("HOST", "127.0.0.1")
-	port = int(os.environ.get("PORT", "5000"))
+	host = os.environ.get("HOST")
+	port = os.environ.get("PORT")
+	
+	if not host:
+		raise ValueError("HOST environment variable is required")
+	if not port:
+		raise ValueError("PORT environment variable is required")
+	
+	try:
+		port = int(port)
+	except ValueError:
+		raise ValueError(f"PORT must be a valid integer, got: {port}")
+	
 	app.run(host=host, port=port, debug=True)
 
 

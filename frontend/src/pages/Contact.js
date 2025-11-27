@@ -30,8 +30,8 @@ const Contact = () => {
         <div>
           <h2 className="text-2xl font-semibold mb-4">Follow Us</h2>
           <div className="space-y-2">
-            <button type="button" className="block text-left hover:text-green-700 transition-colors">Facebook</button>
-            <button type="button" className="block text-left hover:text-green-700 transition-colors">Instagram</button>
+            <a href="https://www.facebook.com/people/RasayanaBio/61565640287427/" target="_blank" rel="noopener noreferrer" className="block text-left hover:text-green-700 transition-colors">Facebook</a>
+            <a href="https://www.instagram.com/rasayanabio_/" target="_blank" rel="noopener noreferrer" className="block text-left hover:text-green-700 transition-colors">Instagram</a>
             <button type="button" className="block text-left hover:text-green-700 transition-colors">Twitter</button>
           </div>
         </div>

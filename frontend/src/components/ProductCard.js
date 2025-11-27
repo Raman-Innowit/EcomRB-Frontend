@@ -79,19 +79,32 @@ const ProductCard = ({ product }) => {
       <Link to={`/product/${product.id}`} className="block flex-grow flex flex-col">
         {/* Product Image Area */}
         <div className="w-full h-56 bg-white flex items-center justify-center relative overflow-hidden">
-          {product.thumbnail_url || product.image_url ? (
-            <img 
-              src={product.thumbnail_url || product.image_url} 
-              alt={product.name}
-              className="max-w-full max-h-full object-contain p-6"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <span className="text-5xl font-bold" style={{ color: '#2d6a4f' }}>
-                {product.name ? product.name.charAt(0).toUpperCase() : 'P'}
-              </span>
-            </div>
-          )}
+          {(() => {
+            // Get first image from comma-separated URLs or single URL
+            let imageUrl = product.thumbnail_url || product.image_url;
+            if (imageUrl && typeof imageUrl === 'string') {
+              // If comma-separated, take the first one
+              const urls = imageUrl.split(',').map(url => url.trim()).filter(url => url);
+              if (urls.length > 0) {
+                imageUrl = urls[0];
+              }
+            }
+            
+            return imageUrl ? (
+              <img 
+                src={imageUrl} 
+                alt={product.name}
+                className="w-full h-full object-contain"
+                style={{ padding: '8px' }}
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <span className="text-5xl font-bold" style={{ color: '#2d6a4f' }}>
+                  {product.name ? product.name.charAt(0).toUpperCase() : 'P'}
+                </span>
+              </div>
+            );
+          })()}
           
           {/* Add to Cart overlay button - appears on hover */}
           <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center bg-white/90">

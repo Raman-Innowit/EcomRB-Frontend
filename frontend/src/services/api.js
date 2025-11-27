@@ -1,32 +1,40 @@
 import axios from 'axios';
 
 const getDefaultApiBaseUrl = () => {
+  // REACT_APP_API_URL is required - no hardcoded fallbacks
   if (process.env.REACT_APP_API_URL) {
     return process.env.REACT_APP_API_URL;
   }
 
+  // If not set, try to construct from window location and REACT_APP_API_PORT
   if (typeof window !== 'undefined') {
-    const { protocol, hostname, port } = window.location;
-
-    // When running the CRA dev server on port 3000 we usually run the API on 5000.
-    if (port === '3000') {
-      return `${protocol}//${hostname}:5000/api`;
+    const { protocol, hostname } = window.location;
+    const apiPort = process.env.REACT_APP_API_PORT || process.env.REACT_APP_PORT;
+    
+    if (apiPort) {
+      return `${protocol}//${hostname}:${apiPort}/api`;
     }
-
-    const normalizedPort = port ? `:${port}` : '';
-    return `${protocol}//${hostname}${normalizedPort}/api`;
   }
 
-  // Fallback for non-browser environments (tests, SSR, etc.)
-  return 'http://localhost:5000/api';
+  // No fallback - require environment variable
+  throw new Error(
+    'REACT_APP_API_URL environment variable is required. ' +
+    'Please set it in your .env file (e.g., REACT_APP_API_URL=http://localhost:5000/api)'
+  );
 };
+
+const apiTimeout = process.env.REACT_APP_API_TIMEOUT 
+  ? parseInt(process.env.REACT_APP_API_TIMEOUT, 10) 
+  : (() => {
+      throw new Error('REACT_APP_API_TIMEOUT environment variable is required (in milliseconds)');
+    })();
 
 const api = axios.create({
   baseURL: getDefaultApiBaseUrl(),
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 10000, // 10 second timeout
+  timeout: apiTimeout,
 });
 
 // Add request interceptor for debugging
@@ -51,8 +59,8 @@ api.interceptors.response.use(
       console.error('[API] Request timeout - the server took too long to respond');
     } else if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
       console.error('[API] Network error - unable to connect to backend server');
-      console.error('[API] Make sure the backend server is running on port 5000');
       console.error(`[API] Expected URL: ${api.defaults.baseURL}`);
+      console.error('[API] Make sure the backend server is running and REACT_APP_API_URL is set correctly');
     } else if (error.response) {
       // Server responded with error status
       console.error(`[API] Server error ${error.response.status}:`, error.response.data);

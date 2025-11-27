@@ -6,12 +6,11 @@ import QuantitySelector from '../components/QuantitySelector';
 import CloneFooter from '../components/CloneFooter';
 import ProductCard from '../components/ProductCard';
 
-const ProductDetail = () => {
-  const { id } = useParams();
+const ProductPack = () => {
+  const { id, packType } = useParams(); // packType will be '1-bottle', '2-bottles', '3-bottles'
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
-  const [selectedPack, setSelectedPack] = useState(0);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
   const [activeInfoTab, setActiveInfoTab] = useState('keyIngredients');
@@ -26,42 +25,69 @@ const ProductDetail = () => {
   const [bestSellers, setBestSellers] = useState([]);
   const { addToCart } = useCart();
 
-  const packOptions = [
-    {
-      bottles: 1,
-      tablets: 60,
-      months: 1,
-      discount: 27,
-      price: 802,
-      originalPrice: 1099,
-      savings: 297,
-      label: '1 Bottle',
-      highlight: '60 Tablets · 1 Month',
-    },
-    {
-      bottles: 2,
-      tablets: 120,
-      months: 2,
-      discount: 33,
-      price: 1473,
-      originalPrice: 2198,
-      savings: 725,
-      label: '2 Bottles',
-      highlight: '120 Tablets · 2 Months',
-      badge: 'MOST POPULAR',
-    },
-    {
-      bottles: 3,
-      tablets: 180,
-      months: 3,
-      discount: 40,
-      price: 2158,
-      originalPrice: 3597,
-      savings: 1439,
-      label: '3 Bottles',
-      highlight: '180 Tablets · 3 Months',
-    },
-  ];
+  // Calculate pack configuration based on packType and product pricing from database
+  const selectedPack = useMemo(() => {
+    if (!product) {
+      // Default fallback
+      return {
+        bottles: 1,
+        tablets: 60,
+        months: 1,
+        discount: 0,
+        price: 0,
+        originalPrice: 0,
+        savings: 0,
+        label: '1 Bottle',
+        highlight: '60 Tablets · 1 Month',
+      };
+    }
+    
+    const basePrice = product.base_price || product.converted_price || 0;
+    const salePrice = product.sale_price || product.converted_sale_price || basePrice;
+    
+    // Calculate per-bottle pricing (assuming sale_price is for 1 bottle)
+    const perBottlePrice = salePrice;
+    const perBottleOriginalPrice = basePrice;
+    
+    const packConfig = {
+      '1-bottle': {
+        bottles: 1,
+        tablets: 60,
+        months: 1,
+        price: Math.round(perBottlePrice * 1),
+        originalPrice: Math.round(perBottleOriginalPrice * 1),
+        discount: perBottleOriginalPrice > 0 ? Math.round(((perBottleOriginalPrice - perBottlePrice) / perBottleOriginalPrice) * 100) : 0,
+        savings: Math.round((perBottleOriginalPrice - perBottlePrice) * 1),
+        label: '1 Bottle',
+        highlight: '60 Tablets · 1 Month',
+      },
+      '2-bottles': {
+        bottles: 2,
+        tablets: 120,
+        months: 2,
+        price: Math.round(perBottlePrice * 2 * 0.67), // 33% discount for 2 bottles
+        originalPrice: Math.round(perBottleOriginalPrice * 2),
+        discount: 33,
+        savings: Math.round((perBottleOriginalPrice * 2) - (perBottlePrice * 2 * 0.67)),
+        label: '2 Bottles',
+        highlight: '120 Tablets · 2 Months',
+        badge: 'MOST POPULAR',
+      },
+      '3-bottles': {
+        bottles: 3,
+        tablets: 180,
+        months: 3,
+        price: Math.round(perBottlePrice * 3 * 0.60), // 40% discount for 3 bottles
+        originalPrice: Math.round(perBottleOriginalPrice * 3),
+        discount: 40,
+        savings: Math.round((perBottleOriginalPrice * 3) - (perBottlePrice * 3 * 0.60)),
+        label: '3 Bottles',
+        highlight: '180 Tablets · 3 Months',
+      },
+    };
+    
+    return packConfig[packType] || packConfig['1-bottle'];
+  }, [product, packType]);
 
   const benefitPills = [
     'Manage Stress and Anxiety',
@@ -78,7 +104,7 @@ const ProductDetail = () => {
     dosage:
       'Recommended Dosage: A healthy adult can take one tablet twice a day with water, 30 minutes before breakfast & lunch or as advised by a healthcare professional.',
     directions:
-      'Directions: Keep out of children\'s reach. If you are younger than eighteen, pregnant, breastfeeding, have any medical issues, or are using prescription/OTC medications, do not use this or any other supplement.',
+      "Directions: Keep out of children's reach. If you are younger than eighteen, pregnant, breastfeeding, have any medical issues, or are using prescription/OTC medications, do not use this or any other supplement.",
     warning:
       'Warning: Do not take this or any other supplement if under 18, pregnant or nursing, or if you have any known medical conditions or are taking prescription drugs.',
   };
@@ -143,6 +169,42 @@ const ProductDetail = () => {
     };
   }, [product, parsedHighlights]);
 
+  // Dynamic product features from database
+  const productFeatures = useMemo(() => {
+    const defaultFeatures = [
+      'Supports Energy &amp; Mood',
+      'Boosts Immunity',
+      'Natural Energy Supplement',
+      'Reduce Stress &amp; Anxiety',
+      'Enhance Stamina &amp; Endurance: Boost mood, focus, and overall sense of well-being',
+    ];
+    
+    if (!product || !product.product_features) return defaultFeatures;
+    
+    // If it's already an array, use it
+    if (Array.isArray(product.product_features)) {
+      return product.product_features;
+    }
+    
+    // If it's a string, try to parse as JSON first
+    if (typeof product.product_features === 'string') {
+      try {
+        const parsed = JSON.parse(product.product_features);
+        if (Array.isArray(parsed)) {
+          return parsed;
+        }
+      } catch {
+        // If JSON parsing fails, treat as newline-separated string
+        const features = product.product_features.split('\n').filter(Boolean);
+        if (features.length > 0) {
+          return features;
+        }
+      }
+    }
+    
+    return defaultFeatures;
+  }, [product?.product_features]);
+
   const defaultIngredientCards = [
     {
       name: 'Ashwagandha (Withania somnifera)',
@@ -172,37 +234,9 @@ const ProductDetail = () => {
 
   // Dynamic ingredient cards from database
   const ingredientCards = useMemo(() => {
-    if (!product || !product.ingredient_details) return defaultIngredientCards;
-    
-    // If ingredient_details is an array, use it directly
-    if (Array.isArray(product.ingredient_details) && product.ingredient_details.length > 0) {
-      return product.ingredient_details.map(ing => ({
-        name: ing.name || ing.title || '',
-        description: ing.description || ing.desc || '',
-        image: ing.image || ing.image_url || '/assets/product-thumb-1.png',
-      }));
-    }
-    
-    // Try to parse if it's a JSON string
-    if (typeof product.ingredient_details === 'string') {
-      try {
-        const parsed = JSON.parse(product.ingredient_details);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed.map(ing => ({
-            name: ing.name || ing.title || '',
-            description: ing.description || ing.desc || '',
-            image: ing.image || ing.image_url || '/assets/product-thumb-1.png',
-          }));
-        }
-      } catch {
-        // If parsing fails, use defaults
-      }
-    }
-    
-    return defaultIngredientCards;
-  }, [product]);
+    return product?.ingredient_details || defaultIngredientCards;
+  }, [product?.ingredient_details]);
 
-  // eslint-disable-next-line no-unused-vars
   const paymentIcons = [
     { name: 'Visa', icon: '💳' },
     { name: 'Mastercard', icon: '💳' },
@@ -215,89 +249,31 @@ const ProductDetail = () => {
     {
       question: 'What is vitality?',
       answer:
-        'Vitality refers to a person\'s ability to live, grow, and develop. It also refers to having energy and being vigorous and active.',
+        "Vitality refers to a person's ability to live, grow, and develop. It also refers to having energy and being vigorous and active.",
     },
     {
-      question: 'How long should I use the Nutra\'s Bounty Male vitality capsules to see results?',
+      question: "How long should I use the Nutra's Bounty Male vitality capsules to see results?",
       answer:
         'Use the capsules consistently for at least 2 months to experience optimal benefits including improved stamina, libido, and blood flow.',
     },
     {
-      question: 'Can I take the Nutra\'s Bounty Male vitality capsules with other medications?',
+      question: "Can I take the Nutra's Bounty Male vitality capsules with other medications?",
       answer:
         'If you have any medical issues or take prescription medication, please consult your doctor before use. Avoid use if pregnant, breastfeeding, or under 18.',
     },
     {
       question: 'How does this product benefit men?',
       answer:
-        'Nutra\'s Bounty Male Vitality is a herbal energizer that helps improve energy and stamina, reduces stress, and enhances overall performance.',
+        "Nutra's Bounty Male Vitality is a herbal energizer that helps improve energy and stamina, reduces stress, and enhances overall performance.",
     },
   ];
 
-  // Dynamic FAQs from database
+  // Dynamic FAQ items from database
   const faqItems = useMemo(() => {
-    if (!product || !product.faqs) return defaultFaqItems;
-    
-    if (Array.isArray(product.faqs) && product.faqs.length > 0) {
-      return product.faqs.map(faq => ({
-        question: faq.question || faq.q || '',
-        answer: faq.answer || faq.a || '',
-      }));
-    }
-    
-    // Try to parse if it's a JSON string
-    if (typeof product.faqs === 'string') {
-      try {
-        const parsed = JSON.parse(product.faqs);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed.map(faq => ({
-            question: faq.question || faq.q || '',
-            answer: faq.answer || faq.a || '',
-          }));
-        }
-      } catch {
-        // If parsing fails, use defaults
-      }
-    }
-    
-    return defaultFaqItems;
-  }, [product]);
-
-  // Dynamic product features from database
-  const productFeatures = useMemo(() => {
-    const defaultFeatures = [
-      'Supports Energy &amp; Mood',
-      'Boosts Immunity',
-      'Natural Energy Supplement',
-      'Reduce Stress &amp; Anxiety',
-      'Enhance Stamina &amp; Endurance: Boost mood, focus, and overall sense of well-being',
-    ];
-    
-    if (!product || !product.product_features) return defaultFeatures;
-    
-    // If it's already an array, use it
-    if (Array.isArray(product.product_features)) {
-      return product.product_features;
-    }
-    
-    // If it's a string, try to parse as JSON first
-    if (typeof product.product_features === 'string') {
-      try {
-        const parsed = JSON.parse(product.product_features);
-        if (Array.isArray(parsed)) {
-          return parsed;
-        }
-      } catch {
-        // If JSON parsing fails, treat as newline-separated string
-        return product.product_features.split('\n').filter(Boolean);
-      }
-    }
-    
-    return defaultFeatures;
-  }, [product]);
+    return product?.faqs || defaultFaqItems;
+  }, [product?.faqs]);
 
   useEffect(() => {
-    // Fetch best sellers products
     const fetchBestSellers = async () => {
       try {
         const data = await getPublicProducts({ featured: true, per_page: 4 });
@@ -327,7 +303,7 @@ const ProductDetail = () => {
   }, [id]);
 
   // Parse images from database - combine all image sources
-  const productImages = useMemo(() => {
+  const galleryImages = useMemo(() => {
     if (!product) return [];
     
     const allImages = [];
@@ -425,16 +401,15 @@ const ProductDetail = () => {
     return allImages;
   }, [product?.image_url, product?.image_urls, product?.thumbnail_url, product?.gallery_images, product?.additional_images]);
 
-
   const handleAddToCart = () => {
     if (!product) return;
-    const pack = packOptions[selectedPack];
+    const totalPrice = selectedPack.price * quantity;
     addToCart({
       productId: product.id,
       name: product.name,
-      price: pack.price,
-      salePrice: pack.salePrice,
-      quantity: pack.bottles * quantity,
+      price: totalPrice,
+      salePrice: totalPrice,
+      quantity: selectedPack.bottles * quantity,
       slug: product.slug,
     });
   };
@@ -467,18 +442,7 @@ const ProductDetail = () => {
     );
   }
 
-  const displayPriceRaw =
-    product.converted_sale_price ??
-    product.converted_price ??
-    product.sale_price ??
-    product.base_price ?? 0;
-  const originalPriceRaw = product.converted_sale_price
-    ? product.converted_price ?? product.base_price
-    : null;
-
   const currencySymbol = product.currency_symbol ?? '₹';
-  const displayPrice = Number(displayPriceRaw);
-  const originalPrice = originalPriceRaw !== null ? Number(originalPriceRaw) : null;
 
   return (
     <div className="bg-white">
@@ -489,8 +453,7 @@ const ProductDetail = () => {
             {/* Thumbnails - Left Column (5 slots total) */}
             <div className="flex flex-col gap-3 flex-shrink-0">
               {Array.from({ length: 5 }).map((_, idx) => {
-                // Get image from productImages array or use placeholder
-                const imageUrl = productImages[idx] || null;
+                const imageUrl = galleryImages[idx] || null;
                 const isSelected = selectedImage === idx;
                 
                 return (
@@ -523,16 +486,10 @@ const ProductDetail = () => {
                 );
               })}
             </div>
-            {/* Main Image - Right Side */}
-            <div className="flex-1 relative" style={{ maxWidth: '100%', overflow: 'visible' }}>
-              {originalPrice && displayPrice < originalPrice && (
-                <span className="absolute top-4 left-4 z-10 inline-block bg-orange-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
-                  SALE
-                </span>
-              )}
-              <div className="relative group" style={{ width: '100%' }}>
+            <div className="flex-1 relative">
+              <div className="relative group">
                 <div 
-                  className="rounded-2xl border border-gray-200 shadow-sm overflow-visible bg-gray-50 relative flex items-end cursor-zoom-in"
+                  className="rounded-[32px] border border-gray-200 shadow-sm overflow-hidden bg-white relative cursor-zoom-in inline-block w-full"
                   onMouseEnter={() => setShowZoom(true)}
                   onMouseLeave={() => setShowZoom(false)}
                   onMouseMove={(e) => {
@@ -544,42 +501,39 @@ const ProductDetail = () => {
                     }
                   }}
                 >
-                  <div className="w-full overflow-hidden rounded-2xl">
-                    {productImages[selectedImage] ? (
-                      <img 
-                        src={productImages[selectedImage]} 
-                        alt={product.name} 
-                        className="w-full h-auto object-contain block"
-                        style={{ maxHeight: '600px' }}
-                      />
-                    ) : productImages[0] ? (
-                      <img 
-                        src={productImages[0]} 
-                        alt={product.name} 
-                        className="w-full h-auto object-contain block"
-                        style={{ maxHeight: '600px' }}
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center" style={{ minHeight: '500px' }}>
-                        <svg className="w-32 h-32 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                      </div>
-                    )}
-                  </div>
-                  {/* Zoom indicator */}
-                  <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                  {galleryImages[selectedImage] ? (
+                    <img 
+                      src={galleryImages[selectedImage]} 
+                      alt={product.name} 
+                      className="w-full h-auto object-contain block"
+                      style={{ maxHeight: '600px' }}
+                    />
+                  ) : galleryImages[0] ? (
+                    <img 
+                      src={galleryImages[0]} 
+                      alt={product.name} 
+                      className="w-full h-auto object-contain block"
+                      style={{ maxHeight: '600px' }}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center" style={{ minHeight: '500px' }}>
+                      <svg className="w-32 h-32 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                  )}
+                  <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                     <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
                     </svg>
                   </div>
                 </div>
-                {/* Zoom preview box - positioned to the right but constrained to image column */}
-                {showZoom && (productImages[selectedImage] || productImages[0]) && (
+                {/* Zoom preview box - positioned to the right of the image, within the image column */}
+                {showZoom && (galleryImages[selectedImage] || galleryImages[0]) && (
                   <div 
-                    className="absolute left-full ml-4 top-0 w-[280px] h-[350px] border border-gray-200 rounded-2xl overflow-hidden shadow-xl bg-white z-50 pointer-events-none hidden xl:block"
+                    className="absolute left-[calc(100%+16px)] top-0 w-[280px] h-[350px] border border-gray-200 rounded-2xl overflow-hidden shadow-xl bg-white z-20 pointer-events-none hidden xl:block"
                     style={{
-                      backgroundImage: `url(${productImages[selectedImage] || productImages[0]})`,
+                      backgroundImage: `url(${galleryImages[selectedImage] || galleryImages[0]})`,
                       backgroundSize: '250%',
                       backgroundPosition: `${zoomPosition.x}% ${zoomPosition.y}%`,
                       backgroundRepeat: 'no-repeat',
@@ -591,8 +545,8 @@ const ProductDetail = () => {
             </div>
           </div>
 
-          {/* Info */}
-        <div>
+          {/* Info - Same layout but with fixed pack pricing */}
+          <div>
             <p className="text-xs font-semibold uppercase tracking-[0.4em] text-gray-500 mb-3">
               {product.category?.name || "Nutra's Bounty"}
             </p>
@@ -602,10 +556,10 @@ const ProductDetail = () => {
 
             <div className="flex items-baseline gap-3 mb-6">
               <span className="text-lg text-gray-700 line-through">
-                {currencySymbol} {originalPrice ? originalPrice.toFixed(0) : '1199'}
+                {currencySymbol} {selectedPack.originalPrice}
               </span>
               <span className="text-2xl font-bold text-[#1e8f3a]">
-                {currencySymbol} {displayPrice.toFixed(0)}
+                {currencySymbol} {selectedPack.price}
               </span>
             </div>
 
@@ -632,78 +586,70 @@ const ProductDetail = () => {
               </p>
             )}
 
+            {/* Pack Display - Single Pack Card (No Selection) */}
             <div className="mb-8">
               <p className="text-sm font-semibold text-gray-700 mb-3">Pack:</p>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 justify-items-center">
-              {packOptions.map((pack, idx) => {
-                const packSlug = pack.bottles === 1 ? '1-bottle' : pack.bottles === 2 ? '2-bottles' : '3-bottles';
-                return (
-                <button
-                    key={pack.label}
-                  onClick={() => navigate(`/product/${id}/pack/${packSlug}`)}
-                    className={`relative w-full max-w-[255px] border transition-all duration-200 overflow-hidden text-center px-6 py-6 shadow-sm ${
-                      selectedPack === idx ? 'border-[#1e8f3a] shadow-lg' : 'border-[#e1dbcf] hover:border-[#1e8f3a]'
-                    }`}
-                    style={{
-                      backgroundColor: '#ffffff'
-                    }}
-                  >
+              <div className="flex justify-center">
+                <div className="relative w-full max-w-[255px] border border-[#1e8f3a] shadow-lg overflow-hidden text-center px-6 py-6" style={{ backgroundColor: '#ffffff' }}>
+                  <img
+                    src="/assets/card-bg.png"
+                    alt="Badge"
+                    className="absolute top-0 right-0 w-[78px] h-[78px] object-contain pointer-events-none select-none"
+                  />
+
+                  <div className="relative flex flex-col items-center gap-1 mb-4 pt-3">
                     <img
-                      src="/assets/card-bg.png"
-                      alt="Badge"
-                      className="absolute top-0 right-0 w-[78px] h-[78px] object-contain pointer-events-none select-none"
+                      src="/assets/ph_seal-1.png"
+                      alt="Quality seal"
+                      className="w-10 h-10 object-contain pointer-events-none select-none"
                     />
+                    <h3 className="text-lg font-bold text-[#1f1f1f] leading-tight mt-1">{selectedPack.label}</h3>
+                    <p className="text-sm font-semibold text-[#1b7b37]">
+                      {selectedPack.tablets} Tablets
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {selectedPack.months} {selectedPack.months > 1 ? 'Months' : 'Month'}
+                    </p>
+                  </div>
 
-                    <div className="relative flex flex-col items-center gap-1 mb-4 pt-3">
-                      <img
-                        src="/assets/ph_seal-1.png"
-                        alt="Quality seal"
-                        className="w-10 h-10 object-contain pointer-events-none select-none"
-                      />
-                      <h3 className="text-lg font-bold text-[#1f1f1f] leading-tight mt-1">{pack.label}</h3>
-                      <p className="text-sm font-semibold text-[#1b7b37]">
-                        {pack.tablets} Tablets
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {pack.months} {pack.months > 1 ? 'Months' : 'Month'}
-                      </p>
+                  <div className="mx-auto bg-[#f3efe7] border border-[#e8dfd1] px-3.5 py-2.5 flex flex-col items-center justify-center gap-1.5" style={{ width: '92%', aspectRatio: '1 / 1' }}>
+                    <div className="bg-[#e30202] text-white text-xs font-bold px-3 py-0.5 rounded-md uppercase tracking-wider">
+                      {selectedPack.discount}%
                     </div>
-
-                    <div className="mx-auto bg-[#f3efe7] border border-[#e8dfd1] px-3.5 py-2.5 flex flex-col items-center justify-center gap-1.5" style={{ width: '92%', aspectRatio: '1 / 1' }}>
-                      <div className="bg-[#e30202] text-white text-xs font-bold px-3 py-0.5 rounded-md uppercase tracking-wider">
-                        {pack.discount}%
-                      </div>
-                      <div className="text-2xl font-bold text-[#1f873b] leading-tight">
-                        {currencySymbol} {pack.price}
-                      </div>
-                      <div className="text-sm text-gray-500 line-through">
-                        {currencySymbol} {pack.originalPrice}
-                      </div>
-                      <div className="text-sm font-bold text-[#d60000]">
-                        Save {currencySymbol} {pack.savings}
-                      </div>
-                      {pack.badge && (
-                        <span className="mt-0.5 inline-block text-[10px] font-semibold text-[#1b7b37] bg-[#e0f3e6] px-2.5 py-0.5 rounded-full uppercase tracking-wide">
-                          {pack.badge}
-                        </span>
-                      )}
+                    <div className="text-2xl font-bold text-[#1f873b] leading-tight">
+                      {currencySymbol} {selectedPack.price}
                     </div>
-                </button>
-                );
-              })}
-            </div>
+                    <div className="text-sm text-gray-500 line-through">
+                      {currencySymbol} {selectedPack.originalPrice}
+                    </div>
+                    <div className="text-sm font-bold text-[#d60000]">
+                      Save {currencySymbol} {selectedPack.savings}
+                    </div>
+                    {selectedPack.badge && (
+                      <span className="mt-0.5 inline-block text-[10px] font-semibold text-[#1b7b37] bg-[#e0f3e6] px-2.5 py-0.5 rounded-full uppercase tracking-wide">
+                        {selectedPack.badge}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div className="mb-8">
               <div className="mb-4">
-                <QuantitySelector
-                  value={quantity}
-                  onChange={setQuantity}
-                  min={1}
-                  max={product?.stock_quantity || 10}
-                  showLabel={true}
-                  label="Quantity :"
-                />
+                <div className="flex flex-col gap-2">
+                  <QuantitySelector
+                    value={quantity}
+                    onChange={setQuantity}
+                    min={1}
+                    max={product?.stock_quantity || 10}
+                    showLabel={true}
+                    label="Quantity (Packs) :"
+                  />
+                  <p className="text-sm text-gray-600 ml-2">
+                    {quantity} {quantity === 1 ? 'pack' : 'packs'} = {selectedPack.bottles * quantity} {selectedPack.bottles * quantity === 1 ? 'bottle' : 'bottles'} ({selectedPack.tablets * quantity} {selectedPack.tablets * quantity === 1 ? 'tablet' : 'tablets'})
+                  </p>
+                </div>
               </div>
               <div className="flex gap-3">
                 <button
@@ -731,6 +677,7 @@ const ProductDetail = () => {
           </div>
         </div>
 
+        {/* Rest of the page - Same as ProductDetail */}
         <div className="grid md:grid-cols-2 gap-6 mt-12">
           <div className="bg-gray-50 border border-[#1e8f3a] rounded-2xl p-6 shadow-sm">
             <h3 className="text-lg font-bold text-gray-800 mb-4">Product Feature</h3>
@@ -787,7 +734,7 @@ const ProductDetail = () => {
               ))}
             </div>
           </div>
-          <div className="bg-gray-50 border border-gray-200 rounded-3xl p-6 mt-6">
+          <div className="bg-green-50/80 border border-green-100 rounded-3xl p-6 mt-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-3">
               {(() => {
                 const tabLabels = {
@@ -843,7 +790,6 @@ const ProductDetail = () => {
         </div>
       </div>
 
-      {/* Disclaimer */}
       <div className="mt-14 bg-[#1e8f3a] text-white text-center px-6 py-5">
         <h3 className="text-3xl font-bold mb-3 uppercase tracking-wide">DISCLAIMER</h3>
         <p className="text-base font-normal leading-relaxed">
@@ -851,7 +797,6 @@ const ProductDetail = () => {
         </p>
       </div>
 
-      {/* FAQ */}
       <div className="mt-14 px-6 md:px-12 lg:px-16 xl:px-24">
         <h2 className="text-3xl font-semibold text-center text-gray-900 mb-8">Frequently asked questions (FAQs)</h2>
         <div className="space-y-4">
@@ -878,6 +823,54 @@ const ProductDetail = () => {
               </div>
             );
           })}
+        </div>
+      </div>
+
+      <div className="mt-16 px-6 md:px-12 lg:px-16 xl:px-24">
+        <div className="bg-[#efeadd] py-10 px-6 md:px-12 lg:px-16">
+          <div className="bg-white border border-gray-200 px-6 py-8">
+            <div className="flex flex-col lg:flex-row items-center gap-6">
+              <div className="text-center lg:text-left">
+                <p className="text-5xl font-bold text-gray-800">0.0</p>
+                <div className="flex justify-center lg:justify-start gap-1 mt-2">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <svg key={star} className="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                    </svg>
+                  ))}
+                </div>
+                <p className="text-sm text-gray-500 mt-2">Based on 0 reviews</p>
+              </div>
+              <div className="hidden lg:block w-px h-20 bg-gray-200"></div>
+              <div className="flex-1 w-full space-y-2 text-sm text-gray-700">
+                {[5, 4, 3, 2, 1].map((star) => (
+                  <div key={star} className="flex items-center gap-3">
+                    <span className="w-16">{star} star</span>
+                    <div className="flex-1 h-3 bg-white rounded-full border border-gray-200" />
+                    <span className="w-10 text-right">0%</span>
+                  </div>
+                ))}
+              </div>
+              <div className="hidden lg:block w-px h-20 bg-gray-200"></div>
+              <button 
+                onClick={() => setShowReviewModal(true)}
+                className="px-6 py-3 rounded-lg bg-green-800 text-white font-semibold hover:bg-green-900 transition whitespace-nowrap"
+              >
+                Add a review
+              </button>
+            </div>
+          </div>
+          <p className="text-center text-sm text-gray-900 mt-6">Sorry, no reviews match your current selections</p>
+        </div>
+      </div>
+
+      <div className="mt-16 text-center">
+        <h2 className="text-4xl md:text-5xl font-bold text-green-900 mb-4 italic" style={{ fontFamily: 'serif' }}>Power of Nature</h2>
+        <h3 className="text-2xl md:text-3xl font-medium text-gray-900 mb-8">Best Sellers Products</h3>
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {bestSellers.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
         </div>
       </div>
 
@@ -912,9 +905,9 @@ const ProductDetail = () => {
             <div className="p-6 space-y-6">
               {/* Product Info */}
               <div className="flex items-center gap-4">
-                {product && product.images && product.images.length > 0 && (
+                {(product?.image_url || product?.thumbnail_url) && (
                   <img
-                    src={product.images[0]}
+                    src={product.image_url || product.thumbnail_url}
                     alt={product.name}
                     className="w-16 h-16 object-cover rounded-lg"
                   />
@@ -1058,58 +1051,6 @@ const ProductDetail = () => {
         </div>
       )}
 
-      {/* Reviews Summary */}
-      <div className="mt-16 px-6 md:px-12 lg:px-16 xl:px-24">
-        <div className="bg-[#efeadd] py-10 px-6 md:px-12 lg:px-16">
-          <div className="bg-white border border-gray-200 px-6 py-8">
-            <div className="flex flex-col lg:flex-row items-center gap-6">
-              <div className="text-center lg:text-left">
-                <p className="text-5xl font-bold text-gray-800">0.0</p>
-                <div className="flex justify-center lg:justify-start gap-1 mt-2">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <svg key={star} className="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-                    </svg>
-                  ))}
-                </div>
-                <p className="text-sm text-gray-500 mt-2">Based on 0 reviews</p>
-              </div>
-              <div className="hidden lg:block w-px h-20 bg-gray-200"></div>
-              <div className="flex-1 w-full space-y-2 text-sm text-gray-700">
-                {[5, 4, 3, 2, 1].map((star) => (
-                  <div key={star} className="flex items-center gap-3">
-                    <span className="w-16">{star} star</span>
-                    <div className="flex-1 h-3 bg-white rounded-full border border-gray-200" />
-                    <span className="w-10 text-right">0%</span>
-                  </div>
-                ))}
-              </div>
-              <div className="hidden lg:block w-px h-20 bg-gray-200"></div>
-              <button 
-                onClick={() => setShowReviewModal(true)}
-                className="px-6 py-3 rounded-lg bg-green-800 text-white font-semibold hover:bg-green-900 transition whitespace-nowrap"
-              >
-                Add a review
-              </button>
-            </div>
-          </div>
-          <p className="text-center text-sm text-gray-900 mt-6">Sorry, no reviews match your current selections</p>
-        </div>
-      </div>
-
-      {/* Power of Nature */}
-      <div className="mt-16 text-center">
-        <h2 className="text-4xl md:text-5xl font-bold text-green-900 mb-4 italic" style={{ fontFamily: 'serif' }}>Power of Nature</h2>
-        <h3 className="text-2xl md:text-3xl font-medium text-gray-900 mb-8">Best Sellers Products</h3>
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {bestSellers.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
-      </div>
-
-
-      {/* Footer */}
       <div className="mt-16">
         <CloneFooter />
       </div>
@@ -1117,4 +1058,5 @@ const ProductDetail = () => {
   );
 };
 
-export default ProductDetail;
+export default ProductPack;
+

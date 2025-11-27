@@ -738,7 +738,7 @@ const Header = () => {
                     <div className="flex gap-4">
                       {/* Facebook */}
                       <a
-                        href="https://facebook.com/rasayanabio"
+                        href="https://www.facebook.com/people/RasayanaBio/61565640287427/"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition"
@@ -770,7 +770,7 @@ const Header = () => {
                       </a>
                       {/* Instagram */}
                       <a
-                        href="https://instagram.com/rasayanabio"
+                        href="https://www.instagram.com/rasayanabio_/"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition"

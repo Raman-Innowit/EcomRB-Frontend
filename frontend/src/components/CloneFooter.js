@@ -170,7 +170,9 @@ const CloneFooter = () => {
               {/* Social Media Icons */}
               <div className="flex items-center justify-center gap-4 mt-4">
                 <a 
-                  href="https://facebook.com" 
+                  href="https://www.facebook.com/people/RasayanaBio/61565640287427/" 
+                  target="_blank"
+                  rel="noopener noreferrer"
                   aria-label="Facebook" 
                   className="w-10 h-10 grid place-items-center rounded-full transition-all duration-300 hover:scale-110"
                   style={{ backgroundColor: '#2d5016' }}
@@ -196,7 +198,9 @@ const CloneFooter = () => {
                   <span className="text-white font-bold text-xs">in</span>
                 </a>
                 <a 
-                  href="https://instagram.com" 
+                  href="https://www.instagram.com/rasayanabio_/" 
+                  target="_blank"
+                  rel="noopener noreferrer"
                   aria-label="Instagram" 
                   className="w-10 h-10 grid place-items-center rounded-full transition-all duration-300 hover:scale-110"
                   style={{ backgroundColor: '#2d5016' }}

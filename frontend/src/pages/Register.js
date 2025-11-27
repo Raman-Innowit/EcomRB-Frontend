@@ -29,7 +29,14 @@ const Register = () => {
       return;
     }
     setError('');
-    login({ email: formData.email });
+    // Store all registration data in user object
+    login({ 
+      email: formData.email,
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      mobile: formData.mobile,
+      name: `${formData.firstName} ${formData.lastName}`
+    });
     navigate('/account');
   };
 

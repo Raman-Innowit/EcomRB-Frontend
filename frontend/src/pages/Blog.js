@@ -233,8 +233,8 @@ const Blog = () => {
                 {['ASHWAGANDHA', 'AYURVEDIC', 'AYURVEDIC PRODUCTS', 'FEMALE WELLNESS', 'NO HARSH CHEMICALS', 'NON-GMO', 'NUT- AND GLUTEN-FREE', 'PRODUCTS', 'SCIENTIFICALLY TESTED', 'SOY-FREE'].map((tag, index) => (
                   <Link
                     key={index}
-                    to={`/product-tag/${tag.toLowerCase().replace(/\s+/g, '-')}/`}
-                    className="px-3 py-1.5 bg-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-300 transition-colors rounded"
+                    to={`/products?search=${encodeURIComponent(tag)}`}
+                    className="px-3 py-1.5 bg-gray-200 text-gray-700 text-sm font-medium transition-colors rounded hover:bg-[#1e8f3a] hover:text-white"
                     style={{ fontSize: '14px' }}
                   >
                     {tag}
