@@ -80,13 +80,15 @@ const ProductCard = ({ product }) => {
         {/* Product Image Area */}
         <div className="w-full h-56 bg-white flex items-center justify-center relative overflow-hidden">
           {(() => {
-            // Get first image from comma-separated URLs or single URL
+            // Get first image from thumbnail_url or image_url (backend provides first image from image_1)
             let imageUrl = product.thumbnail_url || product.image_url;
             if (imageUrl && typeof imageUrl === 'string') {
-              // If comma-separated, take the first one
-              const urls = imageUrl.split(',').map(url => url.trim()).filter(url => url);
-              if (urls.length > 0) {
-                imageUrl = urls[0];
+              // Handle legacy comma-separated format if present
+              if (imageUrl.includes(',')) {
+                const urls = imageUrl.split(',').map(url => url.trim()).filter(url => url);
+                if (urls.length > 0) {
+                  imageUrl = urls[0];
+                }
               }
             }
             

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import CloneFooter from '../components/CloneFooter';
+import { loginUser, trackUserAction } from '../services/api';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -10,17 +11,47 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [keepSignedIn, setKeepSignedIn] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email || !password) {
       setError('Please enter both email address and password.');
       return;
     }
     setError('');
-    login({ email, keepSignedIn });
-    navigate('/account');
+    setIsLoading(true);
+
+    try {
+      const data = await loginUser({ email, password });
+
+      if (data && data.success && data.access_token && data.user) {
+        // Track successful login in user_actions
+        trackUserAction({
+          actionType: 'login',
+          userId: data.user.id,
+          details: JSON.stringify({ email }),
+        });
+
+        // Save auth state via context
+        login({ user: data.user, token: data.access_token, keepSignedIn });
+        navigate('/account');
+      } else {
+        setError(data.error || 'Invalid email or password.');
+      }
+    } catch (err) {
+      console.error('Login error:', err);
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        err.message ||
+        'Login failed. Please try again.';
+      setError(message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -40,14 +71,33 @@ const Login = () => {
                   placeholder="Email Address"
                 />
               </div>
-              <div>
+              <div className="relative">
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900 placeholder-gray-400"
+                  className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 pr-10 focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900 placeholder-gray-400"
                   placeholder="Password"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700 focus:outline-none"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? (
+                    // Eye-off icon
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M17.94 17.94A10.94 10.94 0 0112 20c-5 0-9.27-3.11-11-8 1.02-2.78 2.98-4.99 5.39-6.31M9.88 4.12A10.94 10.94 0 0112 4c5 0 9.27 3.11 11 8-.6 1.65-1.5 3.13-2.63 4.35M9.88 4.12L4.12 9.88M9.88 4.12L14.12 8.36M14.12 15.64L9.88 19.88M14.12 15.64L19.88 9.88M9.88 19.88L4.12 14.12" />
+                    </svg>
+                  ) : (
+                    // Eye icon
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                  )}
+                </button>
               </div>
               <div className="flex items-center justify-between text-sm text-gray-600">
                 <label className="flex items-center gap-2">
@@ -67,12 +117,17 @@ const Login = () => {
               <div className="flex gap-4">
                 <button
                   type="submit"
-                  className="flex-1 text-white py-3 rounded-lg font-semibold transition"
+                  disabled={isLoading}
+                  className="flex-1 text-white py-3 rounded-lg font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed"
                   style={{ backgroundColor: '#15803d' }}
-                  onMouseEnter={(e) => e.target.style.backgroundColor = '#166534'}
-                  onMouseLeave={(e) => e.target.style.backgroundColor = '#15803d'}
+                  onMouseEnter={(e) => {
+                    if (!isLoading) e.target.style.backgroundColor = '#166534';
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isLoading) e.target.style.backgroundColor = '#15803d';
+                  }}
                 >
-                  Login
+                  {isLoading ? 'Logging in...' : 'Login'}
                 </button>
                 <button
                   type="button"

@@ -2400,7 +2400,7 @@ def track_action():
                 'ip_address': ip_address,
                 'user_agent': user_agent,
                 'page_url': page_url
-            })
+        })
         
         db.session.commit()
         print(f"[SUCCESS] Tracked action '{action_type}' for user {user_id} in {table_name} table")
@@ -14266,8 +14266,8 @@ def public_forgot_password():
         return jsonify({"error": "Failed to process request", "message": str(e)}), 500
 
 
-@app.route("/api/public/set-password", methods=["POST", "OPTIONS"])
-def public_set_password():
+@app.route("/api/public/reset-password", methods=["POST", "OPTIONS"])
+def public_reset_password():
     """
     Set new password using reset token.
     Public endpoint - no authentication required.

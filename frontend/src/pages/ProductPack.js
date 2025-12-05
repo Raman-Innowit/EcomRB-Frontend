@@ -89,15 +89,9 @@ const ProductPack = () => {
     return packConfig[packType] || packConfig['1-bottle'];
   }, [product, packType]);
 
-  const benefitPills = [
-    'Manage Stress and Anxiety',
-    'Boosts Testosterone Levels',
-    'Improve Reproductive Health',
-    'Enhance Cognitive Function',
-  ];
-
-  // Default fallback values
-  const defaultInfoTabs = {
+  // Default fallback values - memoized to prevent re-creation
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const defaultInfoTabs = useMemo(() => ({
     keyIngredients:
       'Key Ingredients: Ashwangandha (Withania somnifera)- 80mg, Gokshura (Tribulus terrestris)- 160 mg, Ginseng- 60 mg, Maca (Lepidium meyenii)- 60 mg and Yohimbe (Pausinystalia yohimbe)- 40 mg.',
     highlights: 'Highlights: Scientifically tested, Nut- & gluten-free, No harsh chemicals, Non-GMO, Soy-Free.',
@@ -107,7 +101,7 @@ const ProductPack = () => {
       "Directions: Keep out of children's reach. If you are younger than eighteen, pregnant, breastfeeding, have any medical issues, or are using prescription/OTC medications, do not use this or any other supplement.",
     warning:
       'Warning: Do not take this or any other supplement if under 18, pregnant or nursing, or if you have any known medical conditions or are taking prescription drugs.',
-  };
+  }), []);
 
   // Parse highlights to ensure it's an array when possible
   const parsedHighlights = useMemo(() => {
@@ -167,7 +161,7 @@ const ProductPack = () => {
       directions: product.directions || defaultInfoTabs.directions,
       warning: product.warning || defaultInfoTabs.warning,
     };
-  }, [product, parsedHighlights]);
+  }, [product, parsedHighlights, defaultInfoTabs]);
 
   // Dynamic product features from database
   const productFeatures = useMemo(() => {
@@ -203,9 +197,11 @@ const ProductPack = () => {
     }
     
     return defaultFeatures;
-  }, [product?.product_features]);
+  }, [product]);
 
-  const defaultIngredientCards = [
+  // Default ingredient cards - memoized to prevent re-creation
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const defaultIngredientCards = useMemo(() => [
     {
       name: 'Ashwagandha (Withania somnifera)',
       description:
@@ -230,22 +226,25 @@ const ProductPack = () => {
         'Known for aphrodisiac properties that improve sperm quality, stamina, and libido in males.',
       image: '/assets/Gokshura.png',
     },
-  ];
+  ], []);
 
   // Dynamic ingredient cards from database
   const ingredientCards = useMemo(() => {
     return product?.ingredient_details || defaultIngredientCards;
-  }, [product?.ingredient_details]);
+  }, [product?.ingredient_details, defaultIngredientCards]);
 
-  const paymentIcons = [
-    { name: 'Visa', icon: '💳' },
-    { name: 'Mastercard', icon: '💳' },
-    { name: 'Paytm', icon: '💠' },
-    { name: 'UPI', icon: '⚡' },
-    { name: 'RuPay', icon: '💳' },
-  ];
+  // Payment icons available for future use
+  // const paymentIcons = [
+  //   { name: 'Visa', icon: '💳' },
+  //   { name: 'Mastercard', icon: '💳' },
+  //   { name: 'Paytm', icon: '💠' },
+  //   { name: 'UPI', icon: '⚡' },
+  //   { name: 'RuPay', icon: '💳' },
+  // ];
 
-  const defaultFaqItems = [
+  // Default FAQ items - memoized to prevent re-creation
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const defaultFaqItems = useMemo(() => [
     {
       question: 'What is vitality?',
       answer:
@@ -266,12 +265,12 @@ const ProductPack = () => {
       answer:
         "Nutra's Bounty Male Vitality is a herbal energizer that helps improve energy and stamina, reduces stress, and enhances overall performance.",
     },
-  ];
+  ], []);
 
   // Dynamic FAQ items from database
   const faqItems = useMemo(() => {
     return product?.faqs || defaultFaqItems;
-  }, [product?.faqs]);
+  }, [product?.faqs, defaultFaqItems]);
 
   useEffect(() => {
     const fetchBestSellers = async () => {
@@ -361,21 +360,12 @@ const ProductPack = () => {
     const additionalImgs = parseImageArray(product.additional_images);
     addImages(additionalImgs);
     
-    // Add images from image_urls array (from backend - contains all comma-separated URLs)
-    // This is the primary source - backend parses comma-separated image_url into this array
+    // Add images from image_urls array (from backend - contains images from image_1 through image_5)
+    // This is the primary source - backend fetches from image_1, image_2, image_3, image_4, image_5 columns
     if (product.image_urls && Array.isArray(product.image_urls) && product.image_urls.length > 0) {
       // Debug: Log to see what we're getting from backend
       console.log('Product image_urls from backend:', product.image_urls);
       addImages(product.image_urls);
-    }
-    
-    // Fallback: parse image_url_raw (original comma-separated string from database)
-    if (product.image_url_raw && typeof product.image_url_raw === 'string') {
-      // Split by comma and filter out empty strings
-      const urls = product.image_url_raw.split(',').map(url => url.trim()).filter(url => url && url.length > 0);
-      if (urls.length > 0) {
-        addImages(urls);
-      }
     }
     
     // Fallback: parse image_url if it's comma-separated (shouldn't happen if backend works correctly)
@@ -399,7 +389,7 @@ const ProductPack = () => {
     console.log('Total images found:', allImages.length);
     
     return allImages;
-  }, [product?.image_url, product?.image_urls, product?.thumbnail_url, product?.gallery_images, product?.additional_images]);
+  }, [product]);
 
   const handleAddToCart = () => {
     if (!product) return;

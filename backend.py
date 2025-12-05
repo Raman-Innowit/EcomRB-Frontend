@@ -255,18 +255,29 @@ def serialize_product(row: Dict[str, Any]) -> Dict[str, Any]:
 	base_price = float(row.get("base_price") or 0) if row.get("base_price") is not None else None
 	sale_price = float(row.get("sale_price")) if row.get("sale_price") is not None else None
 	
-	# Parse comma-separated image URLs
-	image_url_raw = row.get("image_url")
+	# Fetch images from image_1, image_2, image_3, image_4, image_5 columns
+	# Fallback to image_url (comma-separated) if new columns don't exist
 	image_urls = []
-	if image_url_raw:
-		# Split by comma and clean up whitespace
-		# Filter out empty strings but keep all non-empty URLs
-		# Handle cases with trailing commas or extra whitespace
-		raw_str = str(image_url_raw).strip()
-		if raw_str:
-			image_urls = [url.strip() for url in raw_str.split(",") if url and url.strip()]
 	
-	thumbnail_url = row.get("thumbnail_url")
+	# Try new columns first (image_1 through image_5)
+	has_new_columns = any(row.get(f"image_{i}") is not None for i in range(1, 6))
+	
+	if has_new_columns:
+		# Use new column structure
+		for i in range(1, 6):
+			image_col = row.get(f"image_{i}")
+			if image_col and str(image_col).strip():
+				image_urls.append(str(image_col).strip())
+	else:
+		# Fallback to old image_url (comma-separated)
+		image_url_raw = row.get("image_url")
+		if image_url_raw:
+			raw_str = str(image_url_raw).strip()
+			if raw_str:
+				image_urls = [url.strip() for url in raw_str.split(",") if url and url.strip()]
+	
+	# Get thumbnail_url (first image or thumbnail_url column if exists)
+	thumbnail_url = row.get("thumbnail_url") or (image_urls[0] if image_urls else None)
 	
 	product = {
 		"id": row["id"],
@@ -283,8 +294,7 @@ def serialize_product(row: Dict[str, Any]) -> Dict[str, Any]:
 		"created_at": row.get("created_at"),
 		"thumbnail_url": thumbnail_url,
 		"image_url": image_urls[0] if image_urls else None,  # First image for backward compatibility
-		"image_urls": image_urls,  # Array of all images (parsed from comma-separated image_url)
-		"image_url_raw": str(image_url_raw) if image_url_raw else None,  # Original comma-separated string from DB
+		"image_urls": image_urls,  # Array of all images from image_1 to image_5
 		"sku": row.get("sku"),
 	}
 	
@@ -395,11 +405,43 @@ def create_app() -> Flask:
 			}
 			sort_column = sort_column_map.get(sort_by, "p.created_at")
 			
+			# Check what image columns exist in the database
+			cursor.execute("""
+				SELECT COLUMN_NAME 
+				FROM INFORMATION_SCHEMA.COLUMNS 
+				WHERE TABLE_SCHEMA = DATABASE() 
+				AND TABLE_NAME = 'products' 
+				AND COLUMN_NAME IN ('thumbnail_url', 'image_1', 'image_2', 'image_3', 'image_4', 'image_5', 'image_url')
+			""")
+			available_image_columns = [col['COLUMN_NAME'] for col in cursor.fetchall()]
+			
+			# Build image column selection
+			image_select = ""
+			if 'thumbnail_url' in available_image_columns:
+				image_select += "p.thumbnail_url, "
+			else:
+				image_select += "NULL AS thumbnail_url, "
+			
+			# Add image_1 through image_5 if they exist
+			for i in range(1, 6):
+				col_name = f'image_{i}'
+				if col_name in available_image_columns:
+					image_select += f"p.{col_name}, "
+				else:
+					image_select += f"NULL AS {col_name}, "
+			
+			# Fallback to image_url if new columns don't exist
+			if 'image_url' in available_image_columns and not any(f'image_{i}' in available_image_columns for i in range(1, 6)):
+				image_select += "p.image_url, "
+			else:
+				image_select += "NULL AS image_url, "
+			
 			cursor.execute(
 				f"""
 				SELECT DISTINCT p.id, p.name, p.slug, p.base_price, p.sale_price, p.base_currency, 
 				       p.description, p.short_description, p.stock_quantity, p.featured, 
-				       p.category_id, p.created_at, p.thumbnail_url, p.image_url, p.sku,
+				       p.category_id, p.created_at, 
+				       {image_select}p.sku,
 				       c.name AS category_name
 				FROM products p
 				LEFT JOIN categories c ON p.category_id = c.id
@@ -474,12 +516,44 @@ def create_app() -> Flask:
 		conn = open_db()
 		cursor = conn.cursor()
 		
+		# Check what image columns exist in the database
+		cursor.execute("""
+			SELECT COLUMN_NAME 
+			FROM INFORMATION_SCHEMA.COLUMNS 
+			WHERE TABLE_SCHEMA = DATABASE() 
+			AND TABLE_NAME = 'products' 
+			AND COLUMN_NAME IN ('thumbnail_url', 'image_1', 'image_2', 'image_3', 'image_4', 'image_5', 'image_url')
+		""")
+		available_image_columns = [col['COLUMN_NAME'] for col in cursor.fetchall()]
+		
+		# Build image column selection
+		image_select = ""
+		if 'thumbnail_url' in available_image_columns:
+			image_select += "p.thumbnail_url, "
+		else:
+			image_select += "NULL AS thumbnail_url, "
+		
+		# Add image_1 through image_5 if they exist
+		for i in range(1, 6):
+			col_name = f'image_{i}'
+			if col_name in available_image_columns:
+				image_select += f"p.{col_name}, "
+			else:
+				image_select += f"NULL AS {col_name}, "
+		
+		# Fallback to image_url if new columns don't exist
+		if 'image_url' in available_image_columns and not any(f'image_{i}' in available_image_columns for i in range(1, 6)):
+			image_select += "p.image_url, "
+		else:
+			image_select += "NULL AS image_url, "
+		
 		# Get product with category, health benefits, and all dynamic content fields
 		cursor.execute(
-			"""
+			f"""
 			SELECT p.id, p.name, p.slug, p.base_price, p.sale_price, p.base_currency, 
 			       p.description, p.short_description, p.stock_quantity, p.featured, 
-			       p.category_id, p.created_at, p.thumbnail_url, p.image_url, p.sku,
+			       p.category_id, p.created_at, 
+			       {image_select}p.sku,
 			       p.min_order_quantity, p.max_order_quantity,
 			       p.product_features, p.reviews, p.directions, p.highlights,
 			       p.product_type, p.color_name, p.color_shade, p.is_taxable, p.tax_rate,
@@ -494,7 +568,7 @@ def create_app() -> Flask:
 			WHERE p.id = %s AND p.is_active = 1
 			GROUP BY p.id, p.name, p.slug, p.base_price, p.sale_price, p.base_currency, 
 			         p.description, p.short_description, p.stock_quantity, p.featured, 
-			         p.category_id, p.created_at, p.thumbnail_url, p.image_url, p.sku,
+			         p.category_id, p.created_at, p.sku,
 			         p.min_order_quantity, p.max_order_quantity, p.product_features, 
 			         p.reviews, p.directions, p.highlights, p.product_type, p.color_name,
 			         p.color_shade, p.is_taxable, p.tax_rate, p.is_grouped_product, 

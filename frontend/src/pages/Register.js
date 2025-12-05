@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { registerUser } from '../services/api';
 import CloneFooter from '../components/CloneFooter';
 
 const Register = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -14,6 +13,8 @@ const Register = () => {
     mobile: ''
   });
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -22,22 +23,58 @@ const Register = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setSuccessMessage('');
+    
     if (!formData.firstName || !formData.lastName || !formData.email || !formData.mobile) {
       setError('Please fill in all fields.');
       return;
     }
-    setError('');
-    // Store all registration data in user object
-    login({ 
-      email: formData.email,
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      mobile: formData.mobile,
-      name: `${formData.firstName} ${formData.lastName}`
-    });
-    navigate('/account');
+
+    setIsLoading(true);
+    
+    // Test backend connection first
+    try {
+      console.log('[DEBUG] Attempting to register user...');
+      console.log('[DEBUG] Form data:', formData);
+      
+      const response = await registerUser({
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        email: formData.email,
+        mobile_number: formData.mobile
+      });
+      
+      console.log('[DEBUG] Registration response:', response);
+
+      if (response.success && response.message) {
+        setSuccessMessage(response.message);
+        // Clear form after successful registration
+        setFormData({
+          firstName: '',
+          lastName: '',
+          email: '',
+          mobile: ''
+        });
+      } else {
+        setError(response.error || 'Registration failed. Please try again.');
+      }
+    } catch (err) {
+      console.error('Registration error:', err);
+      console.error('Error response:', err.response);
+      
+      // Handle network errors specifically
+      if (err.code === 'ECONNREFUSED' || err.message === 'Network Error' || !err.response) {
+        setError('Cannot connect to server. Please make sure the backend is running on port 8800.');
+      } else {
+        const errorMessage = err.response?.data?.error || err.response?.data?.message || err.message || 'Registration failed. Please try again.';
+        setError(errorMessage);
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -147,19 +184,25 @@ const Register = () => {
                     />
                   </div>
                   {error && <p className="text-sm text-red-600">{error}</p>}
+                  {successMessage && (
+                    <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                      <p className="text-sm text-green-800">{successMessage}</p>
+                    </div>
+                  )}
                   
                   {/* Buttons */}
                   <div className="flex gap-4 pt-2">
                     <button
                       type="submit"
-                      className="flex-1 font-bold text-white transition hover:opacity-90"
+                      disabled={isLoading}
+                      className="flex-1 font-bold text-white transition hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
                       style={{
                         background: '#0c6a1f',
                         padding: '12px 32px',
                         borderRadius: '6px'
                       }}
                     >
-                      REGISTER
+                      {isLoading ? 'REGISTERING...' : 'REGISTER'}
                     </button>
                     <button
                       type="button"

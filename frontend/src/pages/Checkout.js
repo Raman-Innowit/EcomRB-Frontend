@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import { createOrder } from '../services/api';
+import { useAuth } from '../context/AuthContext';
+import { createOrder, getCitiesByState, getUserAddresses } from '../services/api';
 import CloneFooter from '../components/CloneFooter';
 
 const Checkout = () => {
-  const { cartItems, getTotalPrice, clearCart, removeFromCart } = useCart();
+  const { cartItems, clearCart, removeFromCart } = useCart();
+  const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -16,6 +18,13 @@ const Checkout = () => {
   const [showCouponInput, setShowCouponInput] = useState(false);
   const [couponCode, setCouponCode] = useState('');
   const [couponError, setCouponError] = useState('');
+  const [cities, setCities] = useState([]);
+  const [shippingCities, setShippingCities] = useState([]);
+  const [loadingCities, setLoadingCities] = useState(false);
+  const [savedAddresses, setSavedAddresses] = useState([]);
+  const [loadingAddresses, setLoadingAddresses] = useState(false);
+  const [selectedBillingAddress, setSelectedBillingAddress] = useState('');
+  const [selectedShippingAddress, setSelectedShippingAddress] = useState('');
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
@@ -42,6 +51,180 @@ const Checkout = () => {
     state: 'Rajasthan',
     pin_code: '',
   });
+
+  // Fetch cities when state changes (billing address)
+  useEffect(() => {
+    if (formData.state) {
+      setLoadingCities(true);
+      getCitiesByState(formData.state)
+        .then((response) => {
+          if (response.success && response.cities) {
+            setCities(response.cities);
+            // Reset city if current city is not in the new list
+            if (formData.town_city && !response.cities.includes(formData.town_city)) {
+              setFormData(prev => ({ ...prev, town_city: '' }));
+            }
+          }
+        })
+        .catch((error) => {
+          console.error('Error fetching cities:', error);
+          setCities([]);
+        })
+        .finally(() => {
+          setLoadingCities(false);
+        });
+    }
+  }, [formData.state]);
+
+  // Fetch cities when shipping state changes
+  useEffect(() => {
+    if (shippingData.state) {
+      setLoadingCities(true);
+      getCitiesByState(shippingData.state)
+        .then((response) => {
+          if (response.success && response.cities) {
+            setShippingCities(response.cities);
+            // Reset city if current city is not in the new list
+            if (shippingData.town_city && !response.cities.includes(shippingData.town_city)) {
+              setShippingData(prev => ({ ...prev, town_city: '' }));
+            }
+          }
+        })
+        .catch((error) => {
+          console.error('Error fetching shipping cities:', error);
+          setShippingCities([]);
+        })
+        .finally(() => {
+          setLoadingCities(false);
+        });
+    }
+  }, [shippingData.state]);
+
+  // Fetch saved addresses when component loads (if user is logged in)
+  useEffect(() => {
+    if (isAuthenticated) {
+      setLoadingAddresses(true);
+      getUserAddresses()
+        .then((response) => {
+          if (response.success && response.addresses) {
+            setSavedAddresses(response.addresses || []);
+          }
+        })
+        .catch((error) => {
+          console.error('Error fetching saved addresses:', error);
+          setSavedAddresses([]);
+        })
+        .finally(() => {
+          setLoadingAddresses(false);
+        });
+    }
+  }, [isAuthenticated]);
+
+  // Parse address string and populate form fields
+  const parseAndFillAddress = (addressString, isShipping = false) => {
+    if (!addressString) return;
+    
+    // Address format: "house_number, apartment, town_city, state - pin_code"
+    // Try to parse the address - handle various formats
+    try {
+      // Split by comma first
+      const parts = addressString.split(',').map(p => p.trim());
+      
+      if (parts.length >= 3) {
+        const houseNumber = parts[0] || '';
+        const apartment = parts[1] || '';
+        
+        // Last part should be "state - pin_code"
+        const lastPart = parts[parts.length - 1];
+        const statePinMatch = lastPart.match(/^(.+?)\s*-\s*(.+)$/);
+        
+        if (statePinMatch) {
+          const state = statePinMatch[1].trim();
+          const pinCode = statePinMatch[2].trim();
+          
+          // Everything between apartment and last part is the city
+          const townCity = parts.slice(2, -1).join(', ').trim() || '';
+          
+          if (isShipping) {
+            setShippingData(prev => ({
+              ...prev,
+              house_number: houseNumber,
+              apartment: apartment,
+              town_city: townCity,
+              state: state,
+              pin_code: pinCode
+            }));
+            
+            // Trigger city fetch for shipping
+            if (state) {
+              getCitiesByState(state)
+                .then((response) => {
+                  if (response.success && response.cities) {
+                    setShippingCities(response.cities);
+                  }
+                })
+                .catch((error) => {
+                  console.error('Error fetching shipping cities:', error);
+                });
+            }
+          } else {
+            setFormData(prev => ({
+              ...prev,
+              house_number: houseNumber,
+              apartment: apartment,
+              town_city: townCity,
+              state: state,
+              pin_code: pinCode
+            }));
+            
+            // Trigger city fetch for billing
+            if (state) {
+              getCitiesByState(state)
+                .then((response) => {
+                  if (response.success && response.cities) {
+                    setCities(response.cities);
+                  }
+                })
+                .catch((error) => {
+                  console.error('Error fetching cities:', error);
+                });
+            }
+          }
+        } else {
+          // Fallback: if no "state - pin" format, try simpler parsing
+          console.warn('Could not parse address format:', addressString);
+        }
+      }
+    } catch (error) {
+      console.error('Error parsing address:', error);
+    }
+  };
+
+  // Handle billing address selection
+  const handleBillingAddressSelect = (e) => {
+    const addressId = e.target.value;
+    setSelectedBillingAddress(addressId);
+    
+    if (addressId && addressId !== 'new') {
+      const selectedAddress = savedAddresses.find(addr => addr.address === addressId);
+      if (selectedAddress) {
+        parseAndFillAddress(selectedAddress.address, false);
+      }
+    }
+  };
+
+  // Handle shipping address selection
+  const handleShippingAddressSelect = (e) => {
+    const addressId = e.target.value;
+    setSelectedShippingAddress(addressId);
+    
+    if (addressId && addressId !== 'new') {
+      const selectedAddress = savedAddresses.find(addr => addr.address === addressId);
+      if (selectedAddress) {
+        parseAndFillAddress(selectedAddress.address, true);
+      }
+    }
+  };
 
   const handleShippingChange = (e) => {
     setShippingData({
@@ -84,10 +267,25 @@ const Checkout = () => {
     return subtotal + shipping + cgst + sgst;
   };
 
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login', { state: { from: '/checkout', message: 'Please login to place an order' } });
+    }
+  }, [isAuthenticated, navigate]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
+
+    // Check if user is logged in
+    if (!isAuthenticated || !user || !user.id) {
+      setError('You must be logged in to place an order. Please login first.');
+      setLoading(false);
+      navigate('/login', { state: { from: '/checkout', message: 'Please login to place an order' } });
+      return;
+    }
 
     try {
       const items = cartItems.map((item) => ({
@@ -102,8 +300,9 @@ const Checkout = () => {
         : `${formData.house_number}, ${formData.apartment}, ${formData.town_city}, ${formData.state} - ${formData.pin_code}`;
 
       const orderData = {
+        user_id: user.id,  // REQUIRED: User must be logged in
         customer_name: `${formData.first_name} ${formData.last_name}`,
-        customer_email: formData.email,
+        customer_email: formData.email || user.email,
         customer_phone: formData.phone,
         shipping_address: shippingAddress,
         items: items,
@@ -116,8 +315,9 @@ const Checkout = () => {
       const response = await createOrder(orderData);
 
       if (response.success) {
+        // Clear cart after successful order (this will not show any errors)
         clearCart();
-        navigate('/order-success', { state: { orderId: response.order_id } });
+        navigate('/order-success', { state: { orderId: response.order.id || response.order_id } });
       } else {
         setError(response.error || 'Failed to create order');
       }
@@ -145,7 +345,8 @@ const Checkout = () => {
   }
 
   const subtotal = calculateSubtotal();
-  const shipping = calculateShipping();
+  // eslint-disable-next-line no-unused-vars
+  const shipping = calculateShipping(); // Used in calculateTaxes and calculateTotal
   const { cgst, sgst } = calculateTaxes();
   const total = calculateTotal();
 
@@ -301,14 +502,24 @@ const Checkout = () => {
                   <label htmlFor="town_city" className="block text-gray-700 mb-2">
                     Town / City
                   </label>
-                  <input
-                    type="text"
+                  <select
                     id="town_city"
                     name="town_city"
                     value={formData.town_city}
                     onChange={handleChange}
-                    className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                  />
+                    disabled={loadingCities || cities.length === 0}
+                    className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  >
+                    <option value="">Select City</option>
+                    {cities.map((city) => (
+                      <option key={city} value={city}>
+                        {city}
+                      </option>
+                    ))}
+                  </select>
+                  {loadingCities && (
+                    <p className="text-sm text-gray-500 mt-1">Loading cities...</p>
+                  )}
                 </div>
 
                 <div>
@@ -447,6 +658,30 @@ const Checkout = () => {
 
                 {shipToDifferentAddress && (
                   <div className="mb-6 border-t pt-6">
+                    <h3 className="text-xl font-semibold mb-4">Shipping Address</h3>
+                    
+                    {/* Saved Shipping Addresses Dropdown */}
+                    {isAuthenticated && savedAddresses.length > 0 && (
+                      <div className="mb-6">
+                        <label htmlFor="shipping_address_select" className="block text-gray-700 mb-2 font-medium">
+                          Select a saved shipping address
+                        </label>
+                        <select
+                          id="shipping_address_select"
+                          value={selectedShippingAddress}
+                          onChange={handleShippingAddressSelect}
+                          className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
+                        >
+                          <option value="new">Enter new shipping address</option>
+                          {savedAddresses.map((address, idx) => (
+                            <option key={idx} value={address.address}>
+                              {address.type === 'shipping' ? '📦' : '💳'} {address.address.substring(0, 50)}{address.address.length > 50 ? '...' : ''}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+
                     <div className="space-y-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
@@ -516,15 +751,24 @@ const Checkout = () => {
                         <label htmlFor="shipping_town_city" className="block text-gray-700 mb-2">
                           Town / City
                         </label>
-                        <input
-                          type="text"
+                        <select
                           id="shipping_town_city"
                           name="town_city"
                           value={shippingData.town_city}
                           onChange={handleShippingChange}
-                          className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                          placeholder="Town / City"
-                        />
+                          disabled={loadingCities || shippingCities.length === 0}
+                          className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                        >
+                          <option value="">Select City</option>
+                          {shippingCities.map((city) => (
+                            <option key={city} value={city}>
+                              {city}
+                            </option>
+                          ))}
+                        </select>
+                        {loadingCities && (
+                          <p className="text-sm text-gray-500 mt-1">Loading cities...</p>
+                        )}
                       </div>
 
                       <div>
@@ -795,7 +1039,7 @@ const Checkout = () => {
               {/* Privacy Policy */}
               <p className="text-sm text-gray-600 mb-6">
                 Your personal data will be used to process your order, support your experience throughout this website, and for other purposes described in our{' '}
-                <a href="#" className="text-green-700 hover:underline">privacy policy</a>.
+                <a href="/privacy-policy" className="text-green-700 hover:underline">privacy policy</a>.
               </p>
 
               {/* Place Order Button */}

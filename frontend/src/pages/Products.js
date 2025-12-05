@@ -10,6 +10,7 @@ const Products = () => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
   const [viewMode, setViewMode] = useState('grid');
@@ -40,7 +41,7 @@ const Products = () => {
         const data = await getPublicCategories();
         setCategories(data.categories || []);
       } catch (error) {
-        console.error('Error fetching categories:', error);
+        // Silently handle error
       }
     };
     fetchCategories();
@@ -49,6 +50,7 @@ const Products = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
+      setError(null);
       try {
         const params = {
           page: currentPage,
@@ -66,7 +68,10 @@ const Products = () => {
         setProducts(data.products || []);
         setTotalPages(data.pages || 1);
       } catch (error) {
-        console.error('Error fetching products:', error);
+        const errorMessage = error.message || 'Failed to load products. Please check your API configuration.';
+        setError(errorMessage);
+        setProducts([]);
+        setTotalPages(1);
       } finally {
         setLoading(false);
       }
@@ -308,6 +313,25 @@ const Products = () => {
                 {skeletons.map((_, i) => (
                   <ProductCardSkeleton key={i} />
                 ))}
+              </div>
+            ) : error ? (
+              <div className="text-center py-12">
+                <div className="text-6xl mb-4">⚠️</div>
+                <h3 className="text-2xl font-bold mb-2 text-red-600">API Configuration Error</h3>
+                <p className="text-gray-700 mb-4">{error}</p>
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 max-w-2xl mx-auto text-left">
+                  <p className="text-sm text-gray-700 mb-2">
+                    <strong>To fix this:</strong>
+                  </p>
+                  <ol className="text-sm text-gray-700 list-decimal list-inside space-y-1">
+                    <li>Create a <code className="bg-gray-100 px-1 rounded">.env</code> file in the <code className="bg-gray-100 px-1 rounded">frontend</code> directory</li>
+                    <li>Add your API URL: <code className="bg-gray-100 px-1 rounded">REACT_APP_API_URL=https://your-api-url.com/api</code></li>
+                    <li>Restart your development server</li>
+                  </ol>
+                  <p className="text-xs text-gray-600 mt-3">
+                    See <code className="bg-gray-100 px-1 rounded">frontend/API_SETUP.md</code> for detailed instructions.
+                  </p>
+                </div>
               </div>
             ) : products.length === 0 ? (
               <div className="text-center py-12">

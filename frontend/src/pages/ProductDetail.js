@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { getPublicProduct, getPublicProducts } from '../services/api';
+import { getPublicProduct, getPublicProducts, getProductReviews, createProductReview } from '../services/api';
 import { useCart } from '../context/CartContext';
 import QuantitySelector from '../components/QuantitySelector';
 import CloneFooter from '../components/CloneFooter';
@@ -11,6 +11,7 @@ const ProductDetail = () => {
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
+  // eslint-disable-next-line no-unused-vars
   const [selectedPack, setSelectedPack] = useState(0);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
@@ -24,6 +25,14 @@ const ProductDetail = () => {
   const [reviewEmail, setReviewEmail] = useState('');
   const [reviewTerms, setReviewTerms] = useState(false);
   const [bestSellers, setBestSellers] = useState([]);
+  const [reviews, setReviews] = useState([]);
+  const [reviewStats, setReviewStats] = useState(null);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [submitReviewLoading, setSubmitReviewLoading] = useState(false);
+  const [reviewImage, setReviewImage] = useState(null);
+  const [reviewVideo, setReviewVideo] = useState(null);
+  const [reviewImagePreview, setReviewImagePreview] = useState(null);
+  const [reviewVideoPreview, setReviewVideoPreview] = useState(null);
   const { addToCart } = useCart();
 
   const packOptions = [
@@ -63,15 +72,9 @@ const ProductDetail = () => {
     },
   ];
 
-  const benefitPills = [
-    'Manage Stress and Anxiety',
-    'Boosts Testosterone Levels',
-    'Improve Reproductive Health',
-    'Enhance Cognitive Function',
-  ];
-
-  // Default fallback values
-  const defaultInfoTabs = {
+  // Default fallback values - memoized to prevent re-creation
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const defaultInfoTabs = useMemo(() => ({
     keyIngredients:
       'Key Ingredients: Ashwangandha (Withania somnifera)- 80mg, Gokshura (Tribulus terrestris)- 160 mg, Ginseng- 60 mg, Maca (Lepidium meyenii)- 60 mg and Yohimbe (Pausinystalia yohimbe)- 40 mg.',
     highlights: 'Highlights: Scientifically tested, Nut- & gluten-free, No harsh chemicals, Non-GMO, Soy-Free.',
@@ -81,7 +84,7 @@ const ProductDetail = () => {
       'Directions: Keep out of children\'s reach. If you are younger than eighteen, pregnant, breastfeeding, have any medical issues, or are using prescription/OTC medications, do not use this or any other supplement.',
     warning:
       'Warning: Do not take this or any other supplement if under 18, pregnant or nursing, or if you have any known medical conditions or are taking prescription drugs.',
-  };
+  }), []);
 
   // Parse highlights to ensure it's an array when possible
   const parsedHighlights = useMemo(() => {
@@ -115,11 +118,18 @@ const ProductDetail = () => {
   const infoTabs = useMemo(() => {
     if (!product) return defaultInfoTabs;
     
-    // Handle key_ingredients - can be string or array
+    // Handle key_ingredients - can be array of objects (from key_ingredients table) or string/array
     let keyIngredientsText = defaultInfoTabs.keyIngredients;
     if (product.key_ingredients) {
-      if (Array.isArray(product.key_ingredients)) {
-        keyIngredientsText = product.key_ingredients.join(', ');
+      if (Array.isArray(product.key_ingredients) && product.key_ingredients.length > 0) {
+        // Check if it's an array of objects (from key_ingredients table) or strings
+        if (typeof product.key_ingredients[0] === 'object' && product.key_ingredients[0].name) {
+          // Array of objects from key_ingredients table - extract names
+          keyIngredientsText = product.key_ingredients.map(ing => ing.name).filter(Boolean).join(', ');
+        } else {
+          // Array of strings
+          keyIngredientsText = product.key_ingredients.join(', ');
+        }
       } else if (typeof product.key_ingredients === 'string') {
         keyIngredientsText = product.key_ingredients;
       }
@@ -141,9 +151,11 @@ const ProductDetail = () => {
       directions: product.directions || defaultInfoTabs.directions,
       warning: product.warning || defaultInfoTabs.warning,
     };
-  }, [product, parsedHighlights]);
+  }, [product, parsedHighlights, defaultInfoTabs]);
 
-  const defaultIngredientCards = [
+  // Default ingredient cards - memoized to prevent re-creation
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const defaultIngredientCards = useMemo(() => [
     {
       name: 'Ashwagandha (Withania somnifera)',
       description:
@@ -168,38 +180,75 @@ const ProductDetail = () => {
         'Known for aphrodisiac properties that improve sperm quality, stamina, and libido in males.',
       image: '/assets/Gokshura.png',
     },
-  ];
+  ], []);
 
   // Dynamic ingredient cards from database
+  // Priority: key_ingredients (from key_ingredients table) > ingredient_details > default
+  // Only show ingredients that have images assigned in the database
   const ingredientCards = useMemo(() => {
-    if (!product || !product.ingredient_details) return defaultIngredientCards;
+    if (!product) return [];
     
-    // If ingredient_details is an array, use it directly
-    if (Array.isArray(product.ingredient_details) && product.ingredient_details.length > 0) {
-      return product.ingredient_details.map(ing => ({
-        name: ing.name || ing.title || '',
-        description: ing.description || ing.desc || '',
-        image: ing.image || ing.image_url || '/assets/product-thumb-1.png',
-      }));
-    }
-    
-    // Try to parse if it's a JSON string
-    if (typeof product.ingredient_details === 'string') {
-      try {
-        const parsed = JSON.parse(product.ingredient_details);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed.map(ing => ({
-            name: ing.name || ing.title || '',
-            description: ing.description || ing.desc || '',
-            image: ing.image || ing.image_url || '/assets/product-thumb-1.png',
-          }));
-        }
-      } catch {
-        // If parsing fails, use defaults
+    // First, try to use key_ingredients from key_ingredients table (via product_key_ingredients)
+    if (Array.isArray(product.key_ingredients) && product.key_ingredients.length > 0) {
+      // Filter out ingredients without images - only include those with image_url or thumbnail_url
+      const cardsWithImages = product.key_ingredients
+        .filter(ing => {
+          const hasImage = (ing.image_url && ing.image_url.trim()) || (ing.thumbnail_url && ing.thumbnail_url.trim());
+          return hasImage;
+        })
+        .map(ing => ({
+          name: ing.name || '',
+          description: ing.description || '',
+          image: ing.image_url || ing.thumbnail_url,
+        }));
+      
+      // Only return if we have ingredients with images
+      if (cardsWithImages.length > 0) {
+        return cardsWithImages;
       }
     }
     
-    return defaultIngredientCards;
+    // Fallback to ingredient_details if key_ingredients not available
+    if (product.ingredient_details) {
+      let detailsArray = [];
+      
+      // If ingredient_details is an array, use it directly
+      if (Array.isArray(product.ingredient_details) && product.ingredient_details.length > 0) {
+        detailsArray = product.ingredient_details;
+      }
+      // Try to parse if it's a JSON string
+      else if (typeof product.ingredient_details === 'string') {
+        try {
+          const parsed = JSON.parse(product.ingredient_details);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            detailsArray = parsed;
+          }
+        } catch {
+          // If parsing fails, return empty
+        }
+      }
+      
+      // Filter out ingredients without images
+      if (detailsArray.length > 0) {
+        const cardsWithImages = detailsArray
+          .filter(ing => {
+            const hasImage = (ing.image && ing.image.trim()) || (ing.image_url && ing.image_url.trim());
+            return hasImage;
+          })
+          .map(ing => ({
+            name: ing.name || ing.title || '',
+            description: ing.description || ing.desc || '',
+            image: ing.image || ing.image_url,
+          }));
+        
+        if (cardsWithImages.length > 0) {
+          return cardsWithImages;
+        }
+      }
+    }
+    
+    // Return empty array if no ingredients with images found (no defaults)
+    return [];
   }, [product]);
 
   // eslint-disable-next-line no-unused-vars
@@ -211,38 +260,16 @@ const ProductDetail = () => {
     { name: 'RuPay', icon: '💳' },
   ];
 
-  const defaultFaqItems = [
-    {
-      question: 'What is vitality?',
-      answer:
-        'Vitality refers to a person\'s ability to live, grow, and develop. It also refers to having energy and being vigorous and active.',
-    },
-    {
-      question: 'How long should I use the Nutra\'s Bounty Male vitality capsules to see results?',
-      answer:
-        'Use the capsules consistently for at least 2 months to experience optimal benefits including improved stamina, libido, and blood flow.',
-    },
-    {
-      question: 'Can I take the Nutra\'s Bounty Male vitality capsules with other medications?',
-      answer:
-        'If you have any medical issues or take prescription medication, please consult your doctor before use. Avoid use if pregnant, breastfeeding, or under 18.',
-    },
-    {
-      question: 'How does this product benefit men?',
-      answer:
-        'Nutra\'s Bounty Male Vitality is a herbal energizer that helps improve energy and stamina, reduces stress, and enhances overall performance.',
-    },
-  ];
-
-  // Dynamic FAQs from database
+  // Dynamic FAQs from database - only use FAQs from product_faqs table
   const faqItems = useMemo(() => {
-    if (!product || !product.faqs) return defaultFaqItems;
+    // Only return FAQs if they exist in the database
+    if (!product || !product.faqs) return [];
     
     if (Array.isArray(product.faqs) && product.faqs.length > 0) {
       return product.faqs.map(faq => ({
         question: faq.question || faq.q || '',
         answer: faq.answer || faq.a || '',
-      }));
+      })).filter(faq => faq.question && faq.answer); // Only include FAQs with both question and answer
     }
     
     // Try to parse if it's a JSON string
@@ -253,14 +280,15 @@ const ProductDetail = () => {
           return parsed.map(faq => ({
             question: faq.question || faq.q || '',
             answer: faq.answer || faq.a || '',
-          }));
+          })).filter(faq => faq.question && faq.answer);
         }
       } catch {
-        // If parsing fails, use defaults
+        // If parsing fails, return empty array
       }
     }
     
-    return defaultFaqItems;
+    // Return empty array if no FAQs found (no hardcoded defaults)
+    return [];
   }, [product]);
 
   // Dynamic product features from database
@@ -326,6 +354,26 @@ const ProductDetail = () => {
     fetchProduct();
   }, [id]);
 
+  // Fetch reviews for the product
+  useEffect(() => {
+    const fetchReviews = async () => {
+      if (!id) return;
+      try {
+        setReviewsLoading(true);
+        const data = await getProductReviews(parseInt(id), 1, 10);
+        setReviews(data.reviews || []);
+        setReviewStats(data.statistics || null);
+      } catch (error) {
+        console.error('Error fetching reviews:', error);
+        setReviews([]);
+        setReviewStats(null);
+      } finally {
+        setReviewsLoading(false);
+      }
+    };
+    fetchReviews();
+  }, [id]);
+
   // Parse images from database - combine all image sources
   const productImages = useMemo(() => {
     if (!product) return [];
@@ -385,21 +433,12 @@ const ProductDetail = () => {
     const additionalImgs = parseImageArray(product.additional_images);
     addImages(additionalImgs);
     
-    // Add images from image_urls array (from backend - contains all comma-separated URLs)
-    // This is the primary source - backend parses comma-separated image_url into this array
+    // Add images from image_urls array (from backend - contains images from image_1 through image_5)
+    // This is the primary source - backend fetches from image_1, image_2, image_3, image_4, image_5 columns
     if (product.image_urls && Array.isArray(product.image_urls) && product.image_urls.length > 0) {
       // Debug: Log to see what we're getting from backend
       console.log('Product image_urls from backend:', product.image_urls);
       addImages(product.image_urls);
-    }
-    
-    // Fallback: parse image_url_raw (original comma-separated string from database)
-    if (product.image_url_raw && typeof product.image_url_raw === 'string') {
-      // Split by comma and filter out empty strings
-      const urls = product.image_url_raw.split(',').map(url => url.trim()).filter(url => url && url.length > 0);
-      if (urls.length > 0) {
-        addImages(urls);
-      }
     }
     
     // Fallback: parse image_url if it's comma-separated (shouldn't happen if backend works correctly)
@@ -423,7 +462,7 @@ const ProductDetail = () => {
     console.log('Total images found:', allImages.length);
     
     return allImages;
-  }, [product?.image_url, product?.image_urls, product?.thumbnail_url, product?.gallery_images, product?.additional_images]);
+  }, [product]);
 
 
   const handleAddToCart = () => {
@@ -442,6 +481,121 @@ const ProductDetail = () => {
   const handleBuyNow = () => {
     handleAddToCart();
     navigate('/cart');
+  };
+
+  const handleImageUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file');
+        return;
+      }
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Image size must be less than 5MB');
+        return;
+      }
+      setReviewImage(file);
+      setReviewImagePreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleVideoUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('video/')) {
+        alert('Please select a video file');
+        return;
+      }
+      // Validate file size (max 50MB)
+      if (file.size > 50 * 1024 * 1024) {
+        alert('Video size must be less than 50MB');
+        return;
+      }
+      setReviewVideo(file);
+      setReviewVideoPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const removeImage = () => {
+    setReviewImage(null);
+    setReviewImagePreview(null);
+  };
+
+  const removeVideo = () => {
+    setReviewVideo(null);
+    setReviewVideoPreview(null);
+  };
+
+  const handleSubmitReview = async () => {
+    // Validate required fields
+    if (!reviewName.trim()) {
+      alert('Please enter your name');
+      return;
+    }
+    if (!reviewEmail.trim()) {
+      alert('Please enter your email');
+      return;
+    }
+    if (reviewRating === 0) {
+      alert('Please select a rating');
+      return;
+    }
+    if (!reviewTerms) {
+      alert('Please agree to the Terms and Conditions');
+      return;
+    }
+
+    try {
+      setSubmitReviewLoading(true);
+      
+      // Create FormData for file uploads
+      const formData = new FormData();
+      formData.append('name', reviewName.trim());
+      formData.append('email', reviewEmail.trim());
+      formData.append('rating', reviewRating);
+      if (reviewText.trim()) {
+        formData.append('review_text', reviewText.trim());
+      }
+      
+      // Add files if selected
+      if (reviewImage) {
+        formData.append('image', reviewImage);
+      }
+      if (reviewVideo) {
+        formData.append('video', reviewVideo);
+      }
+
+      await createProductReview(parseInt(id), formData);
+      
+      // Reset form
+      setReviewName('');
+      setReviewEmail('');
+      setReviewRating(0);
+      setReviewText('');
+      setReviewTerms(false);
+      setReviewImage(null);
+      setReviewVideo(null);
+      setReviewImagePreview(null);
+      setReviewVideoPreview(null);
+      setShowReviewModal(false);
+      
+      // Refresh reviews
+      const data = await getProductReviews(parseInt(id), 1, 10);
+      setReviews(data.reviews || []);
+      setReviewStats(data.statistics || null);
+      
+      alert('Review submitted successfully!');
+      
+    } catch (error) {
+      console.error('Error submitting review:', error);
+      const errorMessage = error.response?.data?.error || error.response?.data?.message || 'Failed to submit review. Please try again.';
+      alert(errorMessage);
+    } finally {
+      setSubmitReviewLoading(false);
+    }
   };
 
   if (loading) {
@@ -609,19 +763,36 @@ const ProductDetail = () => {
               </span>
             </div>
 
-            {/* Health Benefits from Database */}
-            {product.health_benefits && product.health_benefits.length > 0 && (
+            {/* Feature Cards from Database (only when explicitly configured) */}
+            {product && Array.isArray(product.feature_cards) && product.feature_cards.length > 0 && (
               <div className="grid gap-3 mb-6" style={{ gridTemplateColumns: 'minmax(338px, 1fr) minmax(338px, 1fr)' }}>
-                {product.health_benefits.slice(0, 4).map((benefit, idx) => (
-                  <div key={benefit.id || idx} className="bg-[#f5f5f0] border border-[#e8dfd1] rounded-lg px-4 py-2.5 flex items-center gap-3 shadow-sm">
-                    <img 
-                      src="/assets/Supports-Hormonal-Balance.png" 
-                      alt={benefit.name} 
-                      className="w-6 h-6 object-contain flex-shrink-0"
-                    />
-                    <p className="text-sm font-semibold text-gray-800 whitespace-nowrap">{benefit.name}</p>
-                  </div>
-                ))}
+                {product.feature_cards.slice(0, 4).map((card, idx) => {
+                  const label = card.card_text || '';
+                  const imageUrl = card.card_image_url;
+                  const key = card.id || idx;
+                  if (!label) return null;
+                  return (
+                    <div
+                      key={key}
+                      className="bg-[#f5f5f0] border border-[#e8dfd1] rounded-lg px-4 py-2.5 flex items-center gap-3 shadow-sm"
+                    >
+                      {imageUrl && imageUrl.trim() && (
+                        <img
+                          src={imageUrl}
+                          alt={label}
+                          className="w-6 h-6 object-contain flex-shrink-0"
+                          onError={(e) => {
+                            // Hide image if it fails to load
+                            e.target.style.display = 'none';
+                          }}
+                        />
+                      )}
+                      <p className="text-sm font-semibold text-gray-800 break-words flex-1">
+                        {label}
+                      </p>
+                    </div>
+                  );
+                })}
               </div>
             )}
 
@@ -801,10 +972,12 @@ const ProductDetail = () => {
               })()}
             </h3>
             <div className="text-gray-700 leading-relaxed text-sm">
-              {activeInfoTab === 'keyIngredients' && Array.isArray(product?.key_ingredients) ? (
-                <ul className="list-disc list-inside space-y-1">
+              {activeInfoTab === 'keyIngredients' && Array.isArray(product?.key_ingredients) && product.key_ingredients.length > 0 ? (
+                <ul className="list-disc list-inside space-y-2">
                   {product.key_ingredients.map((ingredient, idx) => (
-                    <li key={idx}>{ingredient}</li>
+                    <li key={ingredient.id || idx}>
+                      {typeof ingredient === 'string' ? ingredient : ingredient.name || ''}
+                    </li>
                   ))}
                 </ul>
               ) : activeInfoTab === 'highlights' && parsedHighlights && parsedHighlights.length > 0 ? (
@@ -820,27 +993,30 @@ const ProductDetail = () => {
           </div>
         </div>
 
-        <div className="mt-12">
-          <div className="text-center mb-6">
-            <h3 className="text-3xl font-bold text-gray-900">Key Ingredients</h3>
-          </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {ingredientCards.map((ingredient) => (
-              <div
-                key={ingredient.name}
-                className="bg-[#f5f5f0] border border-[#e8dfd1] rounded-2xl p-5 flex flex-col gap-4"
-              >
-                <div className="aspect-square rounded-xl overflow-hidden bg-white">
-                  <img src={ingredient.image} alt={ingredient.name} className="w-full h-full object-contain" />
+        {/* Key Ingredients - Only show if there are ingredients with images */}
+        {ingredientCards && ingredientCards.length > 0 && (
+          <div className="mt-12">
+            <div className="text-center mb-6">
+              <h3 className="text-3xl font-bold text-gray-900">Key Ingredients</h3>
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+              {ingredientCards.map((ingredient) => (
+                <div
+                  key={ingredient.name}
+                  className="bg-[#f5f5f0] border border-[#e8dfd1] rounded-2xl p-5 flex flex-col gap-4"
+                >
+                  <div className="aspect-square rounded-xl overflow-hidden bg-white">
+                    <img src={ingredient.image} alt={ingredient.name} className="w-full h-full object-contain" />
+                  </div>
+                  <div>
+                    <h4 className="text-base font-semibold text-gray-800 mb-2">{ingredient.name}</h4>
+                    <p className="text-sm text-gray-700 leading-relaxed">{ingredient.description}</p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="text-base font-semibold text-gray-800 mb-2">{ingredient.name}</h4>
-                  <p className="text-sm text-gray-700 leading-relaxed">{ingredient.description}</p>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Disclaimer */}
@@ -851,35 +1027,37 @@ const ProductDetail = () => {
         </p>
       </div>
 
-      {/* FAQ */}
-      <div className="mt-14 px-6 md:px-12 lg:px-16 xl:px-24">
-        <h2 className="text-3xl font-semibold text-center text-gray-900 mb-8">Frequently asked questions (FAQs)</h2>
-        <div className="space-y-4">
-          {faqItems.map((faq) => {
-            const isOpen = activeInfoTab === faq.question;
-            return (
-              <div key={faq.question} className="space-y-0">
-                <div 
-                  onClick={() =>
-                    setActiveInfoTab((prev) => (prev === faq.question ? '' : faq.question))
-                  }
-                  className="bg-white border border-gray-900 rounded-2xl px-5 py-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors"
-                >
-                  <span className="text-base font-medium text-gray-900">{faq.question}</span>
-                  <div className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-900 pointer-events-none">
-                    <span className="text-xl font-light text-gray-900">{isOpen ? '−' : '+'}</span>
+      {/* FAQ - Only show if FAQs exist in database */}
+      {faqItems && faqItems.length > 0 && (
+        <div className="mt-14 px-6 md:px-12 lg:px-16 xl:px-24">
+          <h2 className="text-3xl font-semibold text-center text-gray-900 mb-8">Frequently asked questions (FAQs)</h2>
+          <div className="space-y-4">
+            {faqItems.map((faq) => {
+              const isOpen = activeInfoTab === faq.question;
+              return (
+                <div key={faq.question} className="space-y-0">
+                  <div 
+                    onClick={() =>
+                      setActiveInfoTab((prev) => (prev === faq.question ? '' : faq.question))
+                    }
+                    className="bg-white border border-gray-900 rounded-2xl px-5 py-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors"
+                  >
+                    <span className="text-base font-medium text-gray-900">{faq.question}</span>
+                    <div className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-900 pointer-events-none">
+                      <span className="text-xl font-light text-gray-900">{isOpen ? '−' : '+'}</span>
+                    </div>
                   </div>
+                  {isOpen && (
+                    <div className="bg-white border border-gray-900 rounded-2xl px-5 py-4 mt-2">
+                      <p className="text-base font-medium text-gray-900 leading-relaxed">{faq.answer}</p>
+                    </div>
+                  )}
                 </div>
-                {isOpen && (
-                  <div className="bg-white border border-gray-900 rounded-2xl px-5 py-4 mt-2">
-                    <p className="text-base font-medium text-gray-900 leading-relaxed">{faq.answer}</p>
-                  </div>
-                )}
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Review Modal */}
       {showReviewModal && (
@@ -999,24 +1177,79 @@ const ProductDetail = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Add photos or video to your review
                 </label>
-                <div className="flex gap-4">
-                  <button
-                    type="button"
-                    className="w-20 h-20 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors"
-                  >
-                    <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                  </button>
-                  <button
-                    type="button"
-                    className="w-20 h-20 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors"
-                  >
-                    <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                    </svg>
-                  </button>
+                <div className="flex gap-4 flex-wrap">
+                  {/* Image Upload */}
+                  <div className="relative">
+                    {reviewImagePreview ? (
+                      <div className="relative w-20 h-20 rounded-lg overflow-hidden">
+                        <img 
+                          src={reviewImagePreview} 
+                          alt="Review" 
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={removeImage}
+                          className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ) : (
+                      <label className="w-20 h-20 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          className="hidden"
+                        />
+                        <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                      </label>
+                    )}
+                  </div>
+
+                  {/* Video Upload */}
+                  <div className="relative">
+                    {reviewVideoPreview ? (
+                      <div className="relative w-20 h-20 rounded-lg overflow-hidden">
+                        <video 
+                          src={reviewVideoPreview} 
+                          className="w-full h-full object-cover"
+                          muted
+                        />
+                        <button
+                          type="button"
+                          onClick={removeVideo}
+                          className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600"
+                        >
+                          ×
+                        </button>
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <svg className="w-6 h-6 text-white opacity-80" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z"/>
+                          </svg>
+                        </div>
+                      </div>
+                    ) : (
+                      <label className="w-20 h-20 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer">
+                        <input
+                          type="file"
+                          accept="video/*"
+                          onChange={handleVideoUpload}
+                          className="hidden"
+                        />
+                        <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                      </label>
+                    )}
+                  </div>
                 </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  Images: Max 5MB (JPG, PNG, GIF) • Videos: Max 50MB (MP4, MOV, AVI)
+                </p>
               </div>
 
               {/* Terms and Conditions */}
@@ -1037,13 +1270,11 @@ const ProductDetail = () => {
               <div className="flex gap-4 pt-4">
                 <button
                   type="button"
-                  onClick={() => {
-                    // Handle submit logic here
-                    setShowReviewModal(false);
-                  }}
-                  className="flex-1 px-6 py-3 bg-green-800 text-white font-semibold rounded-lg hover:bg-green-900 transition-colors"
+                  onClick={handleSubmitReview}
+                  disabled={submitReviewLoading}
+                  className="flex-1 px-6 py-3 bg-green-800 text-white font-semibold rounded-lg hover:bg-green-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Submit
+                  {submitReviewLoading ? 'Submitting...' : 'Submit'}
                 </button>
                 <button
                   type="button"
@@ -1064,25 +1295,43 @@ const ProductDetail = () => {
           <div className="bg-white border border-gray-200 px-6 py-8">
             <div className="flex flex-col lg:flex-row items-center gap-6">
               <div className="text-center lg:text-left">
-                <p className="text-5xl font-bold text-gray-800">0.0</p>
+                <p className="text-5xl font-bold text-gray-800">
+                  {reviewsLoading ? '...' : (reviewStats?.average_rating || 0)}
+                </p>
                 <div className="flex justify-center lg:justify-start gap-1 mt-2">
                   {[1, 2, 3, 4, 5].map((star) => (
-                    <svg key={star} className="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                    <svg 
+                      key={star} 
+                      className={`w-6 h-6 ${star <= (reviewStats?.average_rating || 0) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
+                      fill="none" 
+                      stroke="currentColor" 
+                      strokeWidth={1.5} 
+                      viewBox="0 0 24 24"
+                    >
                       <path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
                     </svg>
                   ))}
                 </div>
-                <p className="text-sm text-gray-500 mt-2">Based on 0 reviews</p>
+                <p className="text-sm text-gray-500 mt-2">
+                  Based on {reviewStats?.total_reviews || 0} review{(reviewStats?.total_reviews || 0) !== 1 ? 's' : ''}
+                </p>
               </div>
               <div className="hidden lg:block w-px h-20 bg-gray-200"></div>
               <div className="flex-1 w-full space-y-2 text-sm text-gray-700">
-                {[5, 4, 3, 2, 1].map((star) => (
-                  <div key={star} className="flex items-center gap-3">
-                    <span className="w-16">{star} star</span>
-                    <div className="flex-1 h-3 bg-white rounded-full border border-gray-200" />
-                    <span className="w-10 text-right">0%</span>
-                  </div>
-                ))}
+                {[5, 4, 3, 2, 1].map((star) => {
+                  const count = reviewStats?.rating_distribution?.[star] || 0;
+                  const total = reviewStats?.total_reviews || 0;
+                  const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
+                  return (
+                    <div key={star} className="flex items-center gap-3">
+                      <span className="w-16">{star} star</span>
+                      <div className="flex-1 h-3 bg-white rounded-full border border-gray-200">
+                        <div className="bg-yellow-400 h-3 rounded-full" style={{ width: `${percentage}%` }}></div>
+                      </div>
+                      <span className="w-10 text-right">{percentage}%</span>
+                    </div>
+                  );
+                })}
               </div>
               <div className="hidden lg:block w-px h-20 bg-gray-200"></div>
               <button 
@@ -1093,7 +1342,84 @@ const ProductDetail = () => {
               </button>
             </div>
           </div>
-          <p className="text-center text-sm text-gray-900 mt-6">Sorry, no reviews match your current selections</p>
+          {/* Reviews List */}
+          <div className="mt-6">
+            {reviewsLoading ? (
+              <p className="text-center text-sm text-gray-500">Loading reviews...</p>
+            ) : reviews.length > 0 ? (
+              <div className="space-y-4">
+                {reviews.map((review) => (
+                  <div key={review.id} className="bg-white border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-start justify-between mb-2">
+                      <div>
+                        <h4 className="font-semibold text-gray-900">{review.name}</h4>
+                        <div className="flex items-center gap-1 mt-1">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <svg 
+                              key={star} 
+                              className={`w-4 h-4 ${star <= review.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
+                              fill="none" 
+                              stroke="currentColor" 
+                              strokeWidth={1.5} 
+                              viewBox="0 0 24 24"
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                            </svg>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm text-gray-500">
+                          {new Date(review.created_at).toLocaleDateString()}
+                        </p>
+                        {review.is_verified && (
+                          <span className="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full mt-1">
+                            Verified Purchase
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    {review.review_text && (
+                      <p className="text-gray-700 text-sm leading-relaxed mb-3">{review.review_text}</p>
+                    )}
+                    
+                    {/* Review Media */}
+                    {(review.image_url || review.video_url) && (
+                      <div className="flex gap-2 mt-3">
+                        {review.image_url && (
+                          <div className="w-20 h-20 rounded-lg overflow-hidden">
+                            <img 
+                              src={`http://localhost:8800${review.image_url}`}
+                              alt="Review" 
+                              className="w-full h-full object-cover cursor-pointer hover:opacity-80"
+                              onClick={() => window.open(`http://localhost:8800${review.image_url}`, '_blank')}
+                            />
+                          </div>
+                        )}
+                        {review.video_url && (
+                          <div className="w-20 h-20 rounded-lg overflow-hidden relative">
+                            <video 
+                              src={`http://localhost:8800${review.video_url}`}
+                              className="w-full h-full object-cover cursor-pointer"
+                              onClick={() => window.open(`http://localhost:8800${review.video_url}`, '_blank')}
+                              muted
+                            />
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                              <svg className="w-6 h-6 text-white opacity-80" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z"/>
+                              </svg>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-sm text-gray-500">No reviews yet. Be the first to review this product!</p>
+            )}
+          </div>
         </div>
       </div>
 

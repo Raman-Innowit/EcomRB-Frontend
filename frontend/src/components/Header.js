@@ -60,7 +60,6 @@ const Header = () => {
     getPublicCategories()
       .then((data) => setCategories(data.categories || []))
       .catch((err) => {
-        console.error('Error loading categories:', err);
         // Set empty array on error to prevent crashes
         setCategories([]);
       });
@@ -85,12 +84,9 @@ const Header = () => {
           route: getHealthBenefitRoute(name)
         }));
         
-        console.log('✅ Health Benefits Dropdown (Fixed Order):', orderedList);
-        console.log('✅ Order verified:', orderedList.map(hb => hb.name).join(' → '));
         setHealthBenefits(orderedList);
       })
       .catch((err) => {
-        console.error('Error loading health benefits:', err);
         // Keep the hardcoded list even if API fails - already set in initial state
         const fallbackList = FIXED_HEALTH_BENEFITS_ORDER.map((name) => ({
           id: null,

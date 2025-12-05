@@ -38,6 +38,7 @@ const Cart = () => {
       setPendingQuantities(initialQuantities);
       setHasInitialized(true);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasInitialized]); // Only depend on hasInitialized to prevent resets
 
 

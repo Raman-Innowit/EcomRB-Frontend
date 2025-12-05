@@ -189,8 +189,8 @@ const VitaminDArticle = () => {
                     <div className="ml-auto flex items-center gap-2 text-gray-500" style={{ fontSize: bodyFontSize }}>
                       <span>reCAPTCHA</span>
                       <div className="flex flex-col" style={{ fontSize: bodyFontSize }}>
-                        <a href="#" className="text-blue-600 hover:underline">Privacy</a>
-                        <a href="#" className="text-blue-600 hover:underline">Terms</a>
+                        <a href="/privacy-policy" className="text-blue-600 hover:underline">Privacy</a>
+                        <a href="/terms-of-service" className="text-blue-600 hover:underline">Terms</a>
                       </div>
                     </div>
                   </div>

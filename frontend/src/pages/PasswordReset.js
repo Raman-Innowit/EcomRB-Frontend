@@ -1,20 +1,97 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import CloneFooter from '../components/CloneFooter';
+import { setPassword, forgotPassword } from '../services/api';
 
 const PasswordReset = () => {
-  const [emailOrUsername, setEmailOrUsername] = useState('');
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const token = searchParams.get('token');
+  const email = searchParams.get('email');
+  const act = searchParams.get('act');
+  
+  const [emailOrUsername, setEmailOrUsername] = useState(email || '');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSettingPassword, setIsSettingPassword] = useState(false);
   const bodyFontSize = '17px';
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    // If token and email are present, show password setting form
+    if (token && email && act === 'reset_password') {
+      setIsSettingPassword(true);
+    }
+  }, [token, email, act]);
+
+  const handlePasswordReset = async (e) => {
     e.preventDefault();
     if (!emailOrUsername.trim()) {
       setMessage('Please enter your email address or username.');
       return;
     }
-    // Handle password reset logic here
-    setMessage('Password reset instructions have been sent to your email.');
+    
+    setIsLoading(true);
+    setMessage('');
+    
+    try {
+      const response = await forgotPassword({ email_or_username: emailOrUsername });
+      if (response.success) {
+        setMessage(response.message || 'Password reset instructions have been sent to your email.');
+      } else {
+        setMessage(response.error || 'Failed to send password reset email.');
+      }
+    } catch (error) {
+      console.error('Password reset error:', error);
+      setMessage(error.response?.data?.error || 'Failed to send password reset email. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSetPassword = async (e) => {
+    e.preventDefault();
+    setMessage('');
+    
+    if (!newPassword || !confirmPassword) {
+      setMessage('Please fill in all fields.');
+      return;
+    }
+    
+    if (newPassword.length < 6) {
+      setMessage('Password must be at least 6 characters long.');
+      return;
+    }
+    
+    if (newPassword !== confirmPassword) {
+      setMessage('Passwords do not match.');
+      return;
+    }
+    
+    setIsLoading(true);
+    
+    try {
+      const response = await setPassword({
+        email: email,
+        token: token,
+        password: newPassword
+      });
+      
+      if (response.success) {
+        setMessage('Password set successfully! Redirecting to login...');
+        setTimeout(() => {
+          navigate('/login');
+        }, 2000);
+      } else {
+        setMessage(response.error || 'Failed to set password.');
+      }
+    } catch (err) {
+      const errorMessage = err.response?.data?.error || err.response?.data?.message || 'Failed to set password. Please try again.';
+      setMessage(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -26,43 +103,107 @@ const PasswordReset = () => {
           <main className="lg:w-3/4 order-2 lg:order-1">
             <div className="max-w-2xl">
               <h1 className="text-3xl md:text-4xl font-bold mb-6" style={{ color: '#1f2937' }}>
-                Password Reset
+                {isSettingPassword ? 'Set Your Password' : 'Password Reset'}
               </h1>
               
-              <p className="mb-6" style={{ color: '#2f2f2f', fontSize: bodyFontSize, lineHeight: '1.85' }}>
-                To reset your password, please enter your email address or username below.
-              </p>
-
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div>
-                  <input
-                    type="text"
-                    value={emailOrUsername}
-                    onChange={(e) => {
-                      setEmailOrUsername(e.target.value);
-                      setMessage('');
-                    }}
-                    placeholder="Enter your username or email"
-                    className="w-full border border-gray-300 rounded px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500"
-                    style={{ fontSize: bodyFontSize }}
-                    required
-                  />
-                </div>
-
-                {message && (
-                  <p className={`text-sm ${message.includes('sent') ? 'text-green-600' : 'text-red-600'}`}>
-                    {message}
+              {isSettingPassword ? (
+                <>
+                  <p className="mb-6" style={{ color: '#2f2f2f', fontSize: bodyFontSize, lineHeight: '1.85' }}>
+                    Please set your password to complete your registration.
                   </p>
-                )}
 
-                <button
-                  type="submit"
-                  className="bg-green-700 text-white px-8 py-3 rounded-lg font-semibold hover:bg-green-800 transition"
-                  style={{ fontSize: bodyFontSize }}
-                >
-                  Reset password
-                </button>
-              </form>
+                  <form onSubmit={handleSetPassword} className="space-y-6">
+                    <div>
+                      <label className="block mb-2" style={{ color: '#2f2f2f', fontSize: bodyFontSize }}>
+                        New Password
+                      </label>
+                      <input
+                        type="password"
+                        value={newPassword}
+                        onChange={(e) => {
+                          setNewPassword(e.target.value);
+                          setMessage('');
+                        }}
+                        placeholder="Enter your new password"
+                        className="w-full border border-gray-300 rounded px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500"
+                        style={{ fontSize: bodyFontSize }}
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block mb-2" style={{ color: '#2f2f2f', fontSize: bodyFontSize }}>
+                        Confirm Password
+                      </label>
+                      <input
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => {
+                          setConfirmPassword(e.target.value);
+                          setMessage('');
+                        }}
+                        placeholder="Confirm your password"
+                        className="w-full border border-gray-300 rounded px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500"
+                        style={{ fontSize: bodyFontSize }}
+                        required
+                      />
+                    </div>
+
+                    {message && (
+                      <p className={`text-sm ${message.includes('successfully') ? 'text-green-600' : 'text-red-600'}`}>
+                        {message}
+                      </p>
+                    )}
+
+                    <button
+                      type="submit"
+                      disabled={isLoading}
+                      className="bg-green-700 text-white px-8 py-3 rounded-lg font-semibold hover:bg-green-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                      style={{ fontSize: bodyFontSize }}
+                    >
+                      {isLoading ? 'Setting Password...' : 'Set password'}
+                    </button>
+                  </form>
+                </>
+              ) : (
+                <>
+                  <p className="mb-6" style={{ color: '#2f2f2f', fontSize: bodyFontSize, lineHeight: '1.85' }}>
+                    To reset your password, please enter your email address or username below.
+                  </p>
+
+                  <form onSubmit={handlePasswordReset} className="space-y-6">
+                    <div>
+                      <input
+                        type="text"
+                        value={emailOrUsername}
+                        onChange={(e) => {
+                          setEmailOrUsername(e.target.value);
+                          setMessage('');
+                        }}
+                        placeholder="Enter your username or email"
+                        className="w-full border border-gray-300 rounded px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500"
+                        style={{ fontSize: bodyFontSize }}
+                        required
+                      />
+                    </div>
+
+                    {message && (
+                      <p className={`text-sm ${message.includes('sent') ? 'text-green-600' : 'text-red-600'}`}>
+                        {message}
+                      </p>
+                    )}
+
+                    <button
+                      type="submit"
+                      disabled={isLoading}
+                      className="bg-green-700 text-white px-8 py-3 rounded-lg font-semibold hover:bg-green-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                      style={{ fontSize: bodyFontSize }}
+                    >
+                      {isLoading ? 'Sending...' : 'Reset password'}
+                    </button>
+                  </form>
+                </>
+              )}
             </div>
           </main>
 
